@@ -2,24 +2,26 @@
 
 #define FANTRIPLE_H
 
+namespace fan {
+
 template<typename T>
 class fanTriple
 {
 public:
     union {
         struct {
-            T x, y, z
+            T x, y, z;
         };
         T axis[3];
     };
 
-    fanTriple();
-    ~fanTriple();
+    fanTriple( T _x = 0, T _y = 0, T _z = 0 )
+        : x(_x), y(_y), z(_z)
+    {}
+
+    ~fanTriple() {}
 };
 
-fanTriple::fanTriple()
-    : x(0), y(0), z(0)
-{
 }
 
 #endif /* end of include guard: FANTRIPLE_H */

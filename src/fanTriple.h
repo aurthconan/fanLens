@@ -19,7 +19,7 @@ public:
         : x(_x), y(_y), z(_z)
     {}
 
-    ~fanTriple() {}
+    virtual ~fanTriple() {}
 };
 
 }

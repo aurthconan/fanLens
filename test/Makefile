@@ -11,10 +11,10 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 
-all : fanTriple_test
+all : fanLens_test
 
 clean :
-	rm -f gtest.a gtest_main.a *.o
+	rm -f gtest.a gtest_main.a *.o fanLens_test
 
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
@@ -32,9 +32,7 @@ gtest.a : gtest-all.o
 gtest_main.a : gtest-all.o gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
-fanTriple_test.o : fanTriple_test.cpp \
-                     $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/fanTriple_test.cpp
+test_src_files:=$(shell find -name "*.cpp")
 
-fanTriple_test : fanTriple_test.o gtest_main.a
+fanLens_test : $(test_src_files) gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@

@@ -12,39 +12,47 @@ class fanVector
     : public fanTriple<T>
 {
 public:
-    fanVector();
-    ~fanVector();
-
-    fanVector( T value )
-        : fanTriple( value, value, value ) {}
+    virtual ~fanVector() {}
 
     fanVector( T _x = 0, T _y = 0, T _z = 0 )
-        : fanTriple( _x, _y, _z ) {}
+        : fanTriple<T>( _x, _y, _z ) {}
 
     inline fanVector<T> operator+( const fanVector<T> other ) const {
-        return fanVector( x += other.x, y += other.y, z += other.z );
+        return fanVector( fanTriple<T>::x += other.x,
+                          fanTriple<T>::y += other.y,
+                          fanTriple<T>::z += other.z );
     }
 
     inline fanVector<T>& operator+=( const fanVector<T> other ) {
-        x += other.x; y += other.y; z += other.z;
+        fanTriple<T>::x += other.x;
+        fanTriple<T>::y += other.y;
+        fanTriple<T>::z += other.z;
         return *this;
     }
 
     inline fanVector<T> operator*( const T& scale ) const {
-        return fanVector( x * scale, y * scale, z * scale );
+        return fanVector( fanTriple<T>::x * scale,
+                          fanTriple<T>::y * scale,
+                          fanTriple<T>::z * scale );
     }
 
     inline fanVector<T>& operator*=( const T& scale ) {
-        x *= scale; y *= scale; z *= scale;
+        fanTriple<T>::x *= scale;
+        fanTriple<T>::y *= scale;
+        fanTriple<T>::z *= scale;
         return *this;
     }
 
     inline T operator*( const fanVector<T>& other ) const {
-        return x * other.x + y * other.y + z * other.z;
+        return  fanTriple<T>::x * other.x
+              + fanTriple<T>::y * other.y
+              + fanTriple<T>::z * other.z;
     }
 
     inline T lengthSquare() {
-        return x * x + y * y + z * z;
+        return  fanTriple<T>::x * fanTriple<T>::x
+              + fanTriple<T>::y * fanTriple<T>::y
+              + fanTriple<T>::z * fanTriple<T>::z;
     }
 
     inline T length() {
@@ -53,7 +61,7 @@ public:
 
     inline void normalize() {
         T w = length();
-        x /= w; y /= w; z /= w;
+        fanTriple<T>::x /= w; fanTriple<T>::y /= w; fanTriple<T>::z /= w;
     }
 private:
 };

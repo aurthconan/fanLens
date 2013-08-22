@@ -18,9 +18,9 @@ public:
         : fanTriple<T>( _x, _y, _z ) {}
 
     inline fanVector<T> operator+( const fanVector<T> other ) const {
-        return fanVector( fanTriple<T>::x += other.x,
-                          fanTriple<T>::y += other.y,
-                          fanTriple<T>::z += other.z );
+        return fanVector( fanTriple<T>::x + other.x,
+                          fanTriple<T>::y + other.y,
+                          fanTriple<T>::z + other.z );
     }
 
     inline fanVector<T>& operator+=( const fanVector<T> other ) {
@@ -56,7 +56,7 @@ public:
     }
 
     inline T length() {
-        std::sqrt( lengthSquare() );
+        return std::sqrt( lengthSquare() );
     }
 
     inline void normalize() {

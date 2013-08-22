@@ -1,6 +1,6 @@
 GTEST_DIR = /home/jianghuai/source/googletest-read-only
 
-USER_DIR = .
+OUT_DIR = .
 
 CPPFLAGS += -isystem $(GTEST_DIR)/include -I ../src/
 
@@ -11,10 +11,13 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 
-all : fanLens_test
+all : fanLens_test run_test
+
+run_test: fanLens_test
+	./fanLens_test
 
 clean :
-	rm -f gtest.a gtest_main.a *.o fanLens_test
+	rm -f gtest.a gtest_main.a *.o fanLens_test *.d
 
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
@@ -34,5 +37,16 @@ gtest_main.a : gtest-all.o gtest_main.o
 
 test_src_files:=$(shell find -name "*.cpp")
 
-fanLens_test : $(test_src_files) gtest_main.a
+# generate dependency
+%.d: %.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -MM -MF $@ $^
+
+include $(test_src_files:.cpp=.d)
+
+%.o: %.cpp %.d
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -lpthread $< -o $@
+
+fanLens_test : $(patsubst %.cpp,%.o,$(test_src_files)) gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+.PHONY: clean run_test

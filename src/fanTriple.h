@@ -25,3 +25,4 @@ public:
 }
 
 #endif /* end of include guard: FANTRIPLE_H */
+

@@ -1,47 +1,47 @@
 #include <gtest/gtest.h>
 
-#include <fanVector.h>
+#include <fanVector3.h>
 
 using namespace fan;
 
-TEST(fanVector,Constructor_int) {
-    fanVector<int> _variable;
+TEST(fanVector3,Constructor_int) {
+    fanVector3<int> _variable;
     EXPECT_EQ( 0, _variable.x );
     EXPECT_EQ( 0, _variable.y );
     EXPECT_EQ( 0, _variable.z );
 
-    fanVector<int> _variable2( 1, 2, 3 );
+    fanVector3<int> _variable2( 1, 2, 3 );
     EXPECT_EQ( 1, _variable2.x );
     EXPECT_EQ( 2, _variable2.y );
     EXPECT_EQ( 3, _variable2.z );
 }
 
-TEST(fanVector,Constructor_float) {
-    fanVector<float> _variable;
+TEST(fanVector3,Constructor_float) {
+    fanVector3<float> _variable;
     EXPECT_FLOAT_EQ( .0f, _variable.x );
     EXPECT_FLOAT_EQ( .0f, _variable.y );
     EXPECT_FLOAT_EQ( .0f, _variable.z );
 
-    fanVector<float> _variable2( .1f, .2f, .3f );
+    fanVector3<float> _variable2( .1f, .2f, .3f );
     EXPECT_FLOAT_EQ( .1f, _variable2.x );
     EXPECT_FLOAT_EQ( .2f, _variable2.y );
     EXPECT_FLOAT_EQ( .3f, _variable2.z );
 }
 
-TEST(fanVector,addOperator) {
-    fanVector<int> result = fanVector<int>( 1, 2, 3 ) + fanVector<int>( 4, 5, 6 );
+TEST(fanVector3,addOperator) {
+    fanVector3<int> result = fanVector3<int>( 1, 2, 3 ) + fanVector3<int>( 4, 5, 6 );
     EXPECT_EQ( 5, result.x );
     EXPECT_EQ( 7, result.y );
     EXPECT_EQ( 9, result.z );
 
-    result += fanVector<int>( 2, 3, 4 );
+    result += fanVector3<int>( 2, 3, 4 );
     EXPECT_EQ( 7, result.x );
     EXPECT_EQ( 10, result.y );
     EXPECT_EQ( 13, result.z );
 }
 
-TEST(fanVector, scaleMultiplyOperator) {
-    fanVector<int> result = fanVector<int>( 0, 1, 2 ) * 3;
+TEST(fanVector3, scaleMultiplyOperator) {
+    fanVector3<int> result = fanVector3<int>( 0, 1, 2 ) * 3;
     EXPECT_EQ( 0, result.x );
     EXPECT_EQ( 3, result.y );
     EXPECT_EQ( 6, result.z );
@@ -52,13 +52,13 @@ TEST(fanVector, scaleMultiplyOperator) {
     EXPECT_EQ( 12, result.z );
 }
 
-TEST(fanVector, vectorMultiplyOperator) {
-    int result = fanVector<int>( 1, 2, 3 ) * fanVector<int>( 4, 5, 6 );
+TEST(fanVector3, vectorMultiplyOperator) {
+    int result = fanVector3<int>( 1, 2, 3 ) * fanVector3<int>( 4, 5, 6 );
     EXPECT_EQ( 32, result );
 }
 
-TEST(fanVector, vectorLength) {
-    fanVector<int> result( 1, 2, 2 );
+TEST(fanVector3, vectorLength) {
+    fanVector3<int> result( 1, 2, 2 );
     EXPECT_EQ( 1, result.x );
     EXPECT_EQ( 2, result.y );
     EXPECT_EQ( 2, result.z );
@@ -67,8 +67,8 @@ TEST(fanVector, vectorLength) {
     EXPECT_EQ( 9, result.lengthSquare() );
 }
 
-TEST(fanVector, vectorNormalize) {
-    fanVector<float> result( 1.0f, 2.0f, 2.0f );
+TEST(fanVector3, vectorNormalize) {
+    fanVector3<float> result( 1.0f, 2.0f, 2.0f );
 
     EXPECT_FLOAT_EQ( 3.0f, result.length() );
     result.normalize();

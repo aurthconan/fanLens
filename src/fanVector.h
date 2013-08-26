@@ -3,56 +3,71 @@
 #define FANVECTOR_H
 
 #include <cmath>
-#include "fanTriple.h"
+#include <cstring>
 
 namespace fan {
 
-template<typename T>
+template<typename T, size_t DIMENS>
 class fanVector
-    : public fanTriple<T>
 {
 public:
+    static const size_t dimensNum = DIMENS;
+    union {
+        T axis[DIMENS];
+    };
+
     virtual ~fanVector() {}
 
-    fanVector( T _x = 0, T _y = 0, T _z = 0 )
-        : fanTriple<T>( _x, _y, _z ) {}
-
-    inline fanVector<T> operator+( const fanVector<T> other ) const {
-        return fanVector( fanTriple<T>::x + other.x,
-                          fanTriple<T>::y + other.y,
-                          fanTriple<T>::z + other.z );
+    fanVector()
+    {
+        memset( axis, 0, sizeof(axis) );
     }
 
-    inline fanVector<T>& operator+=( const fanVector<T> other ) {
-        fanTriple<T>::x += other.x;
-        fanTriple<T>::y += other.y;
-        fanTriple<T>::z += other.z;
+    //template<typename RET_T>
+    inline fanVector<T, DIMENS> operator+( const fanVector<T, DIMENS> other ) const {
+        fanVector<T, DIMENS> result;
+        for ( size_t i = 0; i < DIMENS; ++i ) {
+            result.axis[i] = axis[i] + other.axis[i];
+        }
+        return result;
+    }
+
+    inline fanVector<T, DIMENS>& operator+=( const fanVector<T, DIMENS> other ) {
+        for ( size_t i = 0; i < DIMENS; ++i ) {
+            axis[i] += other.axis[i];
+        }
         return *this;
     }
 
-    inline fanVector<T> operator*( const T& scale ) const {
-        return fanVector( fanTriple<T>::x * scale,
-                          fanTriple<T>::y * scale,
-                          fanTriple<T>::z * scale );
+    inline fanVector<T, DIMENS> operator*( const T& scale ) const {
+        fanVector<T, DIMENS> result;
+        for ( size_t i = 0; i < DIMENS; ++i ) {
+            result.axis[i] = axis[i] * scale;
+        }
+        return result;
     }
 
-    inline fanVector<T>& operator*=( const T& scale ) {
-        fanTriple<T>::x *= scale;
-        fanTriple<T>::y *= scale;
-        fanTriple<T>::z *= scale;
+    inline fanVector<T, DIMENS>& operator*=( const T& scale ) {
+        for ( size_t i = 0; i < DIMENS; ++i ) {
+            axis[i] *= scale;
+        }
         return *this;
     }
 
-    inline T operator*( const fanVector<T>& other ) const {
-        return  fanTriple<T>::x * other.x
-              + fanTriple<T>::y * other.y
-              + fanTriple<T>::z * other.z;
+    inline T operator*( const fanVector<T, DIMENS>& other ) const {
+        T result(0);
+        for ( size_t i = 0; i < DIMENS; ++i ) {
+            result += axis[i] * other.axis[i];
+        }
+        return result;
     }
 
     inline T lengthSquare() {
-        return  fanTriple<T>::x * fanTriple<T>::x
-              + fanTriple<T>::y * fanTriple<T>::y
-              + fanTriple<T>::z * fanTriple<T>::z;
+        T result(0);
+        for ( size_t i = 0; i < DIMENS; ++i ) {
+            result += axis[i] * axis[i];
+        }
+        return result;
     }
 
     inline T length() {
@@ -61,7 +76,9 @@ public:
 
     inline void normalize() {
         T w = length();
-        fanTriple<T>::x /= w; fanTriple<T>::y /= w; fanTriple<T>::z /= w;
+        for ( size_t i = 0; i < DIMENS; ++i ) {
+            axis[i] /= w;
+        }
     }
 private:
 };

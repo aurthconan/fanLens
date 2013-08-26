@@ -2,9 +2,11 @@ GTEST_DIR = /home/jianghuai/source/googletest-read-only
 
 OUT_DIR = .
 
+#CXX = clang++
+
 CPPFLAGS += -isystem $(GTEST_DIR)/include -I ../src/
 
-CXXFLAGS += -g -Wall -Wextra -pthread
+CXXFLAGS += -g -Wall -Wextra -pthread -std=c++0x
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.

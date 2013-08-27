@@ -8,6 +8,35 @@
 namespace fan {
 
 template<typename T, size_t DIMENS>
+class fanVector;
+
+template<typename T, size_t DIMENS>
+inline fanVector<T, DIMENS> add( const fanVector<T, DIMENS>& left,
+                                 const fanVector<T, DIMENS>& right );
+
+template<typename T, size_t DIMENS, typename SCALE_T>
+inline fanVector<T, DIMENS> multiply( const fanVector<T, DIMENS>& operend,
+                                      const SCALE_T& scale );
+
+template<typename T, size_t DIMENS>
+inline T dot( const fanVector<T, DIMENS>& left,
+              const fanVector<T, DIMENS>& right );
+
+template<typename T, size_t DIMENS>
+inline T distanceSquare( const fanVector<T, DIMENS>& left,
+                         const fanVector<T, DIMENS>& right );
+
+template<typename T, size_t DIMENS>
+inline T distance( const fanVector<T, DIMENS>& left,
+                   const fanVector<T, DIMENS>& right );
+
+template<typename T, size_t DIMENS>
+inline T lengthSquare( const fanVector<T, DIMENS>& operend );
+
+template<typename T, size_t DIMENS>
+inline T length( const fanVector<T, DIMENS>& operend );
+
+template<typename T, size_t DIMENS>
 class fanVector
 {
 public:
@@ -16,62 +45,39 @@ public:
         T axis[DIMENS];
     };
 
-    virtual ~fanVector() {}
-
     fanVector()
     {
         memset( axis, 0, sizeof(axis) );
     }
 
-    //template<typename RET_T>
     inline fanVector<T, DIMENS> operator+( const fanVector<T, DIMENS> other ) const {
-        fanVector<T, DIMENS> result;
-        for ( size_t i = 0; i < DIMENS; ++i ) {
-            result.axis[i] = axis[i] + other.axis[i];
-        }
-        return result;
+        return add( *this, other );
     }
 
     inline fanVector<T, DIMENS>& operator+=( const fanVector<T, DIMENS> other ) {
-        for ( size_t i = 0; i < DIMENS; ++i ) {
-            axis[i] += other.axis[i];
-        }
+        *this = add( *this, other );
         return *this;
     }
 
     inline fanVector<T, DIMENS> operator*( const T& scale ) const {
-        fanVector<T, DIMENS> result;
-        for ( size_t i = 0; i < DIMENS; ++i ) {
-            result.axis[i] = axis[i] * scale;
-        }
-        return result;
+        return multiply( *this, scale );
     }
 
     inline fanVector<T, DIMENS>& operator*=( const T& scale ) {
-        for ( size_t i = 0; i < DIMENS; ++i ) {
-            axis[i] *= scale;
-        }
+        *this = multiply( *this, scale );
         return *this;
     }
 
     inline T operator*( const fanVector<T, DIMENS>& other ) const {
-        T result(0);
-        for ( size_t i = 0; i < DIMENS; ++i ) {
-            result += axis[i] * other.axis[i];
-        }
-        return result;
+        return dot( *this, other );
     }
 
     inline T lengthSquare() {
-        T result(0);
-        for ( size_t i = 0; i < DIMENS; ++i ) {
-            result += axis[i] * axis[i];
-        }
-        return result;
+        return fan::lengthSquare( *this );
     }
 
     inline T length() {
-        return std::sqrt( lengthSquare() );
+        return fan::length( *this );
     }
 
     inline void normalize() {
@@ -80,8 +86,73 @@ public:
             axis[i] /= w;
         }
     }
-private:
+
+    inline T& operator[]( size_t i ) {
+        return axis[i];
+    }
+
+    inline T operator[]( size_t i ) const {
+        return axis[i];
+    }
 };
+
+template<typename T, size_t DIMENS>
+inline fanVector<T, DIMENS> add( const fanVector<T, DIMENS>& left,
+                                 const fanVector<T, DIMENS>& right ) {
+    fanVector<T, DIMENS> result;
+    for ( size_t i = 0; i < DIMENS; ++i ) {
+        result.axis[i] = left.axis[i] + right.axis[i];
+    }
+    return result;
+}
+
+template<typename T, size_t DIMENS, typename SCALE_T>
+inline fanVector<T, DIMENS> multiply( const fanVector<T, DIMENS>& operend,
+                                      const SCALE_T& scale ) {
+    fanVector<T, DIMENS> result;
+    for ( size_t i = 0; i < DIMENS; ++i ) {
+        result.axis[i] = operend.axis[i] * scale;
+    }
+    return result;
+}
+
+template<typename T, size_t DIMENS>
+inline T dot( const fanVector<T, DIMENS>& left,
+              const fanVector<T, DIMENS>& right ) {
+    T result;
+    for( size_t i = 0; i < DIMENS; ++i ) {
+        result += left.axis[i] * right.axis[i];
+    }
+    return result;
+}
+
+template<typename T, size_t DIMENS>
+inline T distanceSquare( const fanVector<T, DIMENS>& left,
+                         const fanVector<T, DIMENS>& right ) {
+    T result(0);
+    for( size_t i = 0; i < DIMENS; ++i ) {
+        T distance = left.axis[i] - right.axis[i];
+        result += distance * distance;
+    }
+    return result;
+}
+
+template<typename T, size_t DIMENS>
+inline T distance( const fanVector<T, DIMENS>& left,
+                   const fanVector<T, DIMENS>& right ) {
+    return std::sqrt( distanceSquare( left, right ) );
+}
+
+template<typename T, size_t DIMENS>
+inline T lengthSquare( const fanVector<T, DIMENS>& operend ) {
+    fanVector<T, DIMENS> origin;
+    return distanceSquare( operend, origin );
+}
+
+template<typename T, size_t DIMENS>
+inline T length( const fanVector<T, DIMENS>& operend ) {
+    return std::sqrt( lengthSquare( operend ) );
+}
 
 }
 

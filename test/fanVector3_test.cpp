@@ -77,3 +77,12 @@ TEST(fanVector3, vectorNormalize) {
     EXPECT_FLOAT_EQ( 2.0f/3.0f, result.z );
 }
 
+TEST(fanVector3, vectorCross) {
+    fanVector3<float> x( 1.0f, .0f, .0f );
+    fanVector3<float> y( .0f, 1.0f, .0f );
+
+    fanVector3<float> z = cross( x, y );
+    EXPECT_FLOAT_EQ( .0f, z.x );
+    EXPECT_FLOAT_EQ( .0f, z.y );
+    EXPECT_FLOAT_EQ( 1.0f, z.z );
+}

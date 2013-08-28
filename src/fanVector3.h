@@ -8,6 +8,9 @@
 namespace fan {
 
 template<typename T>
+fanVector<T, 3> cross( const fanVector<T, 3>& l, const fanVector<T, 3>& r );
+
+template<typename T>
 class fanVector3
     : public fanVector<T, 3>
 {
@@ -33,6 +36,15 @@ public:
     }
 
 };
+
+template<typename T>
+fanVector<T, 3> cross( const fanVector<T, 3>& l, const fanVector<T, 3>& r ) {
+    fanVector<T, 3> result;
+    result[0] = l[1]*r[2] - l[2]*r[1];
+    result[1] = l[2]*r[0] - l[0]*r[2];
+    result[2] = l[0]*r[1] - l[1]*r[0];
+    return result;
+}
 
 }
 

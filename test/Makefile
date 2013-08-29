@@ -4,7 +4,7 @@ OUT_DIR = .
 
 #CXX = clang++
 
-CPPFLAGS += -isystem $(GTEST_DIR)/include -I ../src/
+CPPFLAGS += -isystem $(GTEST_DIR)/include -I ../src/ -L /usr/lib/
 
 CXXFLAGS += -g -Wall -Wextra -pthread -std=c++0x
 
@@ -19,7 +19,8 @@ run_test: fanLens_test
 	./fanLens_test
 
 clean :
-	rm -f gtest.a gtest_main.a *.o fanLens_test *.d
+	rm -f gtest.a gtest_main.a fanLens_test
+	find ../ -name "*.o" -o -name "*.d" | xargs rm
 
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
@@ -37,7 +38,7 @@ gtest.a : gtest-all.o
 gtest_main.a : gtest-all.o gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
-test_src_files:=$(shell find -name "*.cpp")
+test_src_files:=$(shell find ../ -name "*.cpp")
 
 # generate dependency
 %.d: %.cpp
@@ -46,9 +47,9 @@ test_src_files:=$(shell find -name "*.cpp")
 include $(test_src_files:.cpp=.d)
 
 %.o: %.cpp %.d
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -lpthread $< -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -lpthread $< -o $@ -lfreeimage
 
 fanLens_test : $(patsubst %.cpp,%.o,$(test_src_files)) gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ -lfreeimage
 
 .PHONY: clean run_test

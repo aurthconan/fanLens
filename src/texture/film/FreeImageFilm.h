@@ -1,0 +1,28 @@
+#ifndef FREEIMAGEFILM_H
+
+#define FREEIMAGEFILM_H
+
+#include <fanFilm.h>
+#include <string>
+
+/* Save image to file use freeimage library */
+
+class FreeImageFilm
+    : public fan::fanFilm
+{
+public:
+    FreeImageFilm( const fan::fanVector<int, 2>& dimensions,
+                   const std::string file );
+    ~FreeImageFilm();
+
+    fan::fanPixel getPixel( fan::fanVector<int, 2> index ) const;
+    void setPixel( const fan::fanVector<int, 2>& index,
+                   const fan::fanPixel& pixel );
+
+private:
+    static bool sbFreeImageInitialized;
+    std::string mFileName;
+    fan::fanPixel* mpBuffer;
+};
+
+#endif /* end of include guard: FREEIMAGEFILM_H */

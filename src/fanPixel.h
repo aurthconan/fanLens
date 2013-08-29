@@ -10,13 +10,15 @@ class fanPixel
 {
 public:
     union {
+        struct {
         unsigned short a, r, g, b;
+        };
         int c;
     };
 
     fanPixel( unsigned short a, unsigned short r,
               unsigned short g, unsigned short b );
-    fanPixel( int color );
+    fanPixel( int color = 0 );
 };
 
 }

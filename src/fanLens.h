@@ -15,8 +15,9 @@ public:
 
     virtual ~fanLens();
 
-    void computeLensSpace();
-private:
+    void computeLensSpace( fanVector3<float> pos,
+                           fanVector3<float> lookAt,
+                           fanVector3<float> up );
 };
 
 }

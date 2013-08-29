@@ -4,8 +4,11 @@
 
 #include <fanFilm.h>
 #include <string>
+#include <FreeImage.h>
 
 /* Save image to file use freeimage library */
+
+struct FIBITMAP;
 
 class FreeImageFilm
     : public fan::fanFilm
@@ -22,7 +25,7 @@ public:
 private:
     static bool sbFreeImageInitialized;
     std::string mFileName;
-    fan::fanPixel* mpBuffer;
+    FIBITMAP* mpBitmap;
 };
 
 #endif /* end of include guard: FREEIMAGEFILM_H */

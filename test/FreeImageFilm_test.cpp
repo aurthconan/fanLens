@@ -8,9 +8,9 @@ TEST(FreeImageFilm,GeneratePic) {
     FreeImageFilm film( size, "test.png" );
 
     size[1] = 0;
-    for ( size_t i = 0; i < 2; ++i ) {
+    for ( size_t i = 0; i < 4; ++i ) {
         size[0] = i;
-        film.setPixel( size, fan::fanPixel(0xffff0000) );
+        film.setPixel( size, fan::fanPixel(255, 255, 0, 0) );
     }
 }
 

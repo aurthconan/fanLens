@@ -167,7 +167,7 @@ inline fanVector<T, DIMENS> divide( const fanVector<T, DIMENS>& operend,
 template<typename T, size_t DIMENS>
 inline T dot( const fanVector<T, DIMENS>& left,
               const fanVector<T, DIMENS>& right ) {
-    T result;
+    T result(0);
     for( size_t i = 0; i < DIMENS; ++i ) {
         result += left.axis[i] * right.axis[i];
     }

@@ -35,6 +35,17 @@ public:
     {
     }
 
+    fanVector3( const fanVector3<T>& other )
+        : fanVector<T, 3>( other )
+        , x(fanVector<T,3>::axis[0])
+        , y(fanVector<T,3>::axis[1])
+        , z(fanVector<T,3>::axis[2])
+    {
+    }
+
+    fanVector3<T>& operator=( const fanVector3<T>& other ) {
+        x = other.x; y = other.y; z = other.z;
+    }
 };
 
 template<typename T>

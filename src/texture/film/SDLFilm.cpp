@@ -10,10 +10,12 @@ SDLFilm::~SDLFilm() {
 }
 
 fanPixel SDLFilm::getPixel( fanVector<int, 2> index ) const {
+    (void)index;
     return fanPixel();
 }
 
 void SDLFilm::setPixel( const fanVector<int, 2>& index,
                         const fanPixel& pixel ) {
+    (void)index; (void)pixel;
 }
 

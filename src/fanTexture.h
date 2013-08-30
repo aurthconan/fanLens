@@ -16,8 +16,13 @@ public:
 
     fanVector<T, DIMENS> getDimens() const;
 
-    fanPixel getPixel( fanVector<T, DIMENS> index ) const;
-    void setPixel( const fanVector<T, DIMENS>& index, const fanPixel& pixel );
+    /*
+     * index[0] = x axis
+     * index[1] = y axis
+     * origin point (0, 0) at bottom left
+     */
+    virtual fanPixel getPixel( fanVector<T, DIMENS> index ) const;
+    virtual void setPixel( const fanVector<T, DIMENS>& index, const fanPixel& pixel );
 
 protected:
     fanVector<T, DIMENS> mDimensions;
@@ -39,11 +44,13 @@ fanVector<T, DIMENS> fanTexture<T, DIMENS>::getDimens() const {
 
 template<typename T, size_t DIMENS>
 fanPixel fanTexture<T, DIMENS>::getPixel( fanVector<T, DIMENS> index ) const {
+    (void)index;
     return fanPixel();
 }
 
 template<typename T, size_t DIMENS>
 void fanTexture<T, DIMENS>::setPixel( const fanVector<T, DIMENS>& index, const fanPixel& pixel ) {
+    (void)index; (void)pixel;
 }
 
 }

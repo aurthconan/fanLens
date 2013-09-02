@@ -1,4 +1,7 @@
-GTEST_DIR = /home/jianghuai/source/googletest-read-only
+GTEST_DIR = #gtest folder
+
+SDL_DIR = # sdl 2.0 include folder
+SDL_LIB = # libSDL2.a folder 
 
 SRC_DIR = ../../
 
@@ -6,7 +9,7 @@ OUT_DIR = .
 
 #CXX = clang++
 
-CPPFLAGS += -isystem $(GTEST_DIR)/include -I $(SRC_DIR)/src/ -L /usr/lib/
+CPPFLAGS += -isystem $(GTEST_DIR)/include -I $(SRC_DIR)/src/ -L /usr/lib/ -I $(SDL_DIR)
 
 CXXFLAGS += -g -Wall -Wextra -pthread -std=c++0x
 
@@ -52,6 +55,6 @@ include $(test_src_files:.cpp=.d)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -lpthread $< -o $@ -lfreeimage
 
 fanLens_test : $(patsubst %.cpp,%.o,$(test_src_files)) gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ -lfreeimage
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ $(SDL_LIB)/libSDL2.a -ldl -o $@ -lfreeimage
 
 .PHONY: clean run_test

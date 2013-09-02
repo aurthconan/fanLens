@@ -9,7 +9,10 @@
 #include <fanPixel.h>
 #include <fanCamera.h>
 #include <texture/film/FreeImageFilm.h>
+#include <texture/film/SDLFilm.h>
 #include <lens/OrthogonalLens.h>
+
+#include <unistd.h>
 
 template <class T>
 fan::fanCamera* CreateCamera() { return NULL; };
@@ -51,6 +54,7 @@ TYPED_TEST_P(Camera_test, SimpleScene) {
     fan::fanVector<int, 2> size;
     size[0] = 800; size[1] = 600;
     FreeImageFilm film( size, "SimpleScene.png" );
+    SDLFilm sdl( size );
 
     OrthogonalLens lens( fan::fanVector3<float>(-1, -1, -1),
                          fan::fanVector3<float>(0, 0, 0),
@@ -64,6 +68,9 @@ TYPED_TEST_P(Camera_test, SimpleScene) {
 
     camera->takePicture( scene, film, lens );
     film.develope();
+    camera->takePicture( scene, sdl, lens );
+    sdl.develope();
+    sleep(10);
 
     this->deleteCamera( camera );
 }

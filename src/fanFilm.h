@@ -13,6 +13,8 @@ class fanFilm
 public:
     fanFilm( const fanVector<int, 2>& dimensions );
     virtual ~fanFilm();
+
+    virtual void develope();
 };
 
 }

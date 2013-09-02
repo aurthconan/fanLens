@@ -50,6 +50,7 @@ TYPED_TEST_P(Film_test, AllColorTestCard) {
             film->setPixel( pos, fan::fanPixel( 255, r, g, b ) );
         }
     }
+    film->develope();
     this->deleteFilm( film );
 }
 

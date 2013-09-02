@@ -22,6 +22,8 @@ public:
     void setPixel( const fan::fanVector<int, 2>& index,
                    const fan::fanPixel& pixel );
 
+    void develope();
+
 private:
     static bool sbFreeImageInitialized;
     std::string mFileName;

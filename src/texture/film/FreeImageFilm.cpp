@@ -20,7 +20,6 @@ FreeImageFilm::FreeImageFilm( const fan::fanVector<int, 2>& dimensions,
 
 FreeImageFilm::~FreeImageFilm() {
     if ( mpBitmap ) {
-        FreeImage_Save(FIF_PNG, mpBitmap, mFileName.c_str(), 0);
         FreeImage_Unload(mpBitmap);
         mpBitmap = NULL;
     }
@@ -29,6 +28,12 @@ FreeImageFilm::~FreeImageFilm() {
         FreeImage_DeInitialise();
     }
 
+}
+
+void FreeImageFilm::develope() {
+    if ( mpBitmap ) {
+        FreeImage_Save(FIF_PNG, mpBitmap, mFileName.c_str(), 0);
+    }
 }
 
 fanPixel FreeImageFilm::getPixel( fan::fanVector<int, 2> index ) const {

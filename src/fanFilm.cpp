@@ -9,5 +9,8 @@ fanFilm::fanFilm( const fanVector<int, 2>& dimensions )
 fanFilm::~fanFilm() {
 }
 
+void fanFilm::develope() {
+}
+
 }
 

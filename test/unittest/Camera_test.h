@@ -63,6 +63,7 @@ TYPED_TEST_P(Camera_test, SimpleScene) {
     }
 
     camera->takePicture( scene, film, lens );
+    film.develope();
 
     this->deleteCamera( camera );
 }

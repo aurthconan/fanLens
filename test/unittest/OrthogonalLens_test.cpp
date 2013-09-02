@@ -12,14 +12,17 @@ TEST(OrthogonalLens,LookThroughPositiveZAxis) {
     fanVector<int, 2> size;
     size[0] = 100; size[1] = 100;
     fanTexture<int, 2> target( size );
-    fanVector<int, 2> dot = lens.project( fanVector3<float>(0, 0, 1),
-                                          target );
-    EXPECT_EQ( 0, dot[0] );
-    EXPECT_EQ( 0, dot[1] );
+    fanVector<int, 2> dot;
+    lens.project( dot,
+                  fanVector3<float>(0, 0, 1),
+                  target );
+    EXPECT_EQ( 50, dot[0] );
+    EXPECT_EQ( 50, dot[1] );
 
-    dot = lens.project( fanVector3<float>( 1, 1, 2 ),
-                        target );
-    EXPECT_EQ( 1, dot[0] );
-    EXPECT_EQ( 1, dot[1] );
+    lens.project( dot,
+                  fanVector3<float>( 1, 1, 2 ),
+                  target );
+    EXPECT_EQ( 51, dot[0] );
+    EXPECT_EQ( 51, dot[1] );
 }
 

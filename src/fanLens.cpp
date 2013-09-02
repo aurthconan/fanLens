@@ -24,8 +24,6 @@ void fanLens::computeLensSpace( fanVector3<float> pos,
      *      a      look
      */
     float lookLength = length(look);
-    float v1 = ((look*toUp)/(lookLength*lookLength));
-    float v2 = look*toUp;
     fanVector3<float> a = look * ((look*toUp)/(lookLength*lookLength));
     fanVector3<float> y = normalize(toUp - a);
     fanVector3<float> x = normalize(cross( y, z ));
@@ -34,10 +32,31 @@ void fanLens::computeLensSpace( fanVector3<float> pos,
     mLensSpace[2] = z;
 }
 
-fanVector<int, 2> fanLens::project( const fanVector3<float>& world,
-                                    const fanTexture<int, 2>& space ) {
-    (void) world; (void) space;
-    return fanVector<int, 2>();
+bool fanLens::project( fanVector<int, 2>& pos,
+                       const fanVector3<float>& world,
+                       const fanTexture<int, 2>& space ) {
+    fanVector<int, 2> result;
+    if ( !projectToCameraSpace( result, world ) ) {
+        return false;
+    }
+
+    // a viewport transformation, need a sampler class to do this
+    fanVector<int, 2> dimens = space.getDimens();
+    int xMax = dimens[0]/2; int yMax = dimens[1]/2;
+    int xModify = dimens[0]%2; int yModify = dimens[1]%2;
+    if ( result[0] > xMax + xModify || result[0] < -xMax
+            || result[1] > yMax + yModify || result[1] > yMax ) {
+        return false;
+    }
+
+    pos = result;
+    pos[0] += xMax; pos[1] += yMax;
+    return true;
+}
+
+bool fanLens::projectToCameraSpace( fanVector<int, 2>& pos,
+                                    const fanVector3<float>& world ) {
+    (void)pos; (void)world;
 }
 
 }

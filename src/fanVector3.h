@@ -45,6 +45,7 @@ public:
 
     fanVector3<T>& operator=( const fanVector3<T>& other ) {
         x = other.x; y = other.y; z = other.z;
+        return *this;
     }
 };
 

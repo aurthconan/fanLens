@@ -12,8 +12,9 @@ public:
                     fan::fanVector3<float> lookAt,
                     fan::fanVector3<float> up );
 
-    fan::fanVector<int, 2> project( const fan::fanVector3<float>& world,
-                                    const fan::fanTexture<int, 2>& space );
+protected:
+    bool projectToCameraSpace( fan::fanVector<int, 2>& pos,
+                               const fan::fanVector3<float>& world );
 };
 
 #endif /* end of include guard: ORTHOGONALLENS_H */

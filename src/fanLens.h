@@ -23,9 +23,13 @@ public:
                            fanVector3<float> lookAt,
                            fanVector3<float> up );
 
-    virtual fanVector<int, 2> project( const fanVector3<float>& world,
-                                       const fanTexture<int, 2>& space );
+    bool project( fanVector<int, 2>& pos,
+                  const fanVector3<float>& world,
+                  const fanTexture<int, 2>& space );
 
+protected:
+    virtual bool projectToCameraSpace( fanVector<int, 2>& pos,
+                                       const fanVector3<float>& world );
 };
 
 }

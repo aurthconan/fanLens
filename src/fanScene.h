@@ -2,7 +2,7 @@
 
 #define FANSCENE_H
 
-#include <fanVector.h>
+#include <fanVector3.h>
 #include <vector>
 
 namespace fan {
@@ -10,7 +10,7 @@ namespace fan {
 class fanScene
 {
 public:
-    std::vector<fanVector<float, 3> > mVertices;
+    std::vector<fanVector3<float> > mVertices;
 };
 
 }

@@ -21,6 +21,10 @@ template<typename T, size_t D, size_t L_R, size_t R_C>
 inline fanMatrix<T, L_R, R_C> multiply( const fanMatrix<T, L_R, D>& left,
                                         const fanMatrix<T, D, R_C>& right );
 
+template<typename T, size_t D, size_t R>
+inline fanVector<T, R> multiply( const fanMatrix<T, R, D>& left,
+                                 const fanVector<T, D>& right );
+
 template<typename T, size_t R, size_t C>
 inline fanMatrix<T, C, R> transpose( const fanMatrix<T, R, C>& operend );
 
@@ -65,6 +69,15 @@ public:
         return *this;
     }
 
+    inline fanVector<T, R> operator*( const fanVector<T, C>& vector ) const {
+        return multiply( *this, vector );
+    }
+
+    inline fanVector<T, R>& operator*=( const fanVector<T, C>& vector ) {
+        *this = multiply( *this, vector );
+        return *this;
+    }
+
     template<size_t R_C>
     inline fanMatrix<T, R, R_C> operator*( const fanMatrix<T, C, R_C>& right ) const {
         return multiply( *this, right );
@@ -103,6 +116,16 @@ inline fanMatrix<T, L_R, R_C> multiply( const fanMatrix<T, L_R, D>& left,
             }
             result[i][j] = value;
         }
+    }
+    return result;
+}
+
+template<typename T, size_t D, size_t R>
+inline fanVector<T, R> multiply( const fanMatrix<T, R, D>& left,
+                                 const fanVector<T, D>& right ) {
+    fanVector<T, R> result;
+    for ( size_t i = 0; i < R; ++i ) {
+        result[i] = left[i] * right;
     }
     return result;
 }

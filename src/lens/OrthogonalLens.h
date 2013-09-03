@@ -13,8 +13,8 @@ public:
                     fan::fanVector3<float> up );
 
 protected:
-    bool projectToCameraSpace( fan::fanVector<int, 2>& pos,
-                               const fan::fanVector3<float>& world );
+    bool projectInCameraSpace( fan::fanVector<int, 2>& pos,
+                               const fan::fanVector3<float>& camera );
 };
 
 #endif /* end of include guard: ORTHOGONALLENS_H */

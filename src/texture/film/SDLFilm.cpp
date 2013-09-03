@@ -34,6 +34,9 @@ void SDLFilm::develope() {
     SDL_RenderClear( mpSDLRenderer );
     SDL_RenderCopy( mpSDLRenderer, mpSDLTexture, NULL, NULL );
     SDL_RenderPresent( mpSDLRenderer );
+
+    // clear data
+    SDL_memset(mpSDLSurface->pixels, 0, mpSDLSurface->h * mpSDLSurface->pitch);
 }
 
 fanPixel SDLFilm::getPixel( fanVector<int, 2> index ) const {

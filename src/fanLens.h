@@ -27,9 +27,11 @@ public:
                   const fanVector3<float>& world,
                   const fanTexture<int, 2>& space );
 
+    void move( fanVector<float, 3> move );
+
 protected:
-    virtual bool projectToCameraSpace( fanVector<int, 2>& pos,
-                                       const fanVector3<float>& world );
+    virtual bool projectInCameraSpace( fanVector<int, 2>& pos,
+                                       const fanVector3<float>& camera );
 };
 
 }

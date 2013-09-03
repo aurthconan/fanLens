@@ -11,6 +11,7 @@
 #include <texture/film/FreeImageFilm.h>
 #include <texture/film/SDLFilm.h>
 #include <lens/OrthogonalLens.h>
+#include <lens/PerspectiveLens.h>
 
 #include <unistd.h>
 
@@ -56,9 +57,15 @@ TYPED_TEST_P(Camera_test, SimpleScene) {
     FreeImageFilm film( size, "SimpleScene.png" );
     SDLFilm sdl( size );
 
-    OrthogonalLens lens( fan::fanVector3<float>(-1, -1, -1),
-                         fan::fanVector3<float>(0, 0, 0),
-                         fan::fanVector3<float>(0, 1, 0) );
+    OrthogonalLens OrthoLens( fan::fanVector3<float>(-1, -1, -1),
+                              fan::fanVector3<float>(0, 0, 0),
+                              fan::fanVector3<float>(0, 1, 0) );
+
+    PerspectiveLens PersLens( fan::fanVector3<float>(-1, -1, -1),
+                              fan::fanVector3<float>(0, 0, 0),
+                              fan::fanVector3<float>(0, 1, 0),
+                              5000 );
+
 
     fan::fanCamera* camera = this->createCamera();
     if ( !camera ) {
@@ -66,11 +73,18 @@ TYPED_TEST_P(Camera_test, SimpleScene) {
         return;
     }
 
-    camera->takePicture( scene, film, lens );
+    /*
+    camera->takePicture( scene, film, OrthoLens );
     film.develope();
-    camera->takePicture( scene, sdl, lens );
+    camera->takePicture( scene, sdl, OrthoLens );
     sdl.develope();
-    sleep(10);
+    */
+
+    camera->takePicture( scene, film, PersLens );
+    film.develope();
+    camera->takePicture( scene, sdl, PersLens );
+    sdl.develope();
+    sleep(5);
 
     this->deleteCamera( camera );
 }

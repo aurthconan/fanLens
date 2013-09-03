@@ -36,7 +36,9 @@ bool fanLens::project( fanVector<int, 2>& pos,
                        const fanVector3<float>& world,
                        const fanTexture<int, 2>& space ) {
     fanVector<int, 2> result;
-    if ( !projectToCameraSpace( result, world ) ) {
+    fanVector3<float> vector = world - mPos;
+    vector = mLensSpace * vector;
+    if ( !projectInCameraSpace( result, vector ) ) {
         return false;
     }
 
@@ -54,9 +56,15 @@ bool fanLens::project( fanVector<int, 2>& pos,
     return true;
 }
 
-bool fanLens::projectToCameraSpace( fanVector<int, 2>& pos,
+bool fanLens::projectInCameraSpace( fanVector<int, 2>& pos,
                                     const fanVector3<float>& world ) {
     (void)pos; (void)world;
+}
+
+void fanLens::move( fanVector<float, 3> move ) {
+    computeLensSpace( mPos + move,
+                      mLookAt + move,
+                      mUp + move );
 }
 
 }

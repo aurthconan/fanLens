@@ -1,15 +1,17 @@
-GTEST_DIR = #gtest folder
+# google test framework folder
+GTEST_DIR =
 
-SDL_DIR = # sdl 2.0 include folder
-SDL_LIB = # libSDL2.a folder 
+# sdl 2.0 include folder
+SDL_DIR =
+SDL_LIB =
 
-SRC_DIR = ../../
+SRC_DIR = ../../src/
 
 OUT_DIR = .
 
 #CXX = clang++
 
-CPPFLAGS += -isystem $(GTEST_DIR)/include -I $(SRC_DIR)/src/ -L /usr/lib/ -I $(SDL_DIR)
+CPPFLAGS += -isystem $(GTEST_DIR)/include -I $(SRC_DIR) -L /usr/lib/ -I $(SDL_DIR)
 
 CXXFLAGS += -g -Wall -Wextra -pthread -std=c++0x
 
@@ -25,7 +27,7 @@ run_test: fanLens_test
 
 clean :
 	rm -f gtest.a gtest_main.a fanLens_test
-	find $(SRC_DIR) -name "*.o" -o -name "*.d" | xargs rm
+	find $(SRC_DIR) ./ -type f -name "*.o" -o -name "*.d" | xargs rm
 
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
@@ -43,7 +45,7 @@ gtest.a : gtest-all.o
 gtest_main.a : gtest-all.o gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
-test_src_files:=$(shell find $(SRC_DIR) -name "*.cpp")
+test_src_files:=$(shell find $(SRC_DIR) ./ -type f -name "*.cpp")
 
 # generate dependency
 %.d: %.cpp

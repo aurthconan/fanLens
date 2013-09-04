@@ -1,5 +1,9 @@
 #include <SDL.h>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include <fanFilm.h>
 #include <fanVector.h>
 #include <fanPixel.h>
@@ -11,7 +15,13 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
+using namespace std;
+
 using namespace fan;
+
+bool loadFile( char* file, fanScene& scene );
 
 int main(int argc, char** argv) {
     if ( SDL_Init( SDL_INIT_VIDEO ) != 0 ) {
@@ -20,46 +30,14 @@ int main(int argc, char** argv) {
     atexit(SDL_Quit);
 
     fanScene scene;
-    /*
-    for ( size_t i = 0; i < 200; i += 4 ) {
-        for ( size_t j = 0; j < 200; j += 4 ) {
-            for ( size_t k = 0; k < 200; k += 4 ) {
-                scene.mVertices.push_back( fanVector3<float>( i, j, k ) );
-            }
-        }
-    }
-    */
-    for ( size_t i = 0; i < 200; i += 10 ) {
-        for ( size_t j = 0; j < 200; j += 10 ) {
-            scene.mVertices.push_back( fanVector3<float>( i, j, 0 ) );
-        }
-    }
-    for ( size_t i = 0; i < 200; i += 10 ) {
-        for ( size_t j = 0; j < 200; j += 10 ) {
-            scene.mVertices.push_back( fanVector3<float>( i, 0, j ) );
-        }
-    }
-    for ( size_t i = 0; i < 200; i += 10 ) {
-        for ( size_t j = 0; j < 200; j += 10 ) {
-            scene.mVertices.push_back( fanVector3<float>( 0, i, j ) );
-        }
-    }
-    for ( size_t i = 0; i < 201; i += 10 ) {
-        for ( size_t j = 0; j < 200; j += 10 ) {
-            scene.mVertices.push_back( fanVector3<float>( i, j, 200 ) );
-        }
-    }
-    for ( size_t i = 0; i < 200; i += 10 ) {
-        for ( size_t j = 0; j < 200; j += 10 ) {
-            scene.mVertices.push_back( fanVector3<float>( i, 200, j ) );
-        }
-    }
-    for ( size_t i = 0; i < 200; i += 10 ) {
-        for ( size_t j = 0; j < 200; j += 10 ) {
-            scene.mVertices.push_back( fanVector3<float>( 200, i, j ) );
-        }
+
+    if ( argc < 2 ) {
+        return 2;
     }
 
+    if ( !loadFile( argv[1], scene ) ) {
+        return 3;
+    }
 
     fanVector<int, 2> size;
     size[0] = 800; size[1] = 600;
@@ -69,11 +47,13 @@ int main(int argc, char** argv) {
     OrthogonalLens lens( fanVector3<float>(-1, -1, -1),
                          fanVector3<float>(0, 0, 0),
                          fanVector3<float>(0, 1, 0) );
-                         */
-    PerspectiveLens lens( fanVector3<float>(-1, -1, -1),
+                         // */
+    //*
+    PerspectiveLens lens( fanVector3<float>(0, -1, 0),
                           fanVector3<float>(0, 0, 0),
-                          fanVector3<float>(0, 1, 0),
+                          fanVector3<float>(0, 0, -1),
                           3000 );
+                          // */
 
 
     PointScannerCamera camera;
@@ -107,5 +87,28 @@ int main(int argc, char** argv) {
             }
         }
     }
+}
+
+using namespace Assimp;
+bool loadFile( char* file, fanScene& ourScene ) {
+    Importer importer;
+    const aiScene* scene = importer.ReadFile( file, 0 );
+    if ( !scene ) {
+        return false;
+    }
+    cout << " scene->mNumMeshes " <<  scene->mNumMeshes << endl;
+    for ( size_t i = 0, max = scene->mNumMeshes;
+                i < max; ++i ) {
+        aiMesh* mesh = scene->mMeshes[i];
+        cout << " mesh->mNumVertices " <<  mesh->mNumVertices << endl;
+        for ( size_t j = 0, max = mesh->mNumVertices;
+                j < max; ++j ) {
+            aiVector3D vector = mesh->mVertices[j];
+            ourScene.mVertices.push_back(fanVector3<float>(vector.x*200,
+                                                           vector.y*200,
+                                                           vector.z*200));
+        }
+    }
+    return true;
 }
 

@@ -11,7 +11,7 @@ OUT_DIR = .
 
 #CXX = clang++
 
-CPPFLAGS += -isystem $(GTEST_DIR)/include -I $(SRC_DIR) -L /usr/lib/ -I $(SDL_DIR)
+CPPFLAGS += -isystem $(GTEST_DIR)/include -I $(SRC_DIR) -L /usr/lib/ -I $(SDL_DIR) -L $(SDL_LIB)
 
 CXXFLAGS += -g -Wall -Wextra -pthread -std=c++0x
 
@@ -57,6 +57,6 @@ include $(test_src_files:.cpp=.d)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -lpthread $< -o $@ -lfreeimage
 
 fanLens_test : $(patsubst %.cpp,%.o,$(test_src_files)) gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ $(SDL_LIB)/libSDL2.a -ldl -o $@ -lfreeimage
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -ldl -lSDL2-2.0 -o $@ -lfreeimage
 
 .PHONY: clean run_test

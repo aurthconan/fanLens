@@ -47,7 +47,7 @@ bool fanLens::project( fanVector<int, 2>& pos,
     int xMax = dimens[0]/2; int yMax = dimens[1]/2;
     int xModify = dimens[0]%2; int yModify = dimens[1]%2;
     if ( result[0] > xMax + xModify || result[0] < -xMax
-            || result[1] > yMax + yModify || result[1] > yMax ) {
+            || result[1] > yMax + yModify || result[1] < -yMax ) {
         return false;
     }
 

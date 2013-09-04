@@ -59,6 +59,7 @@ bool fanLens::project( fanVector<int, 2>& pos,
 bool fanLens::projectInCameraSpace( fanVector<int, 2>& pos,
                                     const fanVector3<float>& world ) {
     (void)pos; (void)world;
+    return false;
 }
 
 void fanLens::move( fanVector<float, 3> move ) {

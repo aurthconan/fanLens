@@ -14,9 +14,9 @@ class fanCamera
 public:
     virtual ~fanCamera();
 
-    virtual void takePicture( fanScene& scene,
-                              fanFilm& film,
-                              fanLens& lens );
+    virtual void takePicture( fan::fanScene& scene,
+                              fan::fanFilm& film,
+                              fan::fanLens& lens );
 };
 
 }

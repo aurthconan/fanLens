@@ -35,11 +35,12 @@ void fanLens::computeLensSpace( fanVector3<float> pos,
 bool fanLens::project( fanVector<int, 2>& pos,
                        const fanVector3<float>& world,
                        const fanTexture<int, 2>& space ) {
+    bool visible = true;
     fanVector<int, 2> result;
     fanVector3<float> vector = world - mPos;
     vector = mLensSpace * vector;
     if ( !projectInCameraSpace( result, vector ) ) {
-        return false;
+        visible = false;
     }
 
     // a viewport transformation, need a sampler class to do this
@@ -48,12 +49,12 @@ bool fanLens::project( fanVector<int, 2>& pos,
     int xModify = dimens[0]%2; int yModify = dimens[1]%2;
     if ( result[0] > xMax + xModify || result[0] < -xMax
             || result[1] > yMax + yModify || result[1] < -yMax ) {
-        return false;
+        visible = false;
     }
 
     pos = result;
     pos[0] += xMax; pos[1] += yMax;
-    return true;
+    return visible;
 }
 
 bool fanLens::projectInCameraSpace( fanVector<int, 2>& pos,

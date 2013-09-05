@@ -3,6 +3,7 @@
 #define FANSCENE_H
 
 #include <fanVector3.h>
+#include <fanTriangle.h>
 #include <vector>
 
 namespace fan {
@@ -11,6 +12,7 @@ class fanScene
 {
 public:
     std::vector<fanVector3<float> > mVertices;
+    std::vector<fanTriangle> mTriangles;
 };
 
 }

@@ -19,10 +19,6 @@ public:
 
     virtual ~fanLens();
 
-    void computeLensSpace( fanVector3<float> pos,
-                           fanVector3<float> lookAt,
-                           fanVector3<float> up );
-
     bool project( fanVector<int, 2>& pos,
                   const fanVector3<float>& world,
                   const fanTexture<int, 2>& space );
@@ -32,6 +28,10 @@ public:
 protected:
     virtual bool projectInCameraSpace( fanVector<int, 2>& pos,
                                        const fanVector3<float>& camera );
+
+    void computeLensSpace( fanVector3<float> pos,
+                           fanVector3<float> lookAt,
+                           fanVector3<float> up );
 };
 
 }

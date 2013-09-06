@@ -34,14 +34,21 @@ class fanMatrix
 public:
     static const size_t rowsNum = R;
     static const size_t colsNum = C;
-    union {
-        fanVector<T, C> rows[R];
-    };
+    fanVector<T, C> rows[R];
 
     fanMatrix()
         : rows()
     {
     };
+
+    template<typename O_T, size_t O_R, size_t O_C>
+    fanMatrix( const fanMatrix<O_T, O_R, O_C>& other )
+        : rows() {
+        size_t end = std::min(R, O_R);
+        for ( size_t i = 0; i < end; ++i ) {
+            rows[i] = other[i];
+        }
+    }
 
     inline fanVector<T, C>& operator[]( size_t i ) {
         return rows[i];

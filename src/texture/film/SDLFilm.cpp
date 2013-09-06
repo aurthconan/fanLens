@@ -46,9 +46,12 @@ fanPixel SDLFilm::getPixel( fanVector<int, 2> index ) const {
 
 void SDLFilm::setPixel( const fanVector<int, 2>& index,
                         const fanPixel& pixel ) {
+    fanVector<int, 2> new_index = getDimens();
+    new_index[0] = index[0];
+    new_index[1] = new_index[1] - 1 - index[1];
     Uint32* bufp = (Uint32*) mpSDLSurface->pixels
-                    + index[1]*mpSDLSurface->pitch/4
-                    + index[0];
+                    + new_index[1]*mpSDLSurface->pitch/4
+                    + new_index[0];
     *bufp = SDL_MapRGBA( mpSDLSurface->format,
                 pixel.r, pixel.g, pixel.b, pixel.a );
 }

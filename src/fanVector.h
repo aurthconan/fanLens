@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <algorithm>
 
 namespace fan {
 
@@ -59,6 +60,28 @@ public:
     fanVector()
     {
         memset( axis, 0, sizeof(axis) );
+    }
+
+    template<typename OTHER_T>
+    fanVector( const fanVector<OTHER_T, DIMENS>& other ) {
+        for ( size_t i = 0; i < DIMENS; ++i ) {
+            axis[i] = static_cast<T>(other.axis[i]);
+        }
+    }
+
+    template<typename OTHER_T, size_t OTHER_DIMENS>
+    fanVector( const fanVector<OTHER_T, OTHER_DIMENS>& other ) {
+        size_t end = std::min( DIMENS, OTHER_DIMENS );
+        for ( size_t i = 0; i < end; ++i ) {
+            axis[i] = other.axis[i];
+        }
+        for ( size_t i = end; i < DIMENS; ++i ) {
+            axis[i] = 0;
+        }
+    }
+
+    fanVector( const fanVector<T, DIMENS>& other ) {
+        memcpy( axis, other.axis, sizeof(axis) );
     }
 
     inline fanVector<T, DIMENS> operator+( const fanVector<T, DIMENS> other ) const {

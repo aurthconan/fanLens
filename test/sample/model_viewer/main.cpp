@@ -44,15 +44,15 @@ int main(int argc, char** argv) {
     SDLFilm sdl( size );
 
     /*
-    OrthogonalLens lens( fanVector3<float>(-1, -1, -1),
+    OrthogonalLens lens( fanVector3<float>( 1, -1, 1),
                          fanVector3<float>(0, 0, 0),
-                         fanVector3<float>(0, 1, 0) );
+                         fanVector3<float>(0, 0, 1) );
                          // */
     //*
-    PerspectiveLens lens( fanVector3<float>(0, -1, 0),
+    PerspectiveLens lens( fanVector3<float>(1, -1, 1),
                           fanVector3<float>(0, 0, 0),
-                          fanVector3<float>(0, 0, -1),
-                          3000 );
+                          fanVector3<float>(0, 0, 1),
+                          400 );
                           // */
 
 
@@ -80,6 +80,7 @@ int main(int argc, char** argv) {
                         case SDLK_s: move[1] -= 1; break;
                         case SDLK_a: move[0] += 1; break;
                         case SDLK_d: move[0] -= 1; break;
+                        case SDLK_ESCAPE: done = true; break;
                     }
                     lens.move( move );
                 }
@@ -104,11 +105,21 @@ bool loadFile( char* file, fanScene& ourScene ) {
         for ( size_t j = 0, max = mesh->mNumVertices;
                 j < max; ++j ) {
             aiVector3D vector = mesh->mVertices[j];
-            ourScene.mVertices.push_back(fanVector3<float>(vector.x*200,
-                                                           vector.y*200,
-                                                           vector.z*200));
+            ourScene.mVertices.push_back(fanVector3<float>(vector.x*400,
+                                                           vector.y*400,
+                                                           vector.z*400));
         }
     }
+    for ( size_t i = 0; i < 1000; ++i ) {
+        ourScene.mVertices.push_back( fan::fanVector3<float>( i, 0, 0 ) );
+    }
+    for ( size_t i = 0; i < 1000; i+=4 ) {
+        ourScene.mVertices.push_back( fan::fanVector3<float>( 0, i, 0 ) );
+    }
+    for ( size_t i = 0; i < 1000; i+=8 ) {
+        ourScene.mVertices.push_back( fan::fanVector3<float>( 0, 0, i ) );
+    }
+
     return true;
 }
 

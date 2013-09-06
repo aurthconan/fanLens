@@ -12,7 +12,7 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
                                    fan::fanLens& lens ) {
     for ( auto itor = scene.mTriangles.begin(), end = scene.mTriangles.end();
             itor != end; ++itor ) {
-        fanVector<int, 2> a, b, c;
+        fanVector<float, 2> a, b, c;
         if ( !lens.project( a, itor->a, film )
             && !lens.project( b, itor->b, film )
             && !lens.project( c, itor->c, film ) ) {

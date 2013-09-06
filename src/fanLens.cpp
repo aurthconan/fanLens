@@ -2,6 +2,14 @@
 
 namespace fan {
 
+fanLens::fanLens()
+    : mLensSpace()
+    , mViewTransformation()
+    , mPos()
+    , mLookAt()
+    , mUp() {
+}
+
 fanLens::~fanLens() {
 }
 
@@ -30,13 +38,18 @@ void fanLens::computeLensSpace( fanVector3<float> pos,
     mLensSpace[0] = x;
     mLensSpace[1] = y;
     mLensSpace[2] = z;
+
+    fanMatrix<float, 4, 4> childTransform = getTransformation();
+    mViewTransformation = mLensSpace;
+    mViewTransformation[3][3] = 1;
+    mViewTransformation = mViewTransformation * childTransform;
 }
 
-bool fanLens::project( fanVector<int, 2>& pos,
+bool fanLens::project( fanVector<float, 2>& pos,
                        const fanVector3<float>& world,
                        const fanTexture<int, 2>& space ) {
     bool visible = true;
-    fanVector<int, 2> result;
+    fanVector<float, 2> result;
     fanVector3<float> vector = world - mPos;
     vector = mLensSpace * vector;
     if ( !projectInCameraSpace( result, vector ) ) {
@@ -57,10 +70,14 @@ bool fanLens::project( fanVector<int, 2>& pos,
     return visible;
 }
 
-bool fanLens::projectInCameraSpace( fanVector<int, 2>& pos,
+bool fanLens::projectInCameraSpace( fanVector<float, 2>& pos,
                                     const fanVector3<float>& world ) {
     (void)pos; (void)world;
     return false;
+}
+
+fanMatrix<float, 4, 4> fanLens::getTransformation() {
+    return fanMatrix<float, 4, 4>();
 }
 
 void fanLens::move( fanVector<float, 3> move ) {

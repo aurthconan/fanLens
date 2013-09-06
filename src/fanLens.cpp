@@ -23,10 +23,10 @@ void fanLens::computeLensSpace( fanVector3<float> pos,
      *  pos--->-------->lookAt
      *      a      look
      */
-    float lookLength = length(look);
-    fanVector3<float> a = look * ((look*toUp)/(lookLength*lookLength));
+    float lookLengthSqu = lengthSquare(look);
+    fanVector3<float> a = look * ((look*toUp)/(lookLengthSqu));
     fanVector3<float> y = normalize(toUp - a);
-    fanVector3<float> x = normalize(cross( y, z ));
+    fanVector3<float> x = normalize(cross( z, y ));
     mLensSpace[0] = x;
     mLensSpace[1] = y;
     mLensSpace[2] = z;

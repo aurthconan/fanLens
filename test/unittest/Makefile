@@ -28,6 +28,7 @@ run_test: fanLens_test
 clean :
 	rm -f gtest.a gtest_main.a fanLens_test
 	find $(SRC_DIR) ./ -type f -name "*.o" -o -name "*.d" | xargs rm
+	find ./ -type f -name "*.png" | xargs rm
 
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 

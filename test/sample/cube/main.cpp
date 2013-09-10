@@ -12,7 +12,10 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 using namespace fan;
+using namespace std;
 
 void addTriangle( fanScene& scene, size_t startIndex ) {
     for( size_t i = 0; i < 4; ++i ) {
@@ -37,6 +40,23 @@ void addTriangle( fanScene& scene, size_t startIndex ) {
     }
 }
 
+void dumpTriangles( fanScene& scene ) {
+    for ( size_t i = 0, max = scene.mTriangles.size();
+            i < max; ++i ) {
+        fanVector3<float>* a = scene.mTriangles[i].a;
+        fanVector3<float>* b = scene.mTriangles[i].b;
+        fanVector3<float>* c = scene.mTriangles[i].c;
+
+        cout << " index " << i << endl;
+        cout << "a x:" << (*a)[0] << " y:" << (*a)[1]
+                << " z:" << (*a)[2] << endl;
+        cout << "b x:" << (*b)[0] << " y:" << (*b)[1]
+                << " z:" << (*b)[2] << endl;
+        cout << "c x:" << (*c)[0] << " y:" << (*c)[1]
+                << " z:" << (*c)[2] << endl;
+    }
+}
+
 int main() {
     if ( SDL_Init( SDL_INIT_VIDEO ) != 0 ) {
         return 1;
@@ -50,58 +70,53 @@ int main() {
             scene.mVertices.push_back( fanVector3<float>( i, j, 0 ) );
         }
     }
-    addTriangle( scene, 0 );
-    size_t vertexNum = scene.mVertices.size();
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
             scene.mVertices.push_back( fanVector3<float>( i, 0, j ) );
         }
     }
-    /*
-    addTriangle( scene, vertexNum );
-    vertexNum = scene.mVertices.size();
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
             scene.mVertices.push_back( fanVector3<float>( 0, i, j ) );
         }
     }
-    //addTriangle( scene, vertexNum );
-    vertexNum = scene.mVertices.size();
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
             scene.mVertices.push_back( fanVector3<float>( i, j, 200 ) );
         }
     }
-    //addTriangle( scene, vertexNum );
-    vertexNum = scene.mVertices.size();
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
             scene.mVertices.push_back( fanVector3<float>( i, 200, j ) );
         }
     }
-    //addTriangle( scene, vertexNum );
-    vertexNum = scene.mVertices.size();
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
             scene.mVertices.push_back( fanVector3<float>( 200, i, j ) );
         }
     }
-    //addTriangle( scene, vertexNum );
-    */
+    addTriangle( scene, 0 );
+    addTriangle( scene, 25 );
+    addTriangle( scene, 50 );
+    addTriangle( scene, 75 );
+    addTriangle( scene, 100 );
+    addTriangle( scene, 125 );
 
     fanVector<int, 2> size;
     size[0] = 800; size[1] = 600;
     SDLFilm sdl( size );
 
+    /*
     OrthogonalLens lens( fanVector3<float>(1, 1, 1),
                          fanVector3<float>(0, 0, 0),
                          fanVector3<float>(0, 0, 1) );
-    /*
+    // */
+    //*
     PerspectiveLens lens( fanVector3<float>(1, 1, 1),
                           fanVector3<float>(0, 0, 0),
                           fanVector3<float>(0, 0, 1),
                           3000 );
-                          */
+                          // */
 
     fanCamera* currentCamera = NULL;
     PointScannerCamera pointCamera;

@@ -105,9 +105,9 @@ bool loadFile( char* file, fanScene& ourScene ) {
         for ( size_t j = 0, max = mesh->mNumVertices;
                 j < max; ++j ) {
             aiVector3D vector = mesh->mVertices[j];
-            ourScene.mVertices.push_back(fanVector3<float>(vector.x*400,
-                                                           vector.y*400,
-                                                           vector.z*400));
+            ourScene.mVertices.push_back(fanVector3<float>(vector.x,
+                                                           vector.y,
+                                                           vector.z));
         }
     }
     for ( size_t i = 0; i < 1000; ++i ) {

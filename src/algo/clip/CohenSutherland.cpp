@@ -66,7 +66,6 @@ bool CohenSutherland( const fanVector<float, 4>& window,
     }
 
     for ( size_t i = 0; i < 4; ++i ) {
-        short p1_c = p1code&(1<<(i)); short p2_c = p2code&(1<<(i));
         if ( (p1code&(1<<(i))) == (p2code&(1<<(i))) ) {
             continue;
         }
@@ -101,5 +100,6 @@ bool CohenSutherland( const fanVector<float, 4>& window,
             return false;
         }
     }
+    return true;
 }
 

@@ -44,9 +44,9 @@ TYPED_TEST_CASE_P(Camera_test);
 TYPED_TEST_P(Camera_test, SimpleScene) {
     // a matrix of vertices
     fan::fanScene scene;
-    for ( size_t i = 0; i < 200; i += 4 ) {
-        for ( size_t j = 0; j < 200; j += 4 ) {
-            for ( size_t k = 0; k < 200; k += 4 ) {
+    for ( size_t i = 0; i <= 200; i += 50 ) {
+        for ( size_t j = 0; j <= 200; j += 50 ) {
+            for ( size_t k = 0; k <= 200; k += 50 ) {
                 scene.mVertices.push_back( fan::fanVector3<float>( i, j, k ) );
             }
         }
@@ -84,7 +84,6 @@ TYPED_TEST_P(Camera_test, SimpleScene) {
     film.develope();
     camera->takePicture( scene, sdl, PersLens );
     sdl.develope();
-    sleep(5);
 
     this->deleteCamera( camera );
 }

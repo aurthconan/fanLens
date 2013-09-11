@@ -26,6 +26,9 @@ SDLFilm::SDLFilm( const fan::fanVector<int, 2>& dimensions )
 
 SDLFilm::~SDLFilm() {
     SDL_FreeSurface( mpSDLSurface );
+    SDL_DestroyTexture( mpSDLTexture );
+    SDL_DestroyRenderer( mpSDLRenderer );
+    SDL_DestroyWindow( mpSDLWindow );
 }
 
 void SDLFilm::develope() {

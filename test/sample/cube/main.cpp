@@ -61,7 +61,6 @@ int main() {
     if ( SDL_Init( SDL_INIT_VIDEO ) != 0 ) {
         return 1;
     }
-    atexit(SDL_Quit);
 
     fanScene scene;
 
@@ -130,7 +129,7 @@ int main() {
         sdl.develope();
 
         SDL_Event event;
-        while (SDL_PollEvent(&event)) {
+        if (SDL_WaitEvent(&event)) {
             if ( event.type == SDL_QUIT ) {
                 done = true;
             }
@@ -156,5 +155,7 @@ int main() {
             }
         }
     }
+
+    atexit(SDL_Quit);
 }
 

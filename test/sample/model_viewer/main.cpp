@@ -12,6 +12,7 @@
 #include <lens/OrthogonalLens.h>
 #include <lens/PerspectiveLens.h>
 #include <camera/PointScannerCamera.h>
+#include <camera/WireframeCamera.h>
 
 #include <cstdlib>
 
@@ -56,15 +57,19 @@ int main(int argc, char** argv) {
                           // */
 
 
-    PointScannerCamera camera;
+    fanCamera* currentCamera = NULL;
+    PointScannerCamera pointCamera;
+    WireframeCamera wireframeCamera;
 
     bool done = false;
+
+    currentCamera = &pointCamera;
     while ( !done ) {
-        camera.takePicture( scene, sdl, lens );
+        currentCamera->takePicture( scene, sdl, lens );
         sdl.develope();
 
         SDL_Event event;
-        while (SDL_PollEvent(&event)) {
+        if (SDL_WaitEvent(&event)) {
             if ( event.type == SDL_QUIT ) {
                 done = true;
             }
@@ -81,6 +86,8 @@ int main(int argc, char** argv) {
                         case SDLK_a: move[0] += 1; break;
                         case SDLK_d: move[0] -= 1; break;
                         case SDLK_ESCAPE: done = true; break;
+                        case SDLK_1: currentCamera = &pointCamera; break;
+                        case SDLK_2: currentCamera = &wireframeCamera; break;
                     }
                     lens.move( move );
                 }
@@ -93,7 +100,7 @@ int main(int argc, char** argv) {
 using namespace Assimp;
 bool loadFile( char* file, fanScene& ourScene ) {
     Importer importer;
-    const aiScene* scene = importer.ReadFile( file, 0 );
+    const aiScene* scene = importer.ReadFile( file, aiProcess_Triangulate );
     if ( !scene ) {
         return false;
     }
@@ -105,11 +112,36 @@ bool loadFile( char* file, fanScene& ourScene ) {
         for ( size_t j = 0, max = mesh->mNumVertices;
                 j < max; ++j ) {
             aiVector3D vector = mesh->mVertices[j];
-            ourScene.mVertices.push_back(fanVector3<float>(vector.x,
-                                                           vector.y,
-                                                           vector.z));
+            ourScene.mVertices.push_back(fanVector3<float>(vector.x*400,
+                                                           vector.y*400,
+                                                           vector.z*400));
         }
     }
+    size_t verticesNum = 0;
+    for ( size_t i = 0, max = scene->mNumMeshes;
+                i < max; ++i ) {
+        aiMesh* mesh = scene->mMeshes[i];
+        cout << " mesh->mNumVertices " <<  mesh->mNumVertices << endl;
+        cout << " mesh->mNumFaces " <<  mesh->mNumFaces << endl;
+        for ( size_t j = 0, max = mesh->mNumFaces;
+                j < max; ++j ) {
+            aiFace face = mesh->mFaces[j];
+            if ( face.mNumIndices != 3 ) {
+                continue;
+            }
+            unsigned int aIndex = face.mIndices[0] + verticesNum;
+            unsigned int bIndex = face.mIndices[1] + verticesNum;
+            unsigned int cIndex = face.mIndices[2] + verticesNum;
+            fanTriangle t( &ourScene.mVertices[aIndex],
+                           &ourScene.mVertices[bIndex],
+                           &ourScene.mVertices[cIndex] );
+
+            ourScene.mTriangles.push_back( t );
+        }
+        verticesNum += mesh->mNumVertices;
+    }
+
+    /*
     for ( size_t i = 0; i < 1000; ++i ) {
         ourScene.mVertices.push_back( fan::fanVector3<float>( i, 0, 0 ) );
     }
@@ -119,6 +151,7 @@ bool loadFile( char* file, fanScene& ourScene ) {
     for ( size_t i = 0; i < 1000; i+=8 ) {
         ourScene.mVertices.push_back( fan::fanVector3<float>( 0, 0, i ) );
     }
+    */
 
     return true;
 }

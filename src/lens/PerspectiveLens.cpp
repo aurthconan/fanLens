@@ -21,5 +21,6 @@ fan::fanMatrix<float, 4, 4> PerspectiveLens::getTransformation() {
     result[1][1] = 1;
     result[2][2] = 1;
     result[3][3] = 1;
+    result[2][3] = 1/mDistance;
     return result;
 }

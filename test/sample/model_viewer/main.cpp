@@ -13,6 +13,7 @@
 #include <lens/PerspectiveLens.h>
 #include <camera/PointScannerCamera.h>
 #include <camera/WireframeCamera.h>
+#include <utils/StopWatch.h>
 
 #include <cstdlib>
 
@@ -64,8 +65,11 @@ int main(int argc, char** argv) {
     bool done = false;
 
     currentCamera = &pointCamera;
+    StopWatch stopWatch;
     while ( !done ) {
+        stopWatch.start();
         currentCamera->takePicture( scene, sdl, lens );
+        stopWatch.stop("Take Picture");
         sdl.develope();
 
         SDL_Event event;

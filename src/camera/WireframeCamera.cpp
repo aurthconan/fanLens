@@ -1,6 +1,7 @@
 #include "WireframeCamera.h"
 
 #include "algo/clip/CohenSutherland.h"
+#include "algo/rasterize/line_generator/Bresenham.h"
 #include "algo/rasterize/line_generator/DigitalDifferentialAnalyzer.h"
 
 using namespace fan;
@@ -12,7 +13,8 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
     fanVector<float, 4> window;
     window[0] = 0; window[1] = dimens[0] - 1;
     window[2] = 0; window[3] = dimens[1] - 1;
-    DigitalDifferentialAnalyzer lineGenerator;
+    Bresenham lineGenerator;
+
     fanVector<float, 2> p1, p2;
     fanVector<float, 2> a, b, c;
 

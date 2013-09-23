@@ -9,7 +9,7 @@ SRC_DIR = ../../../src/
 CPPFLAGS += -I $(SRC_DIR) -L /usr/lib/ -L $(SDL_LIB) \
 			-I $(SDL_DIR) -L $(ASSIMP_LIB) -I $(ASSIMP_DIR) 
 
-CXXFLAGS += -g -Wall -Wextra -pthread -std=c++0x
+CXXFLAGS += -g -Wall -Wextra -pthread -std=c++0x -O3
 
 all: model_viewer
 

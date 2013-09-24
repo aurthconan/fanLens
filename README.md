@@ -2,7 +2,8 @@ fanLens
 =======
 
 A toy software renderer. For fun and my interesting in Computer Graphics.
-Currently it only support point mode & wireframe mode. Wireframe mode have performance issue and I'm tuning it. It is always funny to tune performance, isn't it?
+Currently it only support point mode & wireframe mode.
+Flat Shading is in progress.
 
 How to build
 -------

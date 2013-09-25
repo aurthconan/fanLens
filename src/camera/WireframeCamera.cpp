@@ -4,6 +4,8 @@
 #include "algo/rasterize/line_generator/Bresenham.h"
 #include "algo/rasterize/line_generator/DigitalDifferentialAnalyzer.h"
 
+#include "Culling.h"
+
 using namespace fan;
 
 void WireframeCamera::takePicture( fan::fanScene& scene,
@@ -20,6 +22,10 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
 
     for ( auto itor = scene.mTriangles.begin(), end = scene.mTriangles.end();
             itor != end; ++itor ) {
+        if ( !Culling( lens.mPos, itor->mCenter, itor->mNormal ) ) {
+            continue;
+        }
+
         bool aVisible = project( *(itor->a), lens, dimens, a );
         bool bVisible = project( *(itor->b), lens, dimens, b );
         bool cVisible = project( *(itor->c), lens, dimens, c );

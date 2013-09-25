@@ -47,7 +47,7 @@ TYPED_TEST_P(Film_test, AllColorTestCard) {
             unsigned char g = j % 256;
             unsigned char b = j / 256 * 16 + i / 256;
             pos[0] = i; pos[1] = j;
-            film->setPixel( pos, fan::fanPixel( 255, r, g, b ) );
+            film->setValue( pos, fan::fanPixel( 255, r, g, b ) );
         }
     }
     film->develope();

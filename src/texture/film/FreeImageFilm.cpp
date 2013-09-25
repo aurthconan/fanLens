@@ -36,7 +36,7 @@ void FreeImageFilm::develope() {
     }
 }
 
-fanPixel FreeImageFilm::getPixel( fan::fanVector<int, 2> index ) const {
+fanPixel FreeImageFilm::getValue( fan::fanVector<int, 2> index ) const {
     if ( !mpBitmap ) {
         return fanPixel();
     }
@@ -52,7 +52,7 @@ fanPixel FreeImageFilm::getPixel( fan::fanVector<int, 2> index ) const {
     }
 }
 
-void FreeImageFilm::setPixel( const fan::fanVector<int, 2>& index,
+void FreeImageFilm::setValue( const fan::fanVector<int, 2>& index,
                               const fan::fanPixel& pixel ) {
     if ( !mpBitmap ) {
         return;

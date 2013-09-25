@@ -18,8 +18,8 @@ public:
                    const std::string file );
     ~FreeImageFilm();
 
-    fan::fanPixel getPixel( fan::fanVector<int, 2> index ) const;
-    void setPixel( const fan::fanVector<int, 2>& index,
+    fan::fanPixel getValue( fan::fanVector<int, 2> index ) const;
+    void setValue( const fan::fanVector<int, 2>& index,
                    const fan::fanPixel& pixel );
 
     void develope();

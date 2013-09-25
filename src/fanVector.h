@@ -48,6 +48,10 @@ inline T length( const fanVector<T, DIMENS>& operend );
 template<typename T, size_t DIMENS>
 inline fanVector<T, DIMENS> normalize( const fanVector<T, DIMENS>& operend );
 
+template<typename T, size_t DIMENS_L, size_t DIMENS_R>
+inline bool equal( const fanVector<T, DIMENS_L>& l,
+                   const fanVector<T, DIMENS_R>& r );
+
 template<typename T, size_t DIMENS>
 class fanVector
 {
@@ -144,6 +148,11 @@ public:
     inline T operator[]( size_t i ) const {
         return axis[i];
     }
+
+    template<size_t DIMENS_O>
+    inline bool operator==( const fanVector<T, DIMENS_O>& other ) const {
+        return equal( *this, other );
+    }
 };
 
 template<typename T, size_t DIMENS>
@@ -228,6 +237,19 @@ inline T length( const fanVector<T, DIMENS>& operend ) {
 template<typename T, size_t DIMENS>
 inline fanVector<T, DIMENS> normalize( const fanVector<T, DIMENS>& operend ) {
     return divide( operend, length( operend ) );
+}
+
+template<typename T, size_t DIMENS_L, size_t DIMENS_R>
+inline bool equal( const fanVector<T, DIMENS_L>& l,
+                   const fanVector<T, DIMENS_R>& r ) {
+    if ( DIMENS_L != DIMENS_R ) {
+        return false;
+    }
+    for ( size_t i = 0; i < DIMENS_R; ++i ) {
+        if ( l[i] != r[i] )
+            return false;
+    }
+    return true;
 }
 
 }

@@ -3,12 +3,13 @@
 #define FANFILM_H
 
 #include "fanTexture.h"
+#include "fanPixel.h"
 
 namespace fan {
 
 /* A 2d space film for record image */
 class fanFilm
-    : public fanTexture<int, 2>
+    : public fanTexture<int, fanPixel, 2>
 {
 public:
     fanFilm( const fanVector<int, 2>& dimensions );

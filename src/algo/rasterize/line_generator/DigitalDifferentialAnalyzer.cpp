@@ -18,7 +18,7 @@ void DigitalDifferentialAnalyzer::plotLine( const fanVector<float, 2>& p1,
     float absDeltaX = abs(deltaX);
     float absDeltaY = abs(deltaY);
     if ( absDeltaX <= 0.05 && absDeltaY <= 0.05 ) {
-        film.setPixel( p1, pixel );
+        film.setValue( p1, pixel );
         return;
     }
     int length = 0;
@@ -35,7 +35,7 @@ void DigitalDifferentialAnalyzer::plotLine( const fanVector<float, 2>& p1,
     fanVector<float, 2> start = p1;
     int i = 0;
     while ( i <= length ) {
-        film.setPixel( start, pixel );
+        film.setValue( start, pixel );
         start += step;
         ++i;
     }

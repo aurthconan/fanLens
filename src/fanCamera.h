@@ -26,6 +26,8 @@ public:
         fanVector<float, 4> homoPos = world - lens.mPos;
         homoPos[3] = 1.0f;
         homoPos = lens.mViewTransformation * homoPos;
+        homoPos[0] /= homoPos[3];
+        homoPos[1] /= homoPos[3];
 
         if ( homoPos[0] < 0 || homoPos[0] > 1
                 || homoPos[1] < 0 || homoPos[1] > 1
@@ -33,8 +35,8 @@ public:
             visible = false;
         }
 
-        pos[0] = (homoPos[0]/homoPos[3])*screen[0];
-        pos[1] = (homoPos[1]/homoPos[3])*screen[1];
+        pos[0] = homoPos[0]*screen[0];
+        pos[1] = homoPos[1]*screen[1];
 
         return visible;
     }

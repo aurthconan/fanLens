@@ -37,7 +37,7 @@ void Bresenham::plotLine( const fanVector<float, 2>& p1,
     }
     int err = 2 * absY - absX;
     for ( size_t i = 0, max = (size_t)absX; i <= max; ++i ) {
-        film.setPixel( point, pixel );
+        film.setValue( point, pixel );
         while ( err > 0 ) {
             if ( interchange ) {
                 point[0] += signX;

@@ -42,12 +42,12 @@ void SDLFilm::develope() {
     SDL_memset(mpSDLSurface->pixels, 0, mpSDLSurface->h * mpSDLSurface->pitch);
 }
 
-fanPixel SDLFilm::getPixel( fanVector<int, 2> index ) const {
+fanPixel SDLFilm::getValue( fanVector<int, 2> index ) const {
     (void)index;
     return fanPixel();
 }
 
-void SDLFilm::setPixel( const fanVector<int, 2>& index,
+void SDLFilm::setValue( const fanVector<int, 2>& index,
                         const fanPixel& pixel ) {
     fanVector<int, 2> new_index = getDimens();
     new_index[0] = index[0];

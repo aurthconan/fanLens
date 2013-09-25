@@ -17,7 +17,7 @@ void PointScannerCamera::takePicture( fanScene& scene,
 
         // hard code the color temporary
         fanPixel pixel( 255, 255, 0, 0 );
-        film.setPixel( pos, pixel );
+        film.setValue( pos, pixel );
     }
 }
 

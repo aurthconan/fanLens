@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
     PerspectiveLens PerspLens( fanVector3<float>(400, -400, 400),
                           fanVector3<float>(0, 0, 0),
                           fanVector3<float>(0, 0, 1),
-                          fanVector3<float>(800, 600, 10000000),
+                          fanVector3<float>(400, 300, 10000000),
                           565 );
 
 

@@ -15,10 +15,12 @@ fanLens::~fanLens() {
 
 void fanLens::computeLensSpace( fanVector3<float> pos,
                                 fanVector3<float> lookAt,
-                                fanVector3<float> up ) {
+                                fanVector3<float> up,
+                                fanVector3<float> dimens ) {
     mPos = pos;
     mLookAt = lookAt;
     mUp = up;
+    mDimens = dimens;
     fanVector3<float> look = lookAt - pos;
     fanVector3<float> toUp = up - pos;
     fanVector3<float> z = normalize( look );
@@ -42,38 +44,15 @@ void fanLens::computeLensSpace( fanVector3<float> pos,
     fanMatrix<float, 4, 4> childTransform = getTransformation();
     mViewTransformation = mLensSpace;
     mViewTransformation[3][3] = 1;
-    mViewTransformation = mViewTransformation * childTransform;
-}
+    mViewTransformation = childTransform * mViewTransformation;
 
-bool fanLens::project( fanVector<float, 2>& pos,
-                       const fanVector3<float>& world,
-                       const fanTexture<int, 2>& space ) {
-    bool visible = true;
-    fanVector<float, 2> result;
-    fanVector3<float> vector = world - mPos;
-    vector = mLensSpace * vector;
-    if ( !projectInCameraSpace( result, vector ) ) {
-        visible = false;
-    }
+    fanMatrix<float, 4, 4> unitBox;
+    unitBox[0][0] = 1/mDimens[0]; unitBox[0][3] = 0.5f;
+    unitBox[1][1] = 1/mDimens[1]; unitBox[1][3] = 0.5f;
+    unitBox[2][2] = 1/mDimens[2];
+    unitBox[3][3] = 1;
 
-    // a viewport transformation, need a sampler class to do this
-    fanVector<int, 2> dimens = space.getDimens();
-    int xMax = dimens[0]/2; int yMax = dimens[1]/2;
-    int xModify = dimens[0]%2; int yModify = dimens[1]%2;
-    if ( result[0] > xMax + xModify || result[0] < -xMax
-            || result[1] > yMax + yModify || result[1] < -yMax ) {
-        visible = false;
-    }
-
-    pos = result;
-    pos[0] += xMax; pos[1] += yMax;
-    return visible;
-}
-
-bool fanLens::projectInCameraSpace( fanVector<float, 2>& pos,
-                                    const fanVector3<float>& world ) {
-    (void)pos; (void)world;
-    return false;
+    mViewTransformation = unitBox * mViewTransformation;
 }
 
 fanMatrix<float, 4, 4> fanLens::getTransformation() {
@@ -83,7 +62,8 @@ fanMatrix<float, 4, 4> fanLens::getTransformation() {
 void fanLens::move( fanVector<float, 3> move ) {
     computeLensSpace( mPos + move,
                       mLookAt + move,
-                      mUp + move );
+                      mUp + move,
+                      mDimens );
 }
 
 }

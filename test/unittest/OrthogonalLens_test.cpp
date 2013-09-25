@@ -31,40 +31,39 @@ using namespace fan;
 TEST(OrthogonalLens,LookThroughPositiveYAxis) {
     OrthogonalLens lens( fanVector3<float>(0, -100, 0),
                          fanVector3<float>(0, 0, 0),
-                         fanVector3<float>(0, 0, 1) );
+                         fanVector3<float>(0, 0, 1),
+                         fanVector3<float>(100, 100, 100) );
 
     fanVector<int, 2> size;
     size[0] = 100; size[1] = 100;
-    fanTexture<int, 2> target( size );
-    fanVector<int, 2> dot;
     fanVector<float, 2> result;
-    lens.project( result,
-                  fanVector3<float>(0, 0, 1),
-                  target );
-    dot = result;
-    EXPECT_EQ( 50, dot[0] );
-    EXPECT_EQ( 51, dot[1] );
+    fanCamera camera;
+    camera.project( fanVector3<float>(0, 0, 1),
+                    lens, size,
+                    result );
+    EXPECT_EQ( 50, result[0] );
+    EXPECT_EQ( 51, result[1] );
 
-    lens.project( result,
-                  fanVector3<float>( 0, 0, 2 ),
-                  target );
-    dot = result;
-    EXPECT_EQ( 50, dot[0] );
-    EXPECT_EQ( 52, dot[1] );
+    camera.project( fanVector3<float>( 0, 0, 2 ),
+                    lens, size,
+                    result );
 
-    lens.project( result,
-                  fanVector3<float>( 1, 0, 2 ),
-                  target );
-    dot = result;
-    EXPECT_EQ( 51, dot[0] );
-    EXPECT_EQ( 52, dot[1] );
+    EXPECT_EQ( 50, result[0] );
+    EXPECT_EQ( 52, result[1] );
 
-    lens.project( result,
-                  fanVector3<float>( 2, 0, 2 ),
-                  target );
-    dot = result;
-    EXPECT_EQ( 52, dot[0] );
-    EXPECT_EQ( 52, dot[1] );
+    camera.project( fanVector3<float>( 1, 0, 2 ),
+                    lens, size,
+                    result );
+
+    EXPECT_EQ( 51, result[0] );
+    EXPECT_EQ( 52, result[1] );
+
+    camera.project( fanVector3<float>( 2, 0, 2 ),
+                    lens, size,
+                    result );
+
+    EXPECT_EQ( 52, result[0] );
+    EXPECT_EQ( 52, result[1] );
 
 }
 
@@ -85,47 +84,48 @@ TEST(OrthogonalLens,LookThroughPositiveYAxis) {
 TEST(OrthogonalLens,LookThroughNegativeXAxis) {
     OrthogonalLens lens( fanVector3<float>(100, 0, 0),
                          fanVector3<float>(0, 0, 0),
-                         fanVector3<float>(0, 0, 1) );
+                         fanVector3<float>(0, 0, 1),
+                         fanVector3<float>(100, 100, 10000) );
 
+    fanCamera camera;
     fanVector<int, 2> size;
     size[0] = 100; size[1] = 100;
-    fanTexture<int, 2> target( size );
-    fanVector<int, 2> dot;
     fanVector<float, 2> result;
-    lens.project( result,
-                  fanVector3<float>(0, 0, 1),
-                  target );
-    dot = result;
-    EXPECT_EQ( 50, dot[0] );
-    EXPECT_EQ( 51, dot[1] );
+    camera.project( fanVector3<float>(0, 0, 1),
+                    lens, size,
+                    result );
 
-    lens.project( result,
-                  fanVector3<float>( 0, 0, 2 ),
-                  target );
-    dot = result;
-    EXPECT_EQ( 50, dot[0] );
-    EXPECT_EQ( 52, dot[1] );
+    EXPECT_EQ( 50, result[0] );
+    EXPECT_EQ( 51, result[1] );
 
-    lens.project( result,
-                  fanVector3<float>( 0, 1, 2 ),
-                  target );
-    dot = result;
-    EXPECT_EQ( 51, dot[0] );
-    EXPECT_EQ( 52, dot[1] );
+    camera.project( fanVector3<float>( 0, 0, 2 ),
+                    lens, size,
+                    result );
 
-    lens.project( result,
-                  fanVector3<float>( 0, 2, 2 ),
-                  target );
-    dot = result;
-    EXPECT_EQ( 52, dot[0] );
-    EXPECT_EQ( 52, dot[1] );
+    EXPECT_EQ( 50, result[0] );
+    EXPECT_EQ( 52, result[1] );
+
+    camera.project( fanVector3<float>( 0, 1, 2 ),
+                    lens, size,
+                    result );
+
+    EXPECT_EQ( 51, result[0] );
+    EXPECT_EQ( 52, result[1] );
+
+    camera.project( fanVector3<float>( 0, 2, 2 ),
+                    lens, size,
+                    result );
+
+    EXPECT_EQ( 52, result[0] );
+    EXPECT_EQ( 52, result[1] );
 
 }
 
 TEST(OrthogonalLens,RenderAxis) {
-    OrthogonalLens lens( fanVector3<float>( 1, -1, 1),
+    OrthogonalLens lens( fanVector3<float>( 1000, -1000, 1000),
                          fanVector3<float>(0, 0, 0),
-                         fanVector3<float>(0, 0, 1) );
+                         fanVector3<float>(0, 0, 1),
+                         fanVector3<float>(800, 600, 10000) );
 
     fan::fanVector<int, 2> size;
     size[0] = 800; size[1] = 600;

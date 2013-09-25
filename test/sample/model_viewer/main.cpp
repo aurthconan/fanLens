@@ -45,37 +45,40 @@ int main(int argc, char** argv) {
     size[0] = 800; size[1] = 600;
     SDLFilm sdl( size );
 
-    /*
-    OrthogonalLens lens( fanVector3<float>( 1, -1, 1),
+    OrthogonalLens OrthoLens( fanVector3<float>( 400, -400, 400),
                          fanVector3<float>(0, 0, 0),
-                         fanVector3<float>(0, 0, 1) );
-                         // */
-    //*
-    PerspectiveLens lens( fanVector3<float>(1, -1, 1),
+                         fanVector3<float>(0, 0, 1),
+                         fanVector3<float>(800, 600, 10000000) );
+    PerspectiveLens PerspLens( fanVector3<float>(400, -400, 400),
                           fanVector3<float>(0, 0, 0),
                           fanVector3<float>(0, 0, 1),
-                          400 );
-                          // */
+                          fanVector3<float>(800, 600, 10000000),
+                          565 );
 
 
     fanCamera* currentCamera = NULL;
+    fanLens* currentLens = NULL;
     PointScannerCamera pointCamera;
     WireframeCamera wireframeCamera;
 
     bool done = false;
+    bool refresh = false;
 
     currentCamera = &pointCamera;
+    currentLens = &OrthoLens;
     StopWatch stopWatch;
     while ( !done ) {
         stopWatch.start();
-        currentCamera->takePicture( scene, sdl, lens );
+        currentCamera->takePicture( scene, sdl, *currentLens );
         stopWatch.stop("Take Picture");
         sdl.develope();
 
         SDL_Event event;
-        if (SDL_WaitEvent(&event)) {
+        refresh = false;
+        while (!refresh && SDL_WaitEvent(&event)) {
             if ( event.type == SDL_QUIT ) {
                 done = true;
+                refresh = true;
             }
             switch( event.type ) {
                 case SDL_QUIT:
@@ -92,10 +95,14 @@ int main(int argc, char** argv) {
                         case SDLK_ESCAPE: done = true; break;
                         case SDLK_1: currentCamera = &pointCamera; break;
                         case SDLK_2: currentCamera = &wireframeCamera; break;
+                        case SDLK_o: currentLens = &OrthoLens; break;
+                        case SDLK_p: currentLens = &PerspLens; break;
+                        default: continue; break;
                     }
-                    lens.move( move );
+                    OrthoLens.move( move );
+                    PerspLens.move( move );
+                    refresh = true;
                 }
-                break;
             }
         }
     }
@@ -116,9 +123,9 @@ bool loadFile( char* file, fanScene& ourScene ) {
         for ( size_t j = 0, max = mesh->mNumVertices;
                 j < max; ++j ) {
             aiVector3D vector = mesh->mVertices[j];
-            ourScene.mVertices.push_back(fanVector3<float>(vector.x*400,
-                                                           vector.y*400,
-                                                           vector.z*400));
+            ourScene.mVertices.push_back(fanVector3<float>(vector.x * 400,
+                                                           vector.y * 400,
+                                                           vector.z * 400));
         }
     }
     size_t verticesNum = 0;

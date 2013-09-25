@@ -17,6 +17,27 @@ public:
     virtual void takePicture( fan::fanScene& scene,
                               fan::fanFilm& film,
                               fan::fanLens& lens );
+
+    inline bool project( const fan::fanVector3<float>& world,
+                         const fan::fanLens& lens,
+                         const fan::fanVector<int, 2>& screen,
+                         fan::fanVector<float, 2>& pos ) {
+        bool visible = true;
+        fanVector<float, 4> homoPos = world - lens.mPos;
+        homoPos[3] = 1.0f;
+        homoPos = lens.mViewTransformation * homoPos;
+
+        if ( homoPos[0] < 0 || homoPos[0] > 1
+                || homoPos[1] < 0 || homoPos[1] > 1
+                || homoPos[2] < 0 || homoPos[2] > 1 ) {
+            visible = false;
+        }
+
+        pos[0] = (homoPos[0]/homoPos[3])*screen[0];
+        pos[1] = (homoPos[1]/homoPos[3])*screen[1];
+
+        return visible;
+    }
 };
 
 }

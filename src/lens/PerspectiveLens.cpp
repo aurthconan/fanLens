@@ -3,16 +3,10 @@
 PerspectiveLens::PerspectiveLens( fan::fanVector3<float> pos,
                                   fan::fanVector3<float> lookAt,
                                   fan::fanVector3<float> up,
+                                  fan::fanVector3<float> dimens,
                                   float distance )
     : mDistance( distance ) {
-    computeLensSpace( pos, lookAt, up );
-}
-
-bool PerspectiveLens::projectInCameraSpace( fan::fanVector<float, 2>& pos,
-                                       const fan::fanVector3<float>& camera ) {
-    pos[0] = (mDistance*camera[0])/(mDistance+camera[2]);
-    pos[1] = (mDistance*camera[1])/(mDistance+camera[2]);
-    return true;
+    computeLensSpace( pos, lookAt, up, dimens );
 }
 
 fan::fanMatrix<float, 4, 4> PerspectiveLens::getTransformation() {

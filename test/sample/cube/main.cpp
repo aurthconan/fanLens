@@ -106,30 +106,30 @@ int main() {
     size[0] = 800; size[1] = 600;
     SDLFilm sdl( size );
 
-    /*
-    OrthogonalLens lens( fanVector3<float>(1, 1, 1),
+    OrthogonalLens OrthoLens( fanVector3<float>(400, 400, 400),
                          fanVector3<float>(0, 0, 0),
-                         fanVector3<float>(0, 0, 1) );
-    // */
-    //*
-    PerspectiveLens lens( fanVector3<float>(1, 1, 1),
+                         fanVector3<float>(0, 0, 1),
+                         fanVector3<float>(800, 600, 1000) );
+    PerspectiveLens PerspLens( fanVector3<float>(400, 400, 400),
                           fanVector3<float>(0, 0, 0),
                           fanVector3<float>(0, 0, 1),
+                          fanVector3<float>(800, 600, 1000),
                           3000 );
-                          // */
 
     fanCamera* currentCamera = NULL;
+    fanLens* currentLens = NULL;
     PointScannerCamera pointCamera;
     WireframeCamera wireframeCamera;
 
     bool done = false;
 
     currentCamera = &pointCamera;
+    currentLens = &PerspLens;
 
     StopWatch stopWatch;
     while ( !done ) {
         stopWatch.start();
-        currentCamera->takePicture( scene, sdl, lens );
+        currentCamera->takePicture( scene, sdl, *currentLens );
         stopWatch.stop("Take Picture");
         sdl.develope();
 
@@ -148,13 +148,16 @@ int main() {
                     switch( event.key.keysym.sym ) {
                         case SDLK_w: move[1] += 1; break;
                         case SDLK_s: move[1] -= 1; break;
-                        case SDLK_a: move[0] += 1; break;
-                        case SDLK_d: move[0] -= 1; break;
+                        case SDLK_a: move[0] -= 1; break;
+                        case SDLK_d: move[0] += 1; break;
                         case SDLK_ESCAPE: done = true; break;
                         case SDLK_1: currentCamera = &pointCamera; break;
                         case SDLK_2: currentCamera = &wireframeCamera; break;
+                        case SDLK_o: currentLens = &OrthoLens; break;
+                        case SDLK_p: currentLens = &PerspLens; break;
                     }
-                    lens.move( move );
+                    PerspLens.move( move );
+                    OrthoLens.move( move );
                 }
                 break;
             }

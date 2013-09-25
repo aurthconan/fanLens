@@ -20,9 +20,9 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
 
     for ( auto itor = scene.mTriangles.begin(), end = scene.mTriangles.end();
             itor != end; ++itor ) {
-        bool aVisible = lens.project( a, *(itor->a), film );
-        bool bVisible = lens.project( b, *(itor->b), film );
-        bool cVisible = lens.project( c, *(itor->c), film );
+        bool aVisible = project( *(itor->a), lens, dimens, a );
+        bool bVisible = project( *(itor->b), lens, dimens, b );
+        bool cVisible = project( *(itor->c), lens, dimens, c );
         if ( !aVisible && !bVisible && !cVisible ) {
             continue;
         }

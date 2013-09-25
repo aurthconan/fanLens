@@ -59,11 +59,13 @@ TYPED_TEST_P(Camera_test, SimpleScene) {
 
     OrthogonalLens OrthoLens( fan::fanVector3<float>(-1, -1, -1),
                               fan::fanVector3<float>(0, 0, 0),
-                              fan::fanVector3<float>(0, 1, 0) );
+                              fan::fanVector3<float>(0, 1, 0),
+                              fan::fanVector3<float>(800, 600, 1000) );
 
     PerspectiveLens PersLens( fan::fanVector3<float>(-1, -1, -1),
                               fan::fanVector3<float>(0, 0, 0),
                               fan::fanVector3<float>(0, 1, 0),
+                              fan::fanVector3<float>(800, 600, 1000),
                               5000 );
 
 

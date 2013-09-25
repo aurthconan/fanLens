@@ -10,11 +10,10 @@ class OrthogonalLens
 public:
     OrthogonalLens( fan::fanVector3<float> pos,
                     fan::fanVector3<float> lookAt,
-                    fan::fanVector3<float> up );
+                    fan::fanVector3<float> up,
+                    fan::fanVector3<float> dimens );
 
 protected:
-    bool projectInCameraSpace( fan::fanVector<float, 2>& pos,
-                               const fan::fanVector3<float>& camera );
     virtual fan::fanMatrix<float, 4, 4> getTransformation();
 
 };

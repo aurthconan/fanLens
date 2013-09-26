@@ -11,8 +11,8 @@ using namespace fan;
 
 void DigitalDifferentialAnalyzer::plotLine( const fanVector<float, 2>& p1,
                                             const fanVector<float, 2>& p2,
+                                            const fanPixel& pixel,
                                             fanFilm& film ) {
-    fanPixel pixel( 255, 255, 0, 0 );
     float deltaX = p2[0] - p1[0];
     float deltaY = p2[1] - p1[1];
     float absDeltaX = abs(deltaX);

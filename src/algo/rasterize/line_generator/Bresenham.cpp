@@ -17,9 +17,8 @@ template <typename T> inline int sgn(T val) {
 
 void Bresenham::plotLine( const fanVector<float, 2>& p1,
                           const fanVector<float, 2>& p2,
+                          const fanPixel& pixel,
                           fanFilm& film ) {
-    fanPixel pixel( 255, 255, 0, 0 );
-
     fanVector<float, 2> point = p1;
     float deltaX = p2[0] - p1[0];
     float deltaY = p2[1] - p1[1];

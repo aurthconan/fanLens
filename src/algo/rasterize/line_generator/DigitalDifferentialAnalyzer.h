@@ -10,6 +10,7 @@ class DigitalDifferentialAnalyzer
 public:
     virtual void plotLine( const fan::fanVector<float, 2>& p1,
                            const fan::fanVector<float, 2>& p2,
+                           const fan::fanPixel& pixel,
                            fan::fanFilm& film );
 };
 

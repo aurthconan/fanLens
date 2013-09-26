@@ -19,32 +19,41 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
 
     fanVector<float, 2> p1, p2;
     fanVector<float, 2> a, b, c;
+    bool aVisible, bVisible, cVisible;
+
+    fanVector<float, 2> normalPos, triangleCenter;
+
+    fanPixel pixel( 255, 255, 0, 0 );
+    fanPixel normalVisible( 255, 0, 255, 0 );
+    fanPixel normalInvisible( 255, 0, 0, 255 );
 
     for ( auto itor = scene.mTriangles.begin(), end = scene.mTriangles.end();
             itor != end; ++itor ) {
-        if ( !Culling( lens.mPos, itor->mCenter, itor->mNormal ) ) {
+
+#define PLOT_LINE( P1, P2, WINDOW, PIXEL, FILM )                \
+        if ( CohenSutherland( WINDOW, P1, P2 ) ) {              \
+            lineGenerator.plotLine( P1, P2, PIXEL, FILM );      \
+        }
+
+        if ( !Culling( lens, itor->mNormal ) ) {
             continue;
         }
 
-        bool aVisible = project( *(itor->a), lens, dimens, a );
-        bool bVisible = project( *(itor->b), lens, dimens, b );
-        bool cVisible = project( *(itor->c), lens, dimens, c );
+        aVisible = project( *(itor->a), lens, dimens, a );
+        bVisible = project( *(itor->b), lens, dimens, b );
+        cVisible = project( *(itor->c), lens, dimens, c );
         if ( !aVisible && !bVisible && !cVisible ) {
             continue;
         }
 
         p1 = a; p2 = b;
-        if ( CohenSutherland( window, p1, p2 ) ) {
-            lineGenerator.plotLine( p1, p2, film );
-        }
+        PLOT_LINE( p1, p2, window, pixel, film );
+
         p1 = b; p2 = c;
-        if ( CohenSutherland( window, p1, p2 ) ) {
-            lineGenerator.plotLine( p1, p2, film );
-        }
+        PLOT_LINE( p1, p2, window, pixel, film );
+
         p1 = c; p2 = a;
-        if ( CohenSutherland( window, p1, p2 ) ) {
-            lineGenerator.plotLine( p1, p2, film );
-        }
+        PLOT_LINE( p1, p2, window, pixel, film );
     }
 }
 

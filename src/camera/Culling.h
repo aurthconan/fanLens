@@ -4,10 +4,9 @@
 
 #include <fanLens.h>
 
-inline bool Culling( const fan::fanVector3<float>& ori,
-                     const fan::fanVector3<float>& center,
+inline bool Culling( const fan::fanLens& lens,
                      const fan::fanVector3<float>& normal ) {
-    fan::fanVector3<float> view = center - ori;
+    fan::fanVector3<float> view = lens.mLookAt - lens.mPos;
     if ( view*normal <= 0 ) {
         return true;
     }

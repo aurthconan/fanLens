@@ -38,6 +38,7 @@ TYPED_TEST_CASE_P(fanLineGenerator_test);
 
 TYPED_TEST_P(fanLineGenerator_test,DiagonalFromBottomLeftToTopRight) {
     fan::fanVector<int, 2> size;
+    fan::fanPixel pixel( 255, 255, 0, 0 );
     size[0] = 100; size[1] = 100;
     FreeImageFilm film( size, "DiagonalFromBottomLeftToTopRight.png" );
 
@@ -49,7 +50,7 @@ TYPED_TEST_P(fanLineGenerator_test,DiagonalFromBottomLeftToTopRight) {
 
     fan::fanVector<float, 2> p1, p2;
     p2[1] = 99; p2[0] = 99;
-    lineGenerator->plotLine( p1, p2, film );
+    lineGenerator->plotLine( p1, p2, pixel, film );
     film.develope();
 
     this->deleteLineGenerator( lineGenerator );

@@ -32,7 +32,7 @@ ScanLineStoreFilm::~ScanLineStoreFilm() {
     free(mpYBucket);
 }
 
-void ScanLineStoreFilm::setPixel( const fanVector<int, 2>& index,
+void ScanLineStoreFilm::setValue( const fanVector<int, 2>& index,
                                   const fanPixel& pixel ) {
     (void) pixel;
     fanVector<int, 2> _index = index;

@@ -21,9 +21,10 @@ public:
     inline bool project( const fan::fanVector3<float>& world,
                          const fan::fanLens& lens,
                          const fan::fanVector<int, 2>& screen,
-                         fan::fanVector<float, 2>& pos ) {
+                         fan::fanVector<float, 2>& pos,
+                         fan::fanVector<float, 4>& homoPos ) {
         bool visible = true;
-        fanVector<float, 4> homoPos = world - lens.mPos;
+        homoPos = world - lens.mPos;
         homoPos[3] = 1.0f;
         homoPos = lens.mViewTransformation * homoPos;
         homoPos[0] /= homoPos[3];

@@ -12,7 +12,7 @@ public:
     ScanLineStoreFilm( const fan::fanVector<int, 2>& dimensions );
     ~ScanLineStoreFilm();
 
-    void setPixel( const fan::fanVector<int, 2>& index,
+    void setValue( const fan::fanVector<int, 2>& index,
                    const fan::fanPixel& pixel );
 
     void reset();

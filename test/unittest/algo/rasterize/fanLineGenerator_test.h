@@ -50,7 +50,7 @@ TYPED_TEST_P(fanLineGenerator_test,DiagonalFromBottomLeftToTopRight) {
 
     fan::fanVector<float, 2> p1, p2;
     p2[1] = 99; p2[0] = 99;
-    lineGenerator->plotLine( p1, p2, pixel, film );
+    lineGenerator->plotLine( p1, p2, pixel, film, NULL );
     film.develope();
 
     this->deleteLineGenerator( lineGenerator );

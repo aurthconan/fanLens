@@ -3,11 +3,13 @@
 #include <texture/film/ScanLineStoreFilm.h>
 #include <texture/film/FreeImageFilm.h>
 #include <algo/rasterize/line_generator/Bresenham.h>
+#include <fanPixel.h>
 
 using namespace fan;
 
 TEST(ScanLineStoreFilm,Triangle) {
     fanVector<int, 2> dimens;
+    fanPixel pixel(255, 255, 0, 0);
     dimens[0] = 200; dimens[1] = 200;
     ScanLineStoreFilm scanLine( dimens );
     FreeImageFilm freeImage( dimens, "ScanLineStoreFilm_triangle.png" );
@@ -17,18 +19,17 @@ TEST(ScanLineStoreFilm,Triangle) {
 
     p1[0] = 10; p1[1] = 10;
     p2 = p1; p2[0] = 190;
-    lineGenerator.plotLine(p1, p2, scanLine );
+    lineGenerator.plotLine(p1, p2, pixel, scanLine, NULL );
 
     p2[1] = 190;
-    lineGenerator.plotLine(p1, p2, scanLine );
+    lineGenerator.plotLine(p1, p2, pixel, scanLine, NULL );
 
     p1[0] = 190;
-    lineGenerator.plotLine(p1, p2, scanLine );
+    lineGenerator.plotLine(p1, p2, pixel, scanLine, NULL );
 
     EXPECT_EQ( scanLine.mYMin, 10 );
     EXPECT_EQ( scanLine.mYMax, 190 );
 
-    fanPixel pixel(255, 255, 0, 0);
     fanVector<int, 2> pos;                                        \
 
 #define PLOT_SCANLINE                                             \
@@ -37,7 +38,7 @@ TEST(ScanLineStoreFilm,Triangle) {
         pos[1] = i;                                               \
         for ( int j = line[0]; j <= line[1]; ++j ) {              \
             pos[0] = j;                                           \
-            freeImage.setPixel( pos, pixel );                     \
+            freeImage.setValue( pos, pixel );                     \
         }                                                         \
     }
 
@@ -46,13 +47,13 @@ TEST(ScanLineStoreFilm,Triangle) {
     scanLine.reset();
     p1[0] = 100; p1[1] = 100;
     p2 = p1; p2[0] = -90;
-    lineGenerator.plotLine(p1, p2, scanLine );
+    lineGenerator.plotLine(p1, p2, pixel, scanLine, NULL );
 
     p2 = p1; p2[1] = 290;
-    lineGenerator.plotLine(p1, p2, scanLine );
+    lineGenerator.plotLine(p1, p2, pixel, scanLine, NULL );
 
     p1[0] = -90;
-    lineGenerator.plotLine(p1, p2, scanLine );
+    lineGenerator.plotLine(p1, p2, pixel, scanLine, NULL );
 
     EXPECT_EQ( scanLine.mYMin, 100 );
     EXPECT_EQ( scanLine.mYMax, 199 );
@@ -65,13 +66,13 @@ TEST(ScanLineStoreFilm,Triangle) {
 
     p1[0] = 100; p1[1] = 100;
     p2 = p1; p2[0] = 260;
-    lineGenerator.plotLine(p1, p2, scanLine );
+    lineGenerator.plotLine(p1, p2, pixel, scanLine, NULL );
 
     p2 = p1; p2[1] = -50;
-    lineGenerator.plotLine(p1, p2, scanLine );
+    lineGenerator.plotLine(p1, p2, pixel, scanLine, NULL );
 
     p1[0] = 260;
-    lineGenerator.plotLine(p1, p2, scanLine );
+    lineGenerator.plotLine(p1, p2, pixel, scanLine, NULL );
 
     EXPECT_EQ( scanLine.mYMin, 0 );
     EXPECT_EQ( scanLine.mYMax, 100 );

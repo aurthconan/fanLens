@@ -11,7 +11,8 @@ public:
     virtual void plotLine( const fan::fanVector<float, 2>& p1,
                            const fan::fanVector<float, 2>& p2,
                            const fan::fanPixel& pixel,
-                           fan::fanFilm& film );
+                           fan::fanTexture<int, fan::fanPixel, 2>& film,
+                           fan::fanLineGeneratorCallback* callback );
 };
 
 #endif /* end of include guard: DIGITALDIFFERENTIALANALYZER_H */

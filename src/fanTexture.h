@@ -21,12 +21,6 @@ public:
         return mDimensions;
     }
 
-
-    /*
-     * index[0] = x axis
-     * index[1] = y axis
-     * origin point (0, 0) at bottom left
-     */
     virtual T_VALUE getValue( fanVector<T, DIMENS> index ) const {
         (void)index;
         return T_VALUE();

@@ -4,9 +4,46 @@
 #include "algo/rasterize/line_generator/Bresenham.h"
 #include "algo/rasterize/line_generator/DigitalDifferentialAnalyzer.h"
 
+#include <texture/MemoryTexture.h>
+#include <texture/ClampTexture.h>
+
 #include "Culling.h"
 
 using namespace fan;
+
+class TextureWithZBufferTest
+    : public fanFilm
+    , public fanLineGeneratorCallback
+{
+public:
+    TextureWithZBufferTest( fanTexture<int, fanPixel, 2>& film,
+                            MemoryTexture<int, float, 2>& zBuffer )
+        : fanFilm( film.getDimens() )
+        , mFilm( film )
+        , mZBuffer( zBuffer )
+        , mStep(0)
+        , mStart(0)
+        , mRange(0) {
+    }
+
+    void setValue( const fan::fanVector<int, 2>& index,
+                   const fan::fanPixel& pixel ) {
+        if ( mZBuffer.getValue( index ) > mStart ) {
+            mFilm.setValue( index, pixel );
+        }
+        mStart += mStep;
+    }
+
+    void setStep( size_t step ) {
+        mStep = mRange / (float) step;
+    }
+
+    fanTexture<int, fanPixel, 2>& mFilm;
+    MemoryTexture<int, float, 2>& mZBuffer;
+    float mStep;
+    float mStart;
+    float mRange;
+};
 
 void WireframeCamera::takePicture( fan::fanScene& scene,
                                    fan::fanFilm& film,
@@ -17,43 +54,41 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
     window[2] = 0; window[3] = dimens[1] - 1;
     Bresenham lineGenerator;
 
-    fanVector<float, 2> p1, p2;
     fanVector<float, 2> a, b, c;
+    fanVector<float, 4> homoA, homoB, homoC;
     bool aVisible, bVisible, cVisible;
 
-    fanVector<float, 2> normalPos, triangleCenter;
-
     fanPixel pixel( 255, 255, 0, 0 );
-    fanPixel normalVisible( 255, 0, 255, 0 );
-    fanPixel normalInvisible( 255, 0, 0, 255 );
+
+    MemoryTexture<int, float, 2> zBuffer( dimens );
+    zBuffer.reset( 2.0f );
+
+    ClampTexture<int, fanPixel, 2> clampFilm( &film );
+
+    TextureWithZBufferTest zBufferTestFilm( clampFilm, zBuffer );
 
     for ( auto itor = scene.mTriangles.begin(), end = scene.mTriangles.end();
             itor != end; ++itor ) {
 
 #define PLOT_LINE( P1, P2, WINDOW, PIXEL, FILM )                \
-        if ( CohenSutherland( WINDOW, P1, P2 ) ) {              \
-            lineGenerator.plotLine( P1, P2, PIXEL, FILM );      \
-        }
+        lineGenerator.plotLine( P1, P2, PIXEL, FILM, NULL );    \
 
         if ( !Culling( lens, itor->mNormal ) ) {
             continue;
         }
 
-        aVisible = project( *(itor->a), lens, dimens, a );
-        bVisible = project( *(itor->b), lens, dimens, b );
-        cVisible = project( *(itor->c), lens, dimens, c );
+        aVisible = project( *(itor->a), lens, dimens, a, homoA );
+        bVisible = project( *(itor->b), lens, dimens, b, homoB );
+        cVisible = project( *(itor->c), lens, dimens, c, homoC );
         if ( !aVisible && !bVisible && !cVisible ) {
             continue;
         }
 
-        p1 = a; p2 = b;
-        PLOT_LINE( p1, p2, window, pixel, film );
+        PLOT_LINE( a, b, window, pixel, clampFilm );
 
-        p1 = b; p2 = c;
-        PLOT_LINE( p1, p2, window, pixel, film );
+        PLOT_LINE( b, c, window, pixel, clampFilm );
 
-        p1 = c; p2 = a;
-        PLOT_LINE( p1, p2, window, pixel, film );
+        PLOT_LINE( c, a, window, pixel, clampFilm );
     }
 }
 

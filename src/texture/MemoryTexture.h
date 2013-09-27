@@ -3,6 +3,7 @@
 #define MEMORYTEXTURE_H
 
 #include <fanTexture.h>
+#include <string.h>
 
 template<typename T, typename T_VALUE, size_t DIMENS>
 class MemoryTexture
@@ -46,6 +47,16 @@ public:
         }
         size_t newIndex = get1dIndex( index );
         mBuffer[newIndex] = value;
+    }
+
+    void reset( T_VALUE value ) {
+        if ( !mBuffer ) {
+            return;
+        }
+
+        for ( size_t i = 0; i < mNum; ++i ) {
+            mBuffer[i] = value;
+        }
     }
 
 private:

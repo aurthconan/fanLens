@@ -37,30 +37,31 @@ TEST(OrthogonalLens,LookThroughPositiveYAxis) {
     fanVector<int, 2> size;
     size[0] = 100; size[1] = 100;
     fanVector<float, 2> result;
+    fanVector<float, 4> homoPos;
     fanCamera camera;
     camera.project( fanVector3<float>(0, 0, 1),
                     lens, size,
-                    result );
+                    result, homoPos );
     EXPECT_EQ( 50, result[0] );
     EXPECT_EQ( 51, result[1] );
 
     camera.project( fanVector3<float>( 0, 0, 2 ),
                     lens, size,
-                    result );
+                    result, homoPos );
 
     EXPECT_EQ( 50, result[0] );
     EXPECT_EQ( 52, result[1] );
 
     camera.project( fanVector3<float>( 1, 0, 2 ),
                     lens, size,
-                    result );
+                    result, homoPos );
 
     EXPECT_EQ( 51, result[0] );
     EXPECT_EQ( 52, result[1] );
 
     camera.project( fanVector3<float>( 2, 0, 2 ),
                     lens, size,
-                    result );
+                    result, homoPos );
 
     EXPECT_EQ( 52, result[0] );
     EXPECT_EQ( 52, result[1] );
@@ -89,32 +90,33 @@ TEST(OrthogonalLens,LookThroughNegativeXAxis) {
 
     fanCamera camera;
     fanVector<int, 2> size;
+    fanVector<float, 4> homoPos;
     size[0] = 100; size[1] = 100;
     fanVector<float, 2> result;
     camera.project( fanVector3<float>(0, 0, 1),
                     lens, size,
-                    result );
+                    result, homoPos );
 
     EXPECT_EQ( 50, result[0] );
     EXPECT_EQ( 51, result[1] );
 
     camera.project( fanVector3<float>( 0, 0, 2 ),
                     lens, size,
-                    result );
+                    result, homoPos );
 
     EXPECT_EQ( 50, result[0] );
     EXPECT_EQ( 52, result[1] );
 
     camera.project( fanVector3<float>( 0, 1, 2 ),
                     lens, size,
-                    result );
+                    result, homoPos );
 
     EXPECT_EQ( 51, result[0] );
     EXPECT_EQ( 52, result[1] );
 
     camera.project( fanVector3<float>( 0, 2, 2 ),
                     lens, size,
-                    result );
+                    result, homoPos );
 
     EXPECT_EQ( 52, result[0] );
     EXPECT_EQ( 52, result[1] );

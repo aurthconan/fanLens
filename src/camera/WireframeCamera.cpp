@@ -84,11 +84,11 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
             continue;
         }
 
-        PLOT_LINE( a, b, window, pixel, clampFilm );
+        PLOT_LINE( a, b, window, pixel, zBufferTestFilm );
 
-        PLOT_LINE( b, c, window, pixel, clampFilm );
+        PLOT_LINE( b, c, window, pixel, zBufferTestFilm );
 
-        PLOT_LINE( c, a, window, pixel, clampFilm );
+        PLOT_LINE( c, a, window, pixel, zBufferTestFilm );
     }
 }
 

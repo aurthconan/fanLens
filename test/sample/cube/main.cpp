@@ -31,8 +31,8 @@ void addTriangle( fanScene& scene, size_t startIndex ) {
             size_t p2Index = p0Index + 5;
             size_t p3Index = p1Index + 5;
             // every face has two triangle
-            fanTriangle t1( &scene.mVertices[p0Index], &scene.mVertices[p1Index],
-                            &scene.mVertices[p2Index] );
+            fanTriangle t1( &scene.mVertices[p0Index], &scene.mVertices[p2Index],
+                            &scene.mVertices[p1Index] );
             fanTriangle t2( &scene.mVertices[p1Index], &scene.mVertices[p2Index],
                             &scene.mVertices[p3Index] );
             scene.mTriangles.push_back(t1);

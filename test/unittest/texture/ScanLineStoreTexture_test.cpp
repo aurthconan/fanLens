@@ -20,14 +20,14 @@ public:
         texture->setValue( index, .0f );
     }
 
-    ScanLineStoreTexture* texture;
+    ScanLineStoreTexture<fanPixel>* texture;
 };
 
 TEST(ScanLineStoreTexture,Triangle) {
     fanVector<int, 2> dimens;
     fanPixel pixel(255, 255, 0, 0);
     dimens[0] = 200; dimens[1] = 200;
-    ScanLineStoreTexture scanLine( dimens );
+    ScanLineStoreTexture<fanPixel> scanLine( dimens );
     ScanLineStoreTextureTestStub stub( dimens );
     stub.texture = &scanLine;
     FreeImageFilm freeImage( dimens, "ScanLineStoreFilm_triangle.png" );
@@ -48,16 +48,20 @@ TEST(ScanLineStoreTexture,Triangle) {
     EXPECT_EQ( scanLine.mYMin, 10 );
     EXPECT_EQ( scanLine.mYMax, 190 );
 
-    fanVector<int, 2> pos;                                        \
+    fanVector<int, 2> pos;
 
-#define PLOT_SCANLINE                                             \
-    for ( int i = scanLine.mYMin; i <= scanLine.mYMax; ++i ) {    \
-        fanVector<int, 2> line = scanLine.mpYBucket[i];           \
-        pos[1] = i;                                               \
-        for ( int j = line[0]; j <= line[1]; ++j ) {              \
-            pos[0] = j;                                           \
-            freeImage.setValue( pos, pixel );                     \
-        }                                                         \
+#define PLOT_SCANLINE                                               \
+    for ( int i = scanLine.mYMin; i <= scanLine.mYMax; ++i ) {      \
+        auto line = scanLine.mYBucket[i];                           \
+        if ( line.first.first >= dimens[0] ) continue;              \
+        if ( line.second.first < 0 ) continue;                      \
+        pos[1] = i;                                                 \
+        for ( int j = line.first.first, max = line.second.first;    \
+                j < max; ++j ) {                                    \
+            if ( j < 0 || j >= dimens[0] ) continue;                \
+            pos[0] = j;                                             \
+            freeImage.setValue( pos, pixel );                       \
+        }                                                           \
     }
 
     PLOT_SCANLINE;

@@ -85,10 +85,10 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
     for ( auto itor = scene.mTriangles.begin(), end = scene.mTriangles.end();
             itor != end; ++itor ) {
 
-#define PLOT_LINE( P1, P2, START, RANGE, PIXEL, FILM )      \
+#define PLOT_LINE( P1, P2, START, RANGE, PIXEL, FILM )              \
         FILM.mStart = START;                                        \
         FILM.mRange = RANGE;                                        \
-        lineGenerator.plotLine( P1, P2, PIXEL, FILM, NULL );        \
+        lineGenerator.plotLine( P1, P2, PIXEL, FILM, &FILM );       \
 
         if ( !Culling( lens, itor->mNormal ) ) {
             continue;

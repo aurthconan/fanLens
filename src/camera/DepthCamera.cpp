@@ -77,7 +77,7 @@ void DepthCamera::takePicture( fan::fanScene& scene,
 #define PLOT_LINE( P1, P2, START, RANGE, PIXEL, FILM )      \
         FILM.mStart = START;                                        \
         FILM.mRange = RANGE;                                        \
-        lineGenerator.plotLine( P1, P2, PIXEL, FILM, NULL );        \
+        lineGenerator.plotLine( P1, P2, PIXEL, FILM, &FILM );       \
 
         aVisible = project( *(itor->a), lens, dimens, a, homoA );
         bVisible = project( *(itor->b), lens, dimens, b, homoB );

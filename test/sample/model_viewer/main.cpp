@@ -13,6 +13,7 @@
 #include <lens/PerspectiveLens.h>
 #include <camera/PointScannerCamera.h>
 #include <camera/WireframeCamera.h>
+#include <camera/DepthCamera.h>
 #include <utils/StopWatch.h>
 
 #include <cstdlib>
@@ -48,11 +49,11 @@ int main(int argc, char** argv) {
     OrthogonalLens OrthoLens( fanVector3<float>( 400, -400, 400),
                          fanVector3<float>(0, 0, 0),
                          fanVector3<float>(0, 0, 1),
-                         fanVector3<float>(800, 600, 10000000) );
+                         fanVector3<float>(800, 600, 1000) );
     PerspectiveLens PerspLens( fanVector3<float>(400, -400, 400),
                           fanVector3<float>(0, 0, 0),
                           fanVector3<float>(0, 0, 1),
-                          fanVector3<float>(400, 300, 10000000),
+                          fanVector3<float>(400, 300, 1000),
                           565 );
 
 
@@ -60,11 +61,12 @@ int main(int argc, char** argv) {
     fanLens* currentLens = NULL;
     PointScannerCamera pointCamera;
     WireframeCamera wireframeCamera;
+    DepthCamera depthCamera;
 
     bool done = false;
     bool refresh = false;
 
-    currentCamera = &pointCamera;
+    currentCamera = &depthCamera;
     currentLens = &OrthoLens;
     StopWatch stopWatch;
     while ( !done ) {
@@ -95,6 +97,7 @@ int main(int argc, char** argv) {
                         case SDLK_ESCAPE: done = true; break;
                         case SDLK_1: currentCamera = &pointCamera; break;
                         case SDLK_2: currentCamera = &wireframeCamera; break;
+                        case SDLK_3: currentCamera = &depthCamera; break;
                         case SDLK_o: currentLens = &OrthoLens; break;
                         case SDLK_p: currentLens = &PerspLens; break;
                         default: continue; break;
@@ -123,9 +126,9 @@ bool loadFile( char* file, fanScene& ourScene ) {
         for ( size_t j = 0, max = mesh->mNumVertices;
                 j < max; ++j ) {
             aiVector3D vector = mesh->mVertices[j];
-            ourScene.mVertices.push_back(fanVector3<float>(vector.x * 400,
-                                                           vector.y * 400,
-                                                           vector.z * 400));
+            ourScene.mVertices.push_back(fanVector3<float>(vector.x *500,
+                                                           vector.y *500,
+                                                           vector.z *500));
         }
     }
     size_t verticesNum = 0;

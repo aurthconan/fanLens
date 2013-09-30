@@ -4,7 +4,7 @@
 
 #include <fanTexture.h>
 
-#include <hash_map>
+#include <ext/hash_map>
 #include <utility>
 
 // a class use to store and generate scanline

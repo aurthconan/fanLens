@@ -9,6 +9,7 @@
 #include <lens/PerspectiveLens.h>
 #include <camera/PointScannerCamera.h>
 #include <camera/WireframeCamera.h>
+#include <camera/DepthCamera.h>
 #include <utils/StopWatch.h>
 
 #include <cstdlib>
@@ -109,17 +110,18 @@ int main() {
     OrthogonalLens OrthoLens( fanVector3<float>(400, 400, 400),
                          fanVector3<float>(0, 0, 0),
                          fanVector3<float>(0, 0, 1),
-                         fanVector3<float>(800, 600, 1000) );
+                         fanVector3<float>(800, 600, 800) );
     PerspectiveLens PerspLens( fanVector3<float>(400, 400, 400),
                           fanVector3<float>(0, 0, 0),
                           fanVector3<float>(0, 0, 1),
-                          fanVector3<float>(800, 600, 1000),
+                          fanVector3<float>(800, 600, 800),
                           3000 );
 
     fanCamera* currentCamera = NULL;
     fanLens* currentLens = NULL;
     PointScannerCamera pointCamera;
     WireframeCamera wireframeCamera;
+    DepthCamera depthCamera;
 
     bool done = false;
 
@@ -153,6 +155,7 @@ int main() {
                         case SDLK_ESCAPE: done = true; break;
                         case SDLK_1: currentCamera = &pointCamera; break;
                         case SDLK_2: currentCamera = &wireframeCamera; break;
+                        case SDLK_3: currentCamera = &depthCamera; break;
                         case SDLK_o: currentLens = &OrthoLens; break;
                         case SDLK_p: currentLens = &PerspLens; break;
                     }

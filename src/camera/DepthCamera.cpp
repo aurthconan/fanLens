@@ -1,32 +1,26 @@
-#include "WireframeCamera.h"
+#include "DepthCamera.h"
 
-#include <algo/clip/CohenSutherland.h>
+#include "Culling.h"
+
 #include <algo/rasterize/line_generator/Bresenham.h>
-#include <algo/rasterize/line_generator/DigitalDifferentialAnalyzer.h>
 
 #include <texture/MemoryTexture.h>
-#include <texture/ClampTexture.h>
 #include <texture/ScanLineStoreTexture.h>
 
 #include <utils/SortTriangleByZDepth.h>
 
 #include <algorithm>
 
-#include "Culling.h"
-
 using namespace fan;
 
-class TextureWithZBufferTest
+class ZDepthComputeTexture
     : public fanFilm
     , public fanLineGeneratorCallback
 {
 public:
-    TextureWithZBufferTest( fanTexture<int, fanPixel, 2>& film,
-                            MemoryTexture<int, float, 2>& zBuffer,
-                            ScanLineStoreTexture<float>& scanLine )
-        : fanFilm( film.getDimens() )
-        , mFilm( film )
-        , mZBuffer( zBuffer )
+    ZDepthComputeTexture( fanVector<int, 2>& dimens,
+                          ScanLineStoreTexture<float>& scanLine )
+        : fanFilm( dimens )
         , mScanLineStore( scanLine )
         , mStep(0)
         , mStart(0)
@@ -35,13 +29,7 @@ public:
 
     void setValue( const fan::fanVector<int, 2>& index,
                    const fan::fanPixel& pixel ) {
-        if ( index[0] > 0 && index[0] < mDimensions[0]
-                && index[1] > 0 && index[1] < mDimensions[1] ) {
-            if ( mZBuffer.getValue( index ) > mStart ) {
-                mFilm.setValue( index, pixel );
-            }
-        }
-
+        (void) pixel;
         mScanLineStore.setValue( index, mStart );
         mStart += mStep;
     }
@@ -50,17 +38,15 @@ public:
         mStep = mRange / (float) step;
     }
 
-    fanTexture<int, fanPixel, 2>& mFilm;
-    MemoryTexture<int, float, 2>& mZBuffer;
     ScanLineStoreTexture<float>& mScanLineStore;
     float mStep;
     float mStart;
     float mRange;
 };
 
-void WireframeCamera::takePicture( fan::fanScene& scene,
-                                   fan::fanFilm& film,
-                                   fan::fanLens& lens ) {
+void DepthCamera::takePicture( fan::fanScene& scene,
+                               fan::fanFilm& film,
+                               fan::fanLens& lens ) {
     fanVector<int, 2> dimens = film.getDimens();
     Bresenham lineGenerator;
 
@@ -70,29 +56,28 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
 
     fanPixel pixel( 255, 255, 0, 0 );
 
-    MemoryTexture<int, float, 2> zBuffer( dimens );
-    zBuffer.reset( 2.0f );
-
-    ClampTexture<int, fanPixel, 2> clampFilm( &film );
-
-    ScanLineStoreTexture<float> scanLine(dimens);
-    TextureWithZBufferTest zBufferTestFilm( clampFilm, zBuffer, scanLine );
-
     // sort the depth
     std::sort(scene.mTriangles.begin(), scene.mTriangles.end(),
                     SortTriangleByZDepth(lens));
 
+    ScanLineStoreTexture<float> scanLine(dimens);
+    ZDepthComputeTexture texture( dimens, scanLine );
+
+    MemoryTexture<int, float, 2> zBuffer( dimens );
+    zBuffer.reset( 2.0f );
+
+
     for ( auto itor = scene.mTriangles.begin(), end = scene.mTriangles.end();
             itor != end; ++itor ) {
+
+        if ( !Culling( lens, itor->mNormal ) ) {
+            continue;
+        }
 
 #define PLOT_LINE( P1, P2, START, RANGE, PIXEL, FILM )      \
         FILM.mStart = START;                                        \
         FILM.mRange = RANGE;                                        \
         lineGenerator.plotLine( P1, P2, PIXEL, FILM, NULL );        \
-
-        if ( !Culling( lens, itor->mNormal ) ) {
-            continue;
-        }
 
         aVisible = project( *(itor->a), lens, dimens, a, homoA );
         bVisible = project( *(itor->b), lens, dimens, b, homoB );
@@ -103,13 +88,15 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
         scanLine.reset();
 
         PLOT_LINE( a, b, homoA[2], homoB[2] - homoA[2],
-                     pixel, zBufferTestFilm );
+                     pixel, texture );
 
         PLOT_LINE( b, c, homoB[2], homoC[2] - homoB[2],
-                     pixel, zBufferTestFilm );
+                     pixel, texture );
 
         PLOT_LINE( c, a, homoC[2], homoA[2] - homoC[2],
-                     pixel, zBufferTestFilm );
+                     pixel, texture );
+
+        fanPixel pixel( 255, 255, 255, 255 );
 
         // fill the zBuffer
         for ( int i = scanLine.mYMin; i <= scanLine.mYMax; ++i ) {
@@ -127,6 +114,11 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
                 a[0] = j;
                 if ( depthValue < zBuffer.getValue( a ) ) {
                     zBuffer.setValue( a, depthValue );
+
+                    pixel.r = ( 1.0f - depthValue ) * 255.0f;
+                    pixel.g = ( 1.0f - depthValue ) * 255.0f;
+                    pixel.b = ( 1.0f - depthValue ) * 255.0f;
+                    film.setValue( a, pixel );
                 }
             }
         }

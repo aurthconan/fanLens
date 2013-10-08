@@ -5,6 +5,7 @@
 #include <fanPixel.h>
 #include <fanCamera.h>
 #include <texture/film/SDLFilm.h>
+#include <fanLensMovement.h>
 #include <lens/OrthogonalLens.h>
 #include <lens/PerspectiveLens.h>
 #include <camera/PointScannerCamera.h>
@@ -107,11 +108,11 @@ int main() {
     size[0] = 800; size[1] = 600;
     SDLFilm sdl( size );
 
-    OrthogonalLens OrthoLens( fanVector3<float>(400, 400, 400),
+    OrthogonalLens OrthoLens( fanVector3<float>(400, 0, 0),
                          fanVector3<float>(0, 0, 0),
                          fanVector3<float>(0, 0, 1),
                          fanVector3<float>(800, 600, 800) );
-    PerspectiveLens PerspLens( fanVector3<float>(400, 400, 400),
+    PerspectiveLens PerspLens( fanVector3<float>(400, 0, 0),
                           fanVector3<float>(0, 0, 0),
                           fanVector3<float>(0, 0, 1),
                           fanVector3<float>(800, 600, 800),
@@ -148,10 +149,18 @@ int main() {
                 {
                     fanVector<float, 3> move;
                     switch( event.key.keysym.sym ) {
-                        case SDLK_w: move[1] += 1; break;
-                        case SDLK_s: move[1] -= 1; break;
-                        case SDLK_a: move[0] -= 1; break;
-                        case SDLK_d: move[0] += 1; break;
+                        case SDLK_w: Pitch(M_PI/360.0f, OrthoLens); Pitch(M_PI/360.0f, PerspLens); break;
+                        case SDLK_s: Pitch(-M_PI/360.0f, OrthoLens); Pitch(-M_PI/360.0f, PerspLens); break;
+                        case SDLK_a: Yaw(M_PI/360.0f, OrthoLens); Yaw(M_PI/360.0f, PerspLens); break;
+                        case SDLK_d: Yaw(-M_PI/360.0f, OrthoLens); Yaw(-M_PI/360.0f, PerspLens); break;
+                        case SDLK_q: Roll(M_PI/360.0f, OrthoLens); Roll(M_PI/360.0f, PerspLens); break;
+                        case SDLK_e: Roll(-M_PI/360.0f, OrthoLens); Roll(-M_PI/360.0f, PerspLens); break;
+                        case SDLK_u: PitchAroundFocus(M_PI/360.0f, OrthoLens); PitchAroundFocus(M_PI/360.0f, PerspLens); break;
+                        case SDLK_j: PitchAroundFocus(-M_PI/360.0f, OrthoLens); PitchAroundFocus(-M_PI/360.0f, PerspLens); break;
+                        case SDLK_h: YawAroundFocus(M_PI/360.0f, OrthoLens); YawAroundFocus(M_PI/360.0f, PerspLens); break;
+                        case SDLK_k: YawAroundFocus(-M_PI/360.0f, OrthoLens); YawAroundFocus(-M_PI/360.0f, PerspLens); break;
+                        case SDLK_y: RollAroundFocus(M_PI/360.0f, OrthoLens); RollAroundFocus(M_PI/360.0f, PerspLens); break;
+                        case SDLK_i: RollAroundFocus(-M_PI/360.0f, OrthoLens); RollAroundFocus(-M_PI/360.0f, PerspLens); break;
                         case SDLK_ESCAPE: done = true; break;
                         case SDLK_1: currentCamera = &pointCamera; break;
                         case SDLK_2: currentCamera = &wireframeCamera; break;
@@ -159,8 +168,6 @@ int main() {
                         case SDLK_o: currentLens = &OrthoLens; break;
                         case SDLK_p: currentLens = &PerspLens; break;
                     }
-                    PerspLens.move( move );
-                    OrthoLens.move( move );
                 }
                 break;
             }

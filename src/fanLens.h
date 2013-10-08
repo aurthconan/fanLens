@@ -24,11 +24,12 @@ public:
 
     void move( fanVector<float, 3> move );
 
-protected:
     void computeLensSpace( fanVector3<float> pos,
                            fanVector3<float> lookAt,
                            fanVector3<float> up,
                            fanVector3<float> dimens );
+
+protected:
 
     virtual fan::fanMatrix<float, 4, 4> getTransformation();
 };

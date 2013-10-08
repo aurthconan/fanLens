@@ -19,6 +19,16 @@ public:
     T& y;
     T& z;
 
+    template<typename OTHER_T, size_t OTHER_DIMENS>
+    fanVector3( const fanVector<OTHER_T, OTHER_DIMENS>& other )
+        : fanVector<T, 3>( other )
+        , x(fanVector<T,3>::axis[0])
+        , y(fanVector<T,3>::axis[1])
+        , z(fanVector<T,3>::axis[2])
+    {
+    }
+
+
     fanVector3( T _x = 0, T _y = 0, T _z = 0 )
         : x(fanVector<T,3>::axis[0])
         , y(fanVector<T,3>::axis[1])

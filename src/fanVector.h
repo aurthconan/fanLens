@@ -106,6 +106,51 @@ public:
         return *this;
     }
 
+    template<typename OTHER_T, size_t OTHER_DIMENS>
+    inline fanVector<T, DIMENS> operator+( const fanVector<OTHER_T, OTHER_DIMENS> other ) const {
+        fanVector<T, DIMENS> result;
+        size_t end = std::min( DIMENS, OTHER_DIMENS );
+        for ( size_t i = 0; i < end; ++i ) {
+            result.axis[i] = axis[i] + other.axis[i];
+        }
+        for ( size_t i = end; i < DIMENS; ++i ) {
+            result.axis[i] = axis[i];
+        }
+        return result;
+    }
+
+    template<typename OTHER_T, size_t OTHER_DIMENS>
+    inline fanVector<T, DIMENS>& operator+=( const fanVector<T, DIMENS> other ) {
+        size_t end = std::min( DIMENS, OTHER_DIMENS );
+        for ( size_t i = 0; i < end; ++i ) {
+            axis[i] += other.axis[i];
+        }
+        return *this;
+    }
+
+    template<typename OTHER_T, size_t OTHER_DIMENS>
+    inline fanVector<T, DIMENS> operator-( const fanVector<OTHER_T, OTHER_DIMENS> other ) const {
+        fanVector<T, DIMENS> result;
+        size_t end = std::min( DIMENS, OTHER_DIMENS );
+        for ( size_t i = 0; i < end; ++i ) {
+            result.axis[i] = axis[i] - other.axis[i];
+        }
+        for ( size_t i = end; i < DIMENS; ++i ) {
+            result.axis[i] = axis[i];
+        }
+        return result;
+    }
+
+    template<typename OTHER_T, size_t OTHER_DIMENS>
+    inline fanVector<T, DIMENS>& operator-=( const fanVector<T, DIMENS> other ) {
+        size_t end = std::min( DIMENS, OTHER_DIMENS );
+        for ( size_t i = 0; i < end; ++i ) {
+            axis[i] -= other.axis[i];
+        }
+        return *this;
+    }
+
+
     inline fanVector<T, DIMENS> operator/( const T& scale ) const {
         return divide( *this, scale );
     }

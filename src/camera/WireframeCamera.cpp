@@ -10,8 +10,6 @@
 
 #include <utils/SortTriangleByZDepth.h>
 
-#include <algorithm>
-
 using namespace fan;
 
 class TextureWithZBufferTest
@@ -33,12 +31,14 @@ public:
 
     void setValue( const fan::fanVector<int, 2>& index,
                    const fan::fanPixel& pixel ) {
+        /*
         if ( index[0] > 0 && index[0] < mDimensions[0]
                 && index[1] > 0 && index[1] < mDimensions[1] ) {
             if ( mZBuffer.getValue( index ) > mStart ) {
                 mFilm.setValue( index, pixel );
             }
         }
+        */
 
         mScanLineStore.setValue( index, mStart );
         mStart += mStep;
@@ -67,6 +67,7 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
     bool aVisible, bVisible, cVisible;
 
     fanPixel pixel( 255, 255, 0, 0 );
+    fanPixel bgPixel( 255, 0, 0, 0 );
 
     MemoryTexture<int, float, 2> zBuffer( dimens );
     zBuffer.reset( 2.0f );
@@ -75,10 +76,6 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
 
     ScanLineStoreTexture<float> scanLine(dimens);
     TextureWithZBufferTest zBufferTestFilm( clampFilm, zBuffer, scanLine );
-
-    // sort the depth
-    std::sort(scene.mTriangles.begin(), scene.mTriangles.end(),
-                    SortTriangleByZDepth(lens));
 
     for ( auto itor = scene.mTriangles.begin(), end = scene.mTriangles.end();
             itor != end; ++itor ) {
@@ -119,12 +116,24 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
                                     (line.valueAtMax-line.valueAtMin)/
                                         (line.xMax-line.xMin);
             float depthValue = line.valueAtMin;
-            for ( int j = line.xMin, max = line.xMax;
+            a[0] = line.xMin;
+            if ( line.valueAtMin < zBuffer.getValue( a ) ) {
+                zBuffer.setValue( a, line.valueAtMin );
+                clampFilm.setValue( a, pixel );
+            }
+            a[0] = line.xMax;
+            if ( line.valueAtMax < zBuffer.getValue( a ) ) {
+                zBuffer.setValue( a, line.valueAtMax );
+                clampFilm.setValue( a, pixel );
+            }
+
+            for ( int j = line.xMin + 1, max = line.xMax - 1;
                     j <= max; ++j, depthValue+=depthStep ) {
                 if ( j < 0 || j >= dimens[0] ) continue;
                 a[0] = j;
                 if ( depthValue < zBuffer.getValue( a ) ) {
                     zBuffer.setValue( a, depthValue );
+                    clampFilm.setValue( a, bgPixel );
                 }
             }
         }

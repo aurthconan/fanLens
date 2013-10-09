@@ -7,8 +7,6 @@
 
 #include <utils/SortTriangleByZDepth.h>
 
-#include <algorithm>
-
 using namespace fan;
 
 class ZDepthComputeTexture

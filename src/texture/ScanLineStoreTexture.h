@@ -4,8 +4,16 @@
 
 #include <fanTexture.h>
 
-#include <ext/hash_map>
 #include <utility>
+
+template<typename T>
+class ScanLineRange {
+public:
+    int xMin;
+    int xMax;
+    T valueAtMin;
+    T valueAtMax;
+};
 
 // a class use to store and generate scanline
 template<typename T_VALUE>
@@ -16,19 +24,33 @@ public:
     typedef std::pair<int, T_VALUE> EndPointDataType;
     ScanLineStoreTexture( const fan::fanVector<int, 2>& dimensions )
         : fan::fanTexture<int, T_VALUE, 2>( dimensions )
-        , mYMin( dimensions[1] )
-        , mYMax( 0 )
+        , mYMin( 0 )
+        , mYMax( dimensions[1] - 1 )
+        , mYBucket( new ScanLineRange<T_VALUE>[dimensions[1]] )
     {
         reset();
+    }
+
+    ~ScanLineStoreTexture() {
+        if ( mYBucket ) {
+            delete[] mYBucket;
+        }
     }
 
     void reset() {
         fan::fanVector<int, 2> windowDimens =
             fan::fanTexture<int, T_VALUE, 2>::getDimens();
 
-        mYMin = windowDimens[1];
+        ScanLineRange<T_VALUE>* oneLine;
+        for ( int i = mYMin, max = mYMax;
+                i <= max; ++i ) {
+            oneLine = mYBucket + i;
+            oneLine->xMin = windowDimens[0];
+            oneLine->xMax = 0;
+        }
+
+        mYMin = windowDimens[1] - 1;
         mYMax = 0;
-        mYBucket.clear();
     }
 
     void setValue( const fan::fanVector<int, 2>& index,
@@ -42,34 +64,27 @@ public:
 
         if ( index[1] < mYMin ) {
             mYMin = index[1];
-        } else if ( index[1] > mYMax ) {
+        }
+        if ( index[1] > mYMax ) {
             mYMax = index[1];
         }
 
-        std::pair<EndPointDataType, EndPointDataType> data;
-        if ( mYBucket.find( index[1] ) != mYBucket.end() ) {
-            data = mYBucket[index[1]];
-        } else {
-            data.first.first = index[0];
-            data.first.second = value;
-            data.second.first = index[0];
-            data.second.second = value;
+        ScanLineRange<T_VALUE>* oneLine = mYBucket + index[1];
+
+        if ( index[0] < oneLine->xMin ) {
+            oneLine->xMin = index[0];
+            oneLine->valueAtMin = value;
         }
-        if ( index[0] < data.first.first ) {
-            data.first.first = index[0];
-            data.first.second = value;
-        } else if ( index[0] > data.second.first ) {
-            data.second.first = index[0];
-            data.second.second = value;
+        if ( index[0] > oneLine->xMax ) {
+            oneLine->xMax = index[0];
+            oneLine->valueAtMax = value;
         }
-        mYBucket[index[1]] = data;
     }
 
     int mYMin;
     int mYMax;
 
-    __gnu_cxx::hash_map<int, std::pair<EndPointDataType,
-                                 EndPointDataType> > mYBucket;
+    ScanLineRange<T_VALUE>* mYBucket;
 };
 
 #endif /* end of include guard: SCANLINESTOREFILM_H */

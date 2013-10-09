@@ -54,10 +54,6 @@ void DepthCamera::takePicture( fan::fanScene& scene,
 
     fanPixel pixel( 255, 255, 0, 0 );
 
-    // sort the depth
-    std::sort(scene.mTriangles.begin(), scene.mTriangles.end(),
-                    SortTriangleByZDepth(lens));
-
     ScanLineStoreTexture<float> scanLine(dimens);
     ZDepthComputeTexture texture( dimens, scanLine );
 
@@ -99,14 +95,14 @@ void DepthCamera::takePicture( fan::fanScene& scene,
         // fill the zBuffer
         for ( int i = scanLine.mYMin; i <= scanLine.mYMax; ++i ) {
             auto line = scanLine.mYBucket[i];
-            if ( line.first.first >= dimens[0] ) continue;
-            if ( line.second.first < 0 ) continue;
+            if ( line.xMin >= dimens[0] ) continue;
+            if ( line.xMax < 0 ) continue;
             a[1] = i;
-            float depthStep = (line.first.first==line.second.first)?0:
-                                    (line.second.second-line.first.second)/
-                                        (line.second.first-line.first.first);
-            float depthValue = line.first.second;
-            for ( int j = line.first.first, max = line.second.first;
+            float depthStep = (line.xMin==line.xMax)?0:
+                                    (line.valueAtMax-line.valueAtMin)/
+                                        (line.xMax-line.xMin);
+            float depthValue = line.valueAtMin;
+            for ( int j = line.xMin, max = line.xMax;
                     j <= max; ++j, depthValue+=depthStep ) {
                 if ( j < 0 || j >= dimens[0] ) continue;
                 a[0] = j;

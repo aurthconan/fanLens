@@ -53,10 +53,10 @@ TEST(ScanLineStoreTexture,Triangle) {
 #define PLOT_SCANLINE                                               \
     for ( int i = scanLine.mYMin; i <= scanLine.mYMax; ++i ) {      \
         auto line = scanLine.mYBucket[i];                           \
-        if ( line.first.first >= dimens[0] ) continue;              \
-        if ( line.second.first < 0 ) continue;                      \
+        if ( line.xMin >= dimens[0] ) continue;                     \
+        if ( line.xMax < 0 ) continue;                              \
         pos[1] = i;                                                 \
-        for ( int j = line.first.first, max = line.second.first;    \
+        for ( int j = line.xMin, max = line.xMax;                   \
                 j < max; ++j ) {                                    \
             if ( j < 0 || j >= dimens[0] ) continue;                \
             pos[0] = j;                                             \

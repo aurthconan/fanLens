@@ -8,6 +8,8 @@
 
 namespace fan {
 
+class fanTriangle;
+
 /* A "Camera" class if in other renderer*/
 class fanLens
 {
@@ -23,6 +25,8 @@ public:
     virtual ~fanLens();
 
     void move( fanVector<float, 3> move );
+
+    virtual bool cullFace( const fanTriangle& triangle );
 
     void computeLensSpace( fanVector3<float> pos,
                            fanVector3<float> lookAt,

@@ -12,8 +12,6 @@
 
 #include <algorithm>
 
-#include "Culling.h"
-
 using namespace fan;
 
 class TextureWithZBufferTest
@@ -90,7 +88,7 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
         FILM.mRange = RANGE;                                        \
         lineGenerator.plotLine( P1, P2, PIXEL, FILM, &FILM );       \
 
-        if ( !Culling( lens, itor->mNormal ) ) {
+        if ( !lens.cullFace( *itor ) ) {
             continue;
         }
 

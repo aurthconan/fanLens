@@ -1,7 +1,5 @@
 #include "DepthCamera.h"
 
-#include "Culling.h"
-
 #include <algo/rasterize/line_generator/Bresenham.h>
 
 #include <texture/MemoryTexture.h>
@@ -70,7 +68,7 @@ void DepthCamera::takePicture( fan::fanScene& scene,
     for ( auto itor = scene.mTriangles.begin(), end = scene.mTriangles.end();
             itor != end; ++itor ) {
 
-        if ( !Culling( lens, itor->mNormal ) ) {
+        if ( !lens.cullFace( *itor ) ) {
             continue;
         }
 

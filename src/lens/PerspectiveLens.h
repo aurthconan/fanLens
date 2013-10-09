@@ -14,6 +14,8 @@ public:
                      fan::fanVector3<float> dimens,
                      float distance );
 
+    bool cullFace( const fan::fanTriangle& triangle );
+
 protected:
     virtual fan::fanMatrix<float, 4, 4> getTransformation();
 

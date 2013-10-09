@@ -20,10 +20,16 @@
 #include <cstdlib>
 
 #include <iostream>
+#include <limits>
+#include <cmath>
 
 using namespace std;
 
 using namespace fan;
+
+float xMin, xMax;
+float yMin, yMax;
+float zMin, zMax;
 
 bool loadFile( char* file, fanScene& scene );
 
@@ -39,23 +45,33 @@ int main(int argc, char** argv) {
         return 2;
     }
 
+    xMin = yMin = zMin = std::numeric_limits<float>::max();
+    xMax = yMax = zMax = std::numeric_limits<float>::min();
+
     if ( !loadFile( argv[1], scene ) ) {
         return 3;
     }
+
+    float xBound = xMax - xMin;
+    float yBound = yMax - yMin;
+    float zBound = zMax - zMin;
+    fanVector3<float> center(xMin + xBound/2, yMin + yBound/2, zMin + zBound/2);
+    float diameter = sqrt( xBound*xBound + yBound*yBound + zBound*zBound );
+    float radius = diameter / 2.0f;
 
     fanVector<int, 2> size;
     size[0] = 800; size[1] = 600;
     SDLFilm sdl( size );
 
-    OrthogonalLens OrthoLens( fanVector3<float>( 400, -400, 400),
-                         fanVector3<float>(0, 0, 0),
-                         fanVector3<float>(0, 0, 1),
-                         fanVector3<float>(800, 600, 1000) );
-    PerspectiveLens PerspLens( fanVector3<float>(400, -400, 400),
-                          fanVector3<float>(0, 0, 0),
-                          fanVector3<float>(0, 0, 1),
-                          fanVector3<float>(400, 300, 1000),
-                          565 );
+    OrthogonalLens OrthoLens( center + fanVector3<float>(radius, radius, radius),
+                              center,
+                              center + fanVector3<float>(0, 0, 1),
+                              fanVector3<float>(diameter*4.0f/3.0f, diameter, diameter * 1.5) );
+    PerspectiveLens PerspLens( center + fanVector3<float>(radius, radius, radius),
+                               center,
+                               center + fanVector3<float>(0, 0, 1),
+                               fanVector3<float>(diameter*2.0f/3.0f, diameter/2.0f, diameter * 1.5),
+                               radius*1.3 );
 
 
     fanCamera* currentCamera = NULL;
@@ -133,9 +149,27 @@ bool loadFile( char* file, fanScene& ourScene ) {
         for ( size_t j = 0, max = mesh->mNumVertices;
                 j < max; ++j ) {
             aiVector3D vector = mesh->mVertices[j];
-            ourScene.mVertices.push_back(fanVector3<float>(vector.x *500,
-                                                           vector.y *500,
-                                                           vector.z *500));
+            ourScene.mVertices.push_back(fanVector3<float>(vector.x,
+                                                           vector.y,
+                                                           vector.z));
+            if ( vector.x > xMax ) {
+                xMax = vector.x;
+            }
+            if ( vector.x < xMin ) {
+                xMin = vector.x;
+            }
+            if ( vector.y > yMax ) {
+                yMax = vector.y;
+            }
+            if ( vector.y < yMin ) {
+                yMin = vector.y;
+            }
+            if ( vector.z > zMax ) {
+                zMax = vector.z;
+            }
+            if ( vector.z < zMin ) {
+                zMin = vector.z;
+            }
         }
     }
     size_t verticesNum = 0;

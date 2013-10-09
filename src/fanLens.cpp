@@ -67,6 +67,7 @@ void fanLens::move( fanVector<float, 3> move ) {
 }
 
 bool fanLens::cullFace( const fan::fanTriangle& triangle ) {
+    (void) triangle;
     return false;
 }
 

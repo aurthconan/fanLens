@@ -17,7 +17,7 @@ public:
     virtual ~fanTexture() {
     }
 
-    fanVector<T, DIMENS> getDimens() const {
+    const fanVector<T, DIMENS>& getDimens() const {
         return mDimensions;
     }
 

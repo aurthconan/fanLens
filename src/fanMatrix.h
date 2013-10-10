@@ -54,7 +54,7 @@ public:
         return rows[i];
     }
 
-    inline fanVector<T, C> operator[]( size_t i ) const {
+    inline const fanVector<T, C>& operator[]( size_t i ) const {
         return rows[i];
     }
 

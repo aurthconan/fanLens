@@ -39,6 +39,7 @@ public:
             }
         }
         */
+        (void)pixel;
 
         mScanLineStore.setValue( index, mStart );
         mStart += mStep;

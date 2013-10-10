@@ -190,7 +190,7 @@ public:
         return axis[i];
     }
 
-    inline T operator[]( size_t i ) const {
+    inline const T& operator[]( size_t i ) const {
         return axis[i];
     }
 
@@ -248,6 +248,36 @@ inline T dot( const fanVector<T, DIMENS>& left,
     for( size_t i = 0; i < DIMENS; ++i ) {
         result += left.axis[i] * right.axis[i];
     }
+    return result;
+}
+
+template<typename T>
+inline T dot( const fanVector<T, 2>& left,
+              const fanVector<T, 2>& right ) {
+    T result(0);
+    result = left.axis[0]*right.axis[0]
+            +left.axis[1]*right.axis[1];
+    return result;
+}
+
+template<typename T>
+inline T dot( const fanVector<T, 3>& left,
+              const fanVector<T, 3>& right ) {
+    T result(0);
+    result = left.axis[0]*right.axis[0]
+            +left.axis[1]*right.axis[1]
+            +left.axis[2]*right.axis[2];
+    return result;
+}
+
+template<typename T>
+inline T dot( const fanVector<T, 4>& left,
+              const fanVector<T, 4>& right ) {
+    T result(0);
+    result = left.axis[0]*right.axis[0]
+            +left.axis[1]*right.axis[1]
+            +left.axis[2]*right.axis[2]
+            +left.axis[3]*right.axis[3];
     return result;
 }
 

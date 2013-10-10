@@ -38,27 +38,23 @@ public:
     }
 
     void reset() {
-        fan::fanVector<int, 2> windowDimens =
-            fan::fanTexture<int, T_VALUE, 2>::getDimens();
-
         ScanLineRange<T_VALUE>* oneLine;
         for ( int i = mYMin, max = mYMax;
                 i <= max; ++i ) {
             oneLine = mYBucket + i;
-            oneLine->xMin = windowDimens[0];
+            oneLine->xMin = fan::fanTexture<int, T_VALUE, 2>::mDimensions[0];
             oneLine->xMax = 0;
         }
 
-        mYMin = windowDimens[1] - 1;
+        mYMin = fan::fanTexture<int, T_VALUE, 2>::mDimensions[1] - 1;
         mYMax = 0;
     }
 
     void setValue( const fan::fanVector<int, 2>& index,
                    const T_VALUE& value ) {
-        fan::fanVector<int, 2> windowDimens =
-            fan::fanTexture<int, T_VALUE, 2>::getDimens();
 
-        if ( index[1] < 0 || index[1] >= windowDimens[1] ) {
+        if ( index[1] < 0 ||
+                index[1] >= fan::fanTexture<int, T_VALUE, 2>::mDimensions[1] ) {
             return;
         }
 

@@ -33,7 +33,7 @@ public:
 
 private:
     bool inRange( const fan::fanVector<T, DIMENS>& index ) const {
-        fan::fanVector<T, DIMENS> dimens =
+        const fan::fanVector<T, DIMENS>& dimens =
             fan::fanTexture<T, T_VALUE, DIMENS>::getDimens();
         for ( size_t i = 0; i < DIMENS; ++i ) {
             if ( index[i] < 0 || index[i] >= dimens[i] ) {

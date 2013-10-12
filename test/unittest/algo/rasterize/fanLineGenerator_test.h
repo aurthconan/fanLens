@@ -8,10 +8,28 @@
 
 #include <texture/film/FreeImageFilm.h>
 
+#include <string.h>
+
 template <class T>
 fan::fanLineGenerator* CreateLineGenerator() {
     return NULL;
 };
+
+template <class T>
+const char* GetName() {
+    return NULL;
+}
+
+#define GET_NAME(T)             \
+    template <>                 \
+    const char* GetName<T>() {  \
+        return #T;              \
+    }
+#define CREATE_LINE_GENERATOR(T)                        \
+    template <>                                         \
+    fan::fanLineGenerator* CreateLineGenerator<T>() {   \
+        return new T();                                 \
+    }
 
 template <class T>
 void DeleteLineGenerator( fan::fanLineGenerator* lineGenerator ) {
@@ -25,11 +43,13 @@ class fanLineGenerator_test
 public:
     fanLineGenerator_test()
         : createLineGenerator( CreateLineGenerator<T> )
-        , deleteLineGenerator( DeleteLineGenerator<T> ) {};
+        , deleteLineGenerator( DeleteLineGenerator<T> )
+        , getName( GetName<T> ) {};
     virtual ~fanLineGenerator_test() {};
 
     fan::fanLineGenerator* (*createLineGenerator)();
     void (*deleteLineGenerator)( fan::fanLineGenerator* lineGenerator );
+    const char* (*getName)();
 };
 
 TYPED_TEST_CASE_P(fanLineGenerator_test);
@@ -40,7 +60,9 @@ TYPED_TEST_P(fanLineGenerator_test,DiagonalFromBottomLeftToTopRight) {
     fan::fanVector<int, 2> size;
     fan::fanPixel pixel( 255, 255, 0, 0 );
     size[0] = 100; size[1] = 100;
-    FreeImageFilm film( size, "DiagonalFromBottomLeftToTopRight.png" );
+    std::string fileName = std::string(this->getName())
+                            + "DiagonalFromBottomLeftToTopRight.png";
+    FreeImageFilm film( size, fileName );
 
     fan::fanLineGenerator* lineGenerator = this->createLineGenerator();
     if ( !lineGenerator ) {

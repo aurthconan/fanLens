@@ -88,8 +88,6 @@ void DepthCamera::takePicture( fan::fanScene& scene,
         PLOT_LINE( c, a, homoC[2], homoA[2] - homoC[2],
                      pixel, texture );
 
-        fanPixel pixel( 255, 255, 255, 255 );
-
         // fill the zBuffer
         for ( int i = scanLine.mYMin; i <= scanLine.mYMax; ++i ) {
             auto line = scanLine.mYBucket[i];

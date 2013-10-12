@@ -23,6 +23,7 @@ public:
 
     virtual void setValue( const fanVector<int, 1>& index,
                            const int& value ) {
+        (void) value;
         fanVector<int, 1> dimens = getDimens();
         if ( index[0] < 0 || index[0] >= dimens[0] ) {
             ADD_FAILURE() << " index[0] " << index[0]

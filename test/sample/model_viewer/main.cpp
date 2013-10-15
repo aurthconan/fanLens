@@ -30,6 +30,7 @@ using namespace fan;
 float xMin, xMax;
 float yMin, yMax;
 float zMin, zMax;
+float radius;
 
 bool loadFile( char* file, fanScene& scene );
 
@@ -57,7 +58,7 @@ int main(int argc, char** argv) {
     float zBound = zMax - zMin;
     fanVector3<float> center(xMin + xBound/2, yMin + yBound/2, zMin + zBound/2);
     float diameter = sqrt( xBound*xBound + yBound*yBound + zBound*zBound );
-    float radius = diameter / 2.0f;
+    radius = diameter / 2.0f;
 
     fanVector<int, 2> size;
     size[0] = 800; size[1] = 600;
@@ -119,6 +120,12 @@ int main(int argc, char** argv) {
                         case SDLK_k: YawAroundFocus(-M_PI/360.0f, OrthoLens); YawAroundFocus(-M_PI/360.0f, PerspLens); break;
                         case SDLK_y: RollAroundFocus(M_PI/360.0f, OrthoLens); RollAroundFocus(M_PI/360.0f, PerspLens); break;
                         case SDLK_i: RollAroundFocus(-M_PI/360.0f, OrthoLens); RollAroundFocus(-M_PI/360.0f, PerspLens); break;
+                        case SDLK_z: move[0] += radius*0.1; Translate( move, OrthoLens); Translate( move, PerspLens); break;
+                        case SDLK_x: move[0] -= radius*0.1; Translate( move, OrthoLens); Translate( move, PerspLens); break;
+                        case SDLK_c: move[1] += radius*0.1; Translate( move, OrthoLens); Translate( move, PerspLens); break;
+                        case SDLK_v: move[1] -= radius*0.1; Translate( move, OrthoLens); Translate( move, PerspLens); break;
+                        case SDLK_b: move[2] += radius*0.1; Translate( move, OrthoLens); Translate( move, PerspLens); break;
+                        case SDLK_n: move[2] -= radius*0.1; Translate( move, OrthoLens); Translate( move, PerspLens); break;
                         case SDLK_ESCAPE: done = true; break;
                         case SDLK_1: currentCamera = &pointCamera; break;
                         case SDLK_2: currentCamera = &wireframeCamera; break;

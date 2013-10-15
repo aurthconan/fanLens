@@ -125,5 +125,14 @@ void RollAroundFocus( float radian, fan::fanLens& lens ) {
     RotateUseLookAtPos( rotation, lens );
 }
 
+void Translate( const fan::fanVector<float, 3>& pos, fan::fanLens& lens ) {
+    fanMatrix<float, 3, 3> toWorldSpace;
+    toWorldSpace = transpose( lens.mLensSpace );
+    fan::fanVector3<float> inWorldSpace = toWorldSpace * pos;
+    lens.mPos += inWorldSpace;
+    lens.mLookAt += inWorldSpace;
+    lens.mUp += inWorldSpace;
+}
+
 } /* namespace fan */
 

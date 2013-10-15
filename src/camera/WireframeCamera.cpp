@@ -10,6 +10,8 @@
 
 #include <utils/SortTriangleByZDepth.h>
 
+#include <algorithm>
+
 using namespace fan;
 
 class TextureWithZBufferTest
@@ -31,15 +33,12 @@ public:
 
     void setValue( const fan::fanVector<int, 2>& index,
                    const fan::fanPixel& pixel ) {
-        /*
         if ( index[0] > 0 && index[0] < mDimensions[0]
                 && index[1] > 0 && index[1] < mDimensions[1] ) {
             if ( mZBuffer.getValue( index ) > mStart ) {
                 mFilm.setValue( index, pixel );
             }
         }
-        */
-        (void)pixel;
 
         mScanLineStore.setValue( index, mStart );
         mStart += mStep;
@@ -68,7 +67,6 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
     bool aVisible, bVisible, cVisible;
 
     fanPixel pixel( 255, 255, 0, 0 );
-    fanPixel bgPixel( 255, 0, 0, 0 );
 
     MemoryTexture<int, float, 2> zBuffer( dimens );
     zBuffer.reset( 2.0f );
@@ -78,13 +76,23 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
     ScanLineStoreTexture<float> scanLine(dimens);
     TextureWithZBufferTest zBufferTestFilm( clampFilm, zBuffer, scanLine );
 
+    // sort the depth
+    std::sort(scene.mTriangles.begin(), scene.mTriangles.end(),
+                    SortTriangleByZDepth(lens));
+
     for ( auto itor = scene.mTriangles.begin(), end = scene.mTriangles.end();
             itor != end; ++itor ) {
 
-#define PLOT_LINE( P1, P2, START, RANGE, PIXEL, FILM )              \
-        FILM.mStart = START;                                        \
-        FILM.mRange = RANGE;                                        \
-        lineGenerator.plotLine( P1, P2, PIXEL, FILM, &FILM );       \
+#define PLOT_LINE( P1, P2, START, END, PIXEL, FILM )                \
+        if ( P1[0] < P2[0] ) {                                      \
+            FILM.mStart = START;                                    \
+            FILM.mRange = END - START;                              \
+            lineGenerator.plotLine( P1, P2, PIXEL, FILM, &FILM );   \
+        } else {                                                    \
+            FILM.mStart = END;                                      \
+            FILM.mRange = START - END;                              \
+            lineGenerator.plotLine( P2, P1, PIXEL, FILM, &FILM );   \
+        }
 
         if ( !lens.cullFace( *itor ) ) {
             continue;
@@ -98,13 +106,13 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
         }
         scanLine.reset();
 
-        PLOT_LINE( a, b, homoA[2], homoB[2] - homoA[2],
+        PLOT_LINE( a, b, homoA[2], homoB[2],
                      pixel, zBufferTestFilm );
 
-        PLOT_LINE( b, c, homoB[2], homoC[2] - homoB[2],
+        PLOT_LINE( b, c, homoB[2], homoC[2],
                      pixel, zBufferTestFilm );
 
-        PLOT_LINE( c, a, homoC[2], homoA[2] - homoC[2],
+        PLOT_LINE( c, a, homoC[2], homoA[2],
                      pixel, zBufferTestFilm );
 
         // fill the zBuffer
@@ -117,24 +125,12 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
                                     (line.valueAtMax-line.valueAtMin)/
                                         (line.xMax-line.xMin);
             float depthValue = line.valueAtMin;
-            a[0] = line.xMin;
-            if ( line.valueAtMin < zBuffer.getValue( a ) ) {
-                zBuffer.setValue( a, line.valueAtMin );
-                clampFilm.setValue( a, pixel );
-            }
-            a[0] = line.xMax;
-            if ( line.valueAtMax < zBuffer.getValue( a ) ) {
-                zBuffer.setValue( a, line.valueAtMax );
-                clampFilm.setValue( a, pixel );
-            }
-
-            for ( int j = line.xMin + 1, max = line.xMax - 1;
+            for ( int j = line.xMin, max = line.xMax;
                     j <= max; ++j, depthValue+=depthStep ) {
                 if ( j < 0 || j >= dimens[0] ) continue;
                 a[0] = j;
                 if ( depthValue < zBuffer.getValue( a ) ) {
                     zBuffer.setValue( a, depthValue );
-                    clampFilm.setValue( a, bgPixel );
                 }
             }
         }

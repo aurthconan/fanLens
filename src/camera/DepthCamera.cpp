@@ -66,10 +66,16 @@ void DepthCamera::takePicture( fan::fanScene& scene,
             continue;
         }
 
-#define PLOT_LINE( P1, P2, START, RANGE, PIXEL, FILM )      \
-        FILM.mStart = START;                                        \
-        FILM.mRange = RANGE;                                        \
-        lineGenerator.plotLine( P1, P2, PIXEL, FILM, &FILM );       \
+#define PLOT_LINE( P1, P2, START, END, PIXEL, FILM )                \
+        if ( P1[0] < P2[0] ) {                                      \
+            FILM.mStart = START;                                    \
+            FILM.mRange = END - START;                              \
+            lineGenerator.plotLine( P1, P2, PIXEL, FILM, &FILM );   \
+        } else {                                                    \
+            FILM.mStart = END;                                      \
+            FILM.mRange = START - END;                              \
+            lineGenerator.plotLine( P2, P1, PIXEL, FILM, &FILM );   \
+        }
 
         aVisible = project( *(itor->a), lens, dimens, a, homoA );
         bVisible = project( *(itor->b), lens, dimens, b, homoB );
@@ -79,13 +85,13 @@ void DepthCamera::takePicture( fan::fanScene& scene,
         }
         scanLine.reset();
 
-        PLOT_LINE( a, b, homoA[2], homoB[2] - homoA[2],
+        PLOT_LINE( a, b, homoA[2], homoB[2],
                      pixel, texture );
 
-        PLOT_LINE( b, c, homoB[2], homoC[2] - homoB[2],
+        PLOT_LINE( b, c, homoB[2], homoC[2],
                      pixel, texture );
 
-        PLOT_LINE( c, a, homoC[2], homoA[2] - homoC[2],
+        PLOT_LINE( c, a, homoC[2], homoA[2],
                      pixel, texture );
 
         // fill the zBuffer

@@ -1,50 +1,17 @@
 #include "DepthCamera.h"
 
-#include <algo/rasterize/line_generator/Bresenham.h>
+#include <algo/rasterize/fanScanLineGenerator.h>
 
 #include <texture/MemoryTexture.h>
-#include <texture/ScanLineStoreTexture.h>
 
 #include <utils/SortTriangleByZDepth.h>
 
 using namespace fan;
 
-class ZDepthComputeTexture
-    : public fanFilm
-    , public fanLineGeneratorCallback
-{
-public:
-    ZDepthComputeTexture( fanVector<int, 2>& dimens,
-                          ScanLineStoreTexture<float>& scanLine )
-        : fanFilm( dimens )
-        , mScanLineStore( scanLine )
-        , mStep(0)
-        , mStart(0)
-        , mRange(0) {
-    }
-
-    void setValue( const fan::fanVector<int, 2>& index,
-                   const fan::fanPixel& pixel ) {
-        (void) pixel;
-        mScanLineStore.setValue( index, mStart );
-        mStart += mStep;
-    }
-
-    void setStep( size_t step ) {
-        mStep = mRange / (float) step;
-    }
-
-    ScanLineStoreTexture<float>& mScanLineStore;
-    float mStep;
-    float mStart;
-    float mRange;
-};
-
 void DepthCamera::takePicture( fan::fanScene& scene,
                                fan::fanFilm& film,
                                fan::fanLens& lens ) {
     fanVector<int, 2> dimens = film.getDimens();
-    Bresenham lineGenerator;
 
     fanVector<float, 2> a, b, c;
     fanVector<float, 4> homoA, homoB, homoC;
@@ -52,8 +19,7 @@ void DepthCamera::takePicture( fan::fanScene& scene,
 
     fanPixel pixel( 255, 255, 0, 0 );
 
-    ScanLineStoreTexture<float> scanLine(dimens);
-    ZDepthComputeTexture texture( dimens, scanLine );
+    fanScanLineGenerator<float> scanLine( dimens );
 
     MemoryTexture<int, float, 2> zBuffer( dimens );
     zBuffer.reset( 2.0f );
@@ -66,17 +32,6 @@ void DepthCamera::takePicture( fan::fanScene& scene,
             continue;
         }
 
-#define PLOT_LINE( P1, P2, START, END, PIXEL, FILM )                \
-        if ( P1[0] < P2[0] ) {                                      \
-            FILM.mStart = START;                                    \
-            FILM.mRange = END - START;                              \
-            lineGenerator.plotLine( P1, P2, PIXEL, FILM, &FILM );   \
-        } else {                                                    \
-            FILM.mStart = END;                                      \
-            FILM.mRange = START - END;                              \
-            lineGenerator.plotLine( P2, P1, PIXEL, FILM, &FILM );   \
-        }
-
         aVisible = project( *(itor->a), lens, dimens, a, homoA );
         bVisible = project( *(itor->b), lens, dimens, b, homoB );
         cVisible = project( *(itor->c), lens, dimens, c, homoC );
@@ -85,26 +40,42 @@ void DepthCamera::takePicture( fan::fanScene& scene,
         }
         scanLine.reset();
 
-        PLOT_LINE( a, b, homoA[2], homoB[2],
-                     pixel, texture );
-
-        PLOT_LINE( b, c, homoB[2], homoC[2],
-                     pixel, texture );
-
-        PLOT_LINE( c, a, homoC[2], homoA[2],
-                     pixel, texture );
+        scanLine.AddLine( a, b, homoA[2], homoB[2] );
+        scanLine.AddLine( b, c, homoB[2], homoC[2] );
+        scanLine.AddLine( c, a, homoC[2], homoA[2] );
 
         // fill the zBuffer
         for ( int i = scanLine.mYMin; i <= scanLine.mYMax; ++i ) {
-            auto line = scanLine.mYBucket[i];
-            if ( line.xMin >= dimens[0] ) continue;
-            if ( line.xMax < 0 ) continue;
+            if ( scanLine.mLines[i] == 0 ) {
+                continue;
+            } else if ( scanLine.mLines[i] == 1
+                        && (scanLine.mXLeft[i] >= dimens[0]
+                        || scanLine.mXLeft[i] < 0 ) ) {
+                continue;
+            } else if ( scanLine.mLines[i] == 2
+                        && (scanLine.mXLeft[i] >= dimens[0]
+                            || scanLine.mXRight[i] < 0 ) ) {
+                continue;
+            } else if ( scanLine.mLines[i] > 2 ) {
+                continue;
+            }
             a[1] = i;
-            float depthStep = (line.xMin==line.xMax)?0:
-                                    (line.valueAtMax-line.valueAtMin)/
-                                        (line.xMax-line.xMin);
-            float depthValue = line.valueAtMin;
-            for ( int j = line.xMin, max = line.xMax;
+            int left, right;
+            float valueAtLeft, valueAtRight;
+            if ( scanLine.mLines[i] == 2 ) {
+                left = scanLine.mXLeft[i];
+                right = scanLine.mXRight[i];
+                valueAtLeft = scanLine.mLeft[i];
+                valueAtRight = scanLine.mRight[i];
+            } else {
+                right = left = scanLine.mXLeft[i];
+                valueAtRight= valueAtLeft = scanLine.mLeft[i];
+            }
+            float depthStep = (left==right)?0:
+                                    (valueAtRight-valueAtLeft)/
+                                        (right-left);
+            float depthValue = valueAtLeft;
+            for ( int j = left, max = right;
                     j <= max; ++j, depthValue+=depthStep ) {
                 if ( j < 0 || j >= dimens[0] ) continue;
                 a[0] = j;

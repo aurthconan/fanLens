@@ -15,7 +15,6 @@
 #include <camera/PointScannerCamera.h>
 #include <camera/WireframeCamera.h>
 #include <camera/DepthCamera.h>
-#include <utils/StopWatch.h>
 
 #include <cstdlib>
 
@@ -64,11 +63,11 @@ int main(int argc, char** argv) {
     size[0] = 800; size[1] = 600;
     SDLFilm sdl( size );
 
-    OrthogonalLens OrthoLens( center + fanVector3<float>(radius, radius, radius),
+    OrthogonalLens OrthoLens( center + fanVector3<float>(radius, radius, 0),
                               center,
                               center + fanVector3<float>(0, 0, 1),
                               fanVector3<float>(diameter*4.0f/3.0f, diameter, diameter * 1.5) );
-    PerspectiveLens PerspLens( center + fanVector3<float>(radius, radius, radius),
+    PerspectiveLens PerspLens( center + fanVector3<float>(radius, radius, 0),
                                center,
                                center + fanVector3<float>(0, 0, 1),
                                fanVector3<float>(diameter*2.0f/3.0f, diameter/2.0f, diameter * 1.5),
@@ -86,11 +85,11 @@ int main(int argc, char** argv) {
 
     currentCamera = &depthCamera;
     currentLens = &OrthoLens;
-    StopWatch stopWatch;
+    Uint32 time;
     while ( !done ) {
-        stopWatch.start();
+        time = SDL_GetTicks();
         currentCamera->takePicture( scene, sdl, *currentLens );
-        stopWatch.stop("Take Picture");
+        std::cout << SDL_GetTicks() - time << " ms in takePicture" << std::endl;
         sdl.develope();
 
         SDL_Event event;

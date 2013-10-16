@@ -11,7 +11,6 @@
 #include <camera/PointScannerCamera.h>
 #include <camera/WireframeCamera.h>
 #include <camera/DepthCamera.h>
-#include <utils/StopWatch.h>
 
 #include <cstdlib>
 
@@ -128,12 +127,11 @@ int main() {
 
     currentCamera = &pointCamera;
     currentLens = &PerspLens;
-
-    StopWatch stopWatch;
+    Uint32 time;
     while ( !done ) {
-        stopWatch.start();
+        time = SDL_GetTicks();
         currentCamera->takePicture( scene, sdl, *currentLens );
-        stopWatch.stop("Take Picture");
+        std::cout << SDL_GetTicks() - time << " ms in takePicture" << std::endl;
         sdl.develope();
 
         SDL_Event event;

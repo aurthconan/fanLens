@@ -6,13 +6,14 @@
 #include <fanTriangle.h>
 #include <vector>
 
+#include <fanTriangleMesh.h>
+
 namespace fan {
 
 class fanScene
 {
 public:
-    std::vector<fanVector3<float> > mVertices;
-    std::vector<fanTriangle> mTriangles;
+    std::vector<fanTriangleMesh> mTriangleMeshes;
 };
 
 }

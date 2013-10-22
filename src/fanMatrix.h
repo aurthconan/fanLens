@@ -4,6 +4,8 @@
 
 #include "fanVector.h"
 
+#include <initializer_list>
+
 namespace fan {
 
 template<typename T, size_t R, size_t C>
@@ -40,6 +42,15 @@ public:
         : rows()
     {
     };
+
+    fanMatrix( std::initializer_list<T> list ) {
+        size_t length = list.size();
+        length = length>R*C?R*C:length;
+        auto value = list.begin();
+        for ( size_t i = 0; i < length; ++i, ++value ) {
+            rows[i/C][i%C] = *value;
+        }
+    }
 
     template<typename O_T, size_t O_R, size_t O_C>
     fanMatrix( const fanMatrix<O_T, O_R, O_C>& other )

@@ -21,10 +21,17 @@ void Bresenham::plotLine( const fanVector<float, 2>& p1,
                           fanTexture<int, fanPixel, 2>& film,
                           fan::fanLineGeneratorCallback* callback ) {
     fanVector<float, 2> point = p1;
+    /*
     float deltaX = p2[0] - p1[0];
     float deltaY = p2[1] - p1[1];
     float absX = abs(deltaX);
     float absY = abs(deltaY);
+    */
+    int deltaX = (int)p2[0] - (int)p1[0];
+    int deltaY = (int)p2[1] - (int)p1[1];
+    int absX = abs(deltaX);
+    int absY = abs(deltaY);
+
     int signX = sgn(deltaX);
     int signY = sgn(deltaY);
 

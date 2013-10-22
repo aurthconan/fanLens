@@ -9,16 +9,27 @@ void PointScannerCamera::takePicture( fanScene& scene,
     fanVector<int, 2> dimens = film.getDimens();
     fanVector<float, 4> homoPos;
 
-    for ( auto itor = scene.mVertices.begin(), end = scene.mVertices.end();
-            itor != end; ++itor ) {
+    for ( auto object = scene.mTriangleMeshes.begin(),
+            objEnd = scene.mTriangleMeshes.end();
+            object != objEnd; ++object ) {
+        for ( auto points = object->mVertices.begin(),
+                   end = object->mVertices.end();
+                   points != end; ++points ) {
 
-        if ( !project( *itor, lens, dimens, pos, homoPos ) ) {
-            continue;
+            for ( auto itor = (*points)->mBuffer,
+                    end = (*points)->mBuffer + (*points)->mSize;
+                    itor != end; ++itor ) {
+
+                if ( !project( *itor, lens, object->mObjectToWorld, dimens,
+                                pos, homoPos ) ) {
+                    continue;
+                }
+
+                // hard code the color temporary
+                fanPixel pixel( 255, 255, 0, 0 );
+                film.setValue( pos, pixel );
+            }
         }
-
-        // hard code the color temporary
-        fanPixel pixel( 255, 255, 0, 0 );
-        film.setValue( pos, pixel );
     }
 }
 

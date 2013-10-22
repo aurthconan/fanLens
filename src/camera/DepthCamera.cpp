@@ -24,68 +24,81 @@ void DepthCamera::takePicture( fan::fanScene& scene,
     MemoryTexture<int, float, 2> zBuffer( dimens );
     zBuffer.reset( 2.0f );
 
+    for ( auto object = scene.mTriangleMeshes.begin(),
+            objEnd = scene.mTriangleMeshes.end();
+            object != objEnd; ++object ) {
 
-    for ( auto itor = scene.mTriangles.begin(), end = scene.mTriangles.end();
-            itor != end; ++itor ) {
+        for ( auto mesh = object->mFaces.begin(),
+                   end = object->mFaces.end();
+              mesh != end; ++mesh ) {
 
-        if ( !lens.cullFace( *itor ) ) {
-            continue;
-        }
+            for ( auto itor = (*mesh)->mBuffer,
+                    end = (*mesh)->mBuffer + (*mesh)->mSize;
+                    itor != end; ++itor ) {
 
-        aVisible = project( *(itor->a), lens, dimens, a, homoA );
-        bVisible = project( *(itor->b), lens, dimens, b, homoB );
-        cVisible = project( *(itor->c), lens, dimens, c, homoC );
-        if ( !aVisible && !bVisible && !cVisible ) {
-            continue;
-        }
-        scanLine.reset();
+                if ( !lens.cullFace( *itor ) ) {
+                    continue;
+                }
 
-        scanLine.AddLine( a, b, homoA[2], homoB[2] );
-        scanLine.AddLine( b, c, homoB[2], homoC[2] );
-        scanLine.AddLine( c, a, homoC[2], homoA[2] );
+                aVisible = project( *(itor->a), lens, object->mObjectToWorld, dimens,
+                                    a, homoA );
+                bVisible = project( *(itor->b), lens, object->mObjectToWorld, dimens,
+                                    b, homoB );
+                cVisible = project( *(itor->c), lens, object->mObjectToWorld, dimens,
+                                    c, homoC );
+                if ( !aVisible && !bVisible && !cVisible ) {
+                    continue;
+                }
+                scanLine.reset();
 
-        // fill the zBuffer
-        for ( int i = scanLine.mYMin; i <= scanLine.mYMax; ++i ) {
-            if ( scanLine.mLines[i] == 0 ) {
-                continue;
-            } else if ( scanLine.mLines[i] == 1
-                        && (scanLine.mXLeft[i] >= dimens[0]
-                        || scanLine.mXLeft[i] < 0 ) ) {
-                continue;
-            } else if ( scanLine.mLines[i] == 2
-                        && (scanLine.mXLeft[i] >= dimens[0]
-                            || scanLine.mXRight[i] < 0 ) ) {
-                continue;
-            } else if ( scanLine.mLines[i] > 2 ) {
-                continue;
-            }
-            a[1] = i;
-            int left, right;
-            float valueAtLeft, valueAtRight;
-            if ( scanLine.mLines[i] == 2 ) {
-                left = scanLine.mXLeft[i];
-                right = scanLine.mXRight[i];
-                valueAtLeft = scanLine.mLeft[i];
-                valueAtRight = scanLine.mRight[i];
-            } else {
-                right = left = scanLine.mXLeft[i];
-                valueAtRight= valueAtLeft = scanLine.mLeft[i];
-            }
-            float depthStep = (left==right)?0:
-                                    (valueAtRight-valueAtLeft)/
-                                        (right-left);
-            float depthValue = valueAtLeft;
-            for ( int j = left, max = right;
-                    j <= max; ++j, depthValue+=depthStep ) {
-                if ( j < 0 || j >= dimens[0] ) continue;
-                a[0] = j;
-                if ( depthValue < zBuffer.getValue( a ) ) {
-                    zBuffer.setValue( a, depthValue );
+                scanLine.AddLine( a, b, homoA[2], homoB[2] );
+                scanLine.AddLine( b, c, homoB[2], homoC[2] );
+                scanLine.AddLine( c, a, homoC[2], homoA[2] );
 
-                    pixel.r = ( 1.0f - depthValue ) * 255.0f;
-                    pixel.g = ( 1.0f - depthValue ) * 255.0f;
-                    pixel.b = ( 1.0f - depthValue ) * 255.0f;
-                    film.setValue( a, pixel );
+                // fill the zBuffer
+                for ( int i = scanLine.mYMin; i <= scanLine.mYMax; ++i ) {
+                    if ( scanLine.mLines[i] == 0 ) {
+                        continue;
+                    } else if ( scanLine.mLines[i] == 1
+                                && (scanLine.mXLeft[i] >= dimens[0]
+                                || scanLine.mXLeft[i] < 0 ) ) {
+                        continue;
+                    } else if ( scanLine.mLines[i] == 2
+                                && (scanLine.mXLeft[i] >= dimens[0]
+                                    || scanLine.mXRight[i] < 0 ) ) {
+                        continue;
+                    } else if ( scanLine.mLines[i] > 2 ) {
+                        continue;
+                    }
+                    a[1] = i;
+                    int left, right;
+                    float valueAtLeft, valueAtRight;
+                    if ( scanLine.mLines[i] == 2 ) {
+                        left = scanLine.mXLeft[i];
+                        right = scanLine.mXRight[i];
+                        valueAtLeft = scanLine.mLeft[i];
+                        valueAtRight = scanLine.mRight[i];
+                    } else {
+                        right = left = scanLine.mXLeft[i];
+                        valueAtRight= valueAtLeft = scanLine.mLeft[i];
+                    }
+                    float depthStep = (left==right)?0:
+                                            (valueAtRight-valueAtLeft)/
+                                                (right-left);
+                    float depthValue = valueAtLeft;
+                    for ( int j = left, max = right;
+                            j <= max; ++j, depthValue+=depthStep ) {
+                        if ( j < 0 || j >= dimens[0] ) continue;
+                        a[0] = j;
+                        if ( depthValue < zBuffer.getValue( a ) ) {
+                            zBuffer.setValue( a, depthValue );
+
+                            pixel.r = ( 1.0f - depthValue ) * 255.0f;
+                            pixel.g = ( 1.0f - depthValue ) * 255.0f;
+                            pixel.b = ( 1.0f - depthValue ) * 255.0f;
+                            film.setValue( a, pixel );
+                        }
+                    }
                 }
             }
         }

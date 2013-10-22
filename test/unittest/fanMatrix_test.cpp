@@ -67,3 +67,18 @@ TEST(fanMatrix,transposeOperator) {
     EXPECT_EQ( 3, mat1x2_b[0][0] );
     EXPECT_EQ( 4, mat1x2_b[0][1] );
 }
+
+TEST(fanMatrix,initializer_list) {
+    fanMatrix<int, 2, 1> mat2x1_a{1,2};
+    EXPECT_EQ( 1, mat2x1_a[0][0] );
+    EXPECT_EQ( 2, mat2x1_a[1][0] );
+
+    fanMatrix<int, 2, 3> mat2x3_a{1,2,3,
+                                  4,5,6,};
+    EXPECT_EQ( 1, mat2x3_a[0][0] );
+    EXPECT_EQ( 2, mat2x3_a[0][1] );
+    EXPECT_EQ( 3, mat2x3_a[0][2] );
+    EXPECT_EQ( 4, mat2x3_a[1][0] );
+    EXPECT_EQ( 5, mat2x3_a[1][1] );
+    EXPECT_EQ( 6, mat2x3_a[1][2] );
+}

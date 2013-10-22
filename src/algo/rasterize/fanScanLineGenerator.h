@@ -17,7 +17,7 @@ public:
         , mLeft( new CompaionDataType[dimensions[1]] )
         , mRight( new CompaionDataType[dimensions[1]] )
         , mYMin( 0 )
-        , mYMax( dimensions[1] )
+        , mYMax( dimensions[1]-1 )
         , mDimens( dimensions )
     {
         reset();
@@ -45,7 +45,7 @@ public:
         for ( int i = mYMin; i <= mYMax; ++i ) {
             mLines[i] = 0;
         }
-        mYMin = mDimens[1];
+        mYMin = mDimens[1]-1;
         mYMax = 0;
     }
 

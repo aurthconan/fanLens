@@ -12,6 +12,7 @@ Sadly I did not have time to do a better build script yet (maybe GNU automake or
 I'll list dependency here:
  - FreeImageFilm needs libfreeimage
  - SDLFilm needs SDL 2.0
+ - boost::shared_ptr
 
 If need to build unittest and sample, you need to add path to the following variable in Makefile
  - GTEST_DIR= # google test framework folder

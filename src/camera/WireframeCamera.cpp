@@ -76,61 +76,75 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
     ScanLineStoreTexture<float> scanLine(dimens);
     TextureWithZBufferTest zBufferTestFilm( clampFilm, zBuffer, scanLine );
 
-    // sort the depth
-    std::sort(scene.mTriangles.begin(), scene.mTriangles.end(),
-                    SortTriangleByZDepth(lens));
+    for ( auto object = scene.mTriangleMeshes.begin(),
+            objEnd = scene.mTriangleMeshes.end();
+            object != objEnd; ++object ) {
 
-    for ( auto itor = scene.mTriangles.begin(), end = scene.mTriangles.end();
-            itor != end; ++itor ) {
+        for ( auto mesh = object->mFaces.begin(),
+                   end = object->mFaces.end();
+              mesh != end; ++mesh ) {
+            // sort the depth
+            std::sort((*mesh)->mBuffer,
+                      (*mesh)->mBuffer + (*mesh)->mSize,
+                            SortTriangleByZDepth(lens));
+
+            for ( auto itor = (*mesh)->mBuffer,
+                    end = (*mesh)->mBuffer + (*mesh)->mSize;
+                    itor != end; ++itor ) {
 
 #define PLOT_LINE( P1, P2, START, END, PIXEL, FILM )                \
-        if ( P1[0] < P2[0] ) {                                      \
-            FILM.mStart = START;                                    \
-            FILM.mRange = END - START;                              \
-            lineGenerator.plotLine( P1, P2, PIXEL, FILM, &FILM );   \
-        } else {                                                    \
-            FILM.mStart = END;                                      \
-            FILM.mRange = START - END;                              \
-            lineGenerator.plotLine( P2, P1, PIXEL, FILM, &FILM );   \
-        }
+                if ( P1[0] < P2[0] ) {                                      \
+                    FILM.mStart = START;                                    \
+                    FILM.mRange = END - START;                              \
+                    lineGenerator.plotLine( P1, P2, PIXEL, FILM, &FILM );   \
+                } else {                                                    \
+                    FILM.mStart = END;                                      \
+                    FILM.mRange = START - END;                              \
+                    lineGenerator.plotLine( P2, P1, PIXEL, FILM, &FILM );   \
+                }
 
-        if ( !lens.cullFace( *itor ) ) {
-            continue;
-        }
+                if ( !lens.cullFace( *itor ) ) {
+                    continue;
+                }
 
-        aVisible = project( *(itor->a), lens, dimens, a, homoA );
-        bVisible = project( *(itor->b), lens, dimens, b, homoB );
-        cVisible = project( *(itor->c), lens, dimens, c, homoC );
-        if ( !aVisible && !bVisible && !cVisible ) {
-            continue;
-        }
-        scanLine.reset();
+                aVisible = project( *(itor->a), lens, object->mObjectToWorld, dimens,
+                                    a, homoA );
+                bVisible = project( *(itor->b), lens, object->mObjectToWorld, dimens,
+                                    b, homoB );
+                cVisible = project( *(itor->c), lens, object->mObjectToWorld, dimens,
+                                    c, homoC );
+                if ( !aVisible && !bVisible && !cVisible ) {
+                    continue;
+                }
+                scanLine.reset();
 
-        PLOT_LINE( a, b, homoA[2], homoB[2],
-                     pixel, zBufferTestFilm );
+                PLOT_LINE( a, b, homoA[2], homoB[2],
+                             pixel, zBufferTestFilm );
 
-        PLOT_LINE( b, c, homoB[2], homoC[2],
-                     pixel, zBufferTestFilm );
+                PLOT_LINE( b, c, homoB[2], homoC[2],
+                             pixel, zBufferTestFilm );
 
-        PLOT_LINE( c, a, homoC[2], homoA[2],
-                     pixel, zBufferTestFilm );
+                PLOT_LINE( c, a, homoC[2], homoA[2],
+                             pixel, zBufferTestFilm );
 
-        // fill the zBuffer
-        for ( int i = scanLine.mYMin; i <= scanLine.mYMax; ++i ) {
-            auto line = scanLine.mYBucket[i];
-            if ( line.xMin >= dimens[0] ) continue;
-            if ( line.xMax < 0 ) continue;
-            a[1] = i;
-            float depthStep = (line.xMin==line.xMax)?0:
-                                    (line.valueAtMax-line.valueAtMin)/
-                                        (line.xMax-line.xMin);
-            float depthValue = line.valueAtMin;
-            for ( int j = line.xMin, max = line.xMax;
-                    j <= max; ++j, depthValue+=depthStep ) {
-                if ( j < 0 || j >= dimens[0] ) continue;
-                a[0] = j;
-                if ( depthValue < zBuffer.getValue( a ) ) {
-                    zBuffer.setValue( a, depthValue );
+                // fill the zBuffer
+                for ( int i = scanLine.mYMin; i <= scanLine.mYMax; ++i ) {
+                    auto line = scanLine.mYBucket[i];
+                    if ( line.xMin >= dimens[0] ) continue;
+                    if ( line.xMax < 0 ) continue;
+                    a[1] = i;
+                    float depthStep = (line.xMin==line.xMax)?0:
+                                            (line.valueAtMax-line.valueAtMin)/
+                                                (line.xMax-line.xMin);
+                    float depthValue = line.valueAtMin;
+                    for ( int j = line.xMin, max = line.xMax;
+                            j <= max; ++j, depthValue+=depthStep ) {
+                        if ( j < 0 || j >= dimens[0] ) continue;
+                        a[0] = j;
+                        if ( depthValue < zBuffer.getValue( a ) ) {
+                            zBuffer.setValue( a, depthValue );
+                        }
+                    }
                 }
             }
         }

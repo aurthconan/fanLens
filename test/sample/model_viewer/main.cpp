@@ -10,6 +10,8 @@
 #include <fanCamera.h>
 #include <texture/film/SDLFilm.h>
 #include <fanLensMovement.h>
+#include <fanTriangleMesh.h>
+#include <fanBufferObject.h>
 #include <lens/OrthogonalLens.h>
 #include <lens/PerspectiveLens.h>
 #include <camera/PointScannerCamera.h>
@@ -18,9 +20,12 @@
 
 #include <cstdlib>
 
+#include <vector>
 #include <iostream>
 #include <limits>
 #include <cmath>
+
+#include <boost/shared_ptr.hpp>
 
 using namespace std;
 
@@ -31,7 +36,9 @@ float yMin, yMax;
 float zMin, zMax;
 float radius;
 
-bool loadFile( char* file, fanScene& scene );
+bool loadFile( char* file, fanScene& scene,
+                vector<boost::shared_ptr<fanBufferObject<fanVector3<float> > > >& vertices,
+                vector<boost::shared_ptr<fanBufferObject<fanTriangle> > >& faces );
 
 int main(int argc, char** argv) {
     if ( SDL_Init( SDL_INIT_VIDEO ) != 0 ) {
@@ -47,8 +54,13 @@ int main(int argc, char** argv) {
 
     xMin = yMin = zMin = std::numeric_limits<float>::max();
     xMax = yMax = zMax = std::numeric_limits<float>::min();
+    vector<boost::shared_ptr<fanBufferObject<fanVector3<float> > > > vertices;
+    vector<boost::shared_ptr<fanBufferObject<fanTriangle> > > faces;
 
-    if ( !loadFile( argv[1], scene ) ) {
+    if ( !loadFile( argv[1], scene, vertices, faces ) ) {
+        faces.clear();
+        vertices.clear();
+
         return 3;
     }
 
@@ -138,10 +150,15 @@ int main(int argc, char** argv) {
             }
         }
     }
+
+    faces.clear();
+    vertices.clear();
 }
 
 using namespace Assimp;
-bool loadFile( char* file, fanScene& ourScene ) {
+bool loadFile( char* file, fanScene& ourScene,
+               vector<boost::shared_ptr<fanBufferObject<fanVector3<float> > > >& vertices,
+               vector<boost::shared_ptr<fanBufferObject<fanTriangle> > >& faces ) {
     Importer importer;
     const aiScene* scene = importer.ReadFile( file, aiProcess_Triangulate );
     if ( !scene ) {
@@ -152,12 +169,14 @@ bool loadFile( char* file, fanScene& ourScene ) {
                 i < max; ++i ) {
         aiMesh* mesh = scene->mMeshes[i];
         cout << " mesh->mNumVertices " <<  mesh->mNumVertices << endl;
+        boost::shared_ptr<fanBufferObject<fanVector3<float> > >
+                vertice( new fanBufferObject<fanVector3<float> >(mesh->mNumVertices) );
         for ( size_t j = 0, max = mesh->mNumVertices;
                 j < max; ++j ) {
             aiVector3D vector = mesh->mVertices[j];
-            ourScene.mVertices.push_back(fanVector3<float>(vector.x,
-                                                           vector.y,
-                                                           vector.z));
+            vertice->mBuffer[j] = fanVector3<float>(vector.x,
+                                                    vector.y,
+                                                    vector.z);
             if ( vector.x > xMax ) {
                 xMax = vector.x;
             }
@@ -177,42 +196,51 @@ bool loadFile( char* file, fanScene& ourScene ) {
                 zMin = vector.z;
             }
         }
-    }
-    size_t verticesNum = 0;
-    for ( size_t i = 0, max = scene->mNumMeshes;
-                i < max; ++i ) {
-        aiMesh* mesh = scene->mMeshes[i];
-        cout << " mesh->mNumVertices " <<  mesh->mNumVertices << endl;
+        vertices.push_back( vertice );
         cout << " mesh->mNumFaces " <<  mesh->mNumFaces << endl;
+        boost::shared_ptr<fanBufferObject<fanTriangle> >
+                face( new fanBufferObject<fanTriangle>(mesh->mNumFaces) );
         for ( size_t j = 0, max = mesh->mNumFaces;
                 j < max; ++j ) {
-            aiFace face = mesh->mFaces[j];
-            if ( face.mNumIndices != 3 ) {
+            aiFace aiface = mesh->mFaces[j];
+            if ( aiface.mNumIndices != 3 ) {
                 continue;
             }
-            unsigned int aIndex = face.mIndices[0] + verticesNum;
-            unsigned int bIndex = face.mIndices[1] + verticesNum;
-            unsigned int cIndex = face.mIndices[2] + verticesNum;
-            fanTriangle t( &ourScene.mVertices[aIndex],
-                           &ourScene.mVertices[bIndex],
-                           &ourScene.mVertices[cIndex] );
-
-            ourScene.mTriangles.push_back( t );
+            unsigned int aIndex = aiface.mIndices[0];
+            unsigned int bIndex = aiface.mIndices[1];
+            unsigned int cIndex = aiface.mIndices[2];
+            face->mBuffer[j] = fanTriangle( &vertice->mBuffer[aIndex],
+                                            &vertice->mBuffer[bIndex],
+                                            &vertice->mBuffer[cIndex],
+                                            aIndex, bIndex, cIndex );
         }
-        verticesNum += mesh->mNumVertices;
+        faces.push_back( face );
     }
-
-    /*
-    for ( size_t i = 0; i < 1000; ++i ) {
-        ourScene.mVertices.push_back( fan::fanVector3<float>( i, 0, 0 ) );
+    vector<aiNode*> nodes;
+    nodes.push_back(scene->mRootNode);
+    while ( nodes.size() != 0 ) {
+        aiNode* node = nodes[nodes.size()-1];
+        nodes.pop_back();
+        if ( node == NULL ) {
+            continue;
+        }
+        cout << " node->mNumChildren " << node->mNumChildren << endl;
+        for ( size_t i = 0; i < node->mNumChildren; ++i ) {
+            nodes.push_back( node->mChildren[i] );
+        }
+        aiMatrix4x4 pos = node->mTransformation;
+        fanTriangleMesh object( fanMatrix< float, 4, 4>{pos.a1,pos.a2,pos.a3,pos.a4,
+                                                        pos.b1,pos.b2,pos.b3,pos.b4,
+                                                        pos.c1,pos.c2,pos.c3,pos.c4,
+                                                        pos.d1,pos.d2,pos.d3,pos.d4,
+                                                        } );
+        cout << " node->mNumMeshes " << node->mNumMeshes << endl;
+        for ( size_t i = 0; i < node->mNumMeshes; ++i ) {
+            object.mVertices.push_back( vertices[i] );
+            object.mFaces.push_back( faces[i] );
+        }
+        ourScene.mTriangleMeshes.push_back( object );
     }
-    for ( size_t i = 0; i < 1000; i+=4 ) {
-        ourScene.mVertices.push_back( fan::fanVector3<float>( 0, i, 0 ) );
-    }
-    for ( size_t i = 0; i < 1000; i+=8 ) {
-        ourScene.mVertices.push_back( fan::fanVector3<float>( 0, 0, i ) );
-    }
-    */
 
     return true;
 }

@@ -29,6 +29,7 @@ TEST(fanScanLineGeneratorTest, fillTriangleCase1) {
         pos[1] = i;
         int left, right;
         float valueAtLeft, valueAtRight;
+        (void) valueAtRight;
         if ( scanLine.mLines[i] == 2 ) {
             left = scanLine.mXLeft[i];
             right = scanLine.mXRight[i];

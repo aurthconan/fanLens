@@ -4,6 +4,8 @@
 #include <fanVector.h>
 #include <fanPixel.h>
 #include <fanCamera.h>
+#include <fanTriangleMesh.h>
+#include <fanBufferObject.h>
 #include <texture/film/SDLFilm.h>
 #include <fanLensMovement.h>
 #include <lens/OrthogonalLens.h>
@@ -12,6 +14,8 @@
 #include <camera/WireframeCamera.h>
 #include <camera/DepthCamera.h>
 
+#include <boost/shared_ptr.hpp>
+
 #include <cstdlib>
 
 #include <iostream>
@@ -19,7 +23,7 @@
 using namespace fan;
 using namespace std;
 
-void addTriangle( fanScene& scene, size_t startIndex ) {
+void addTriangle( fanTriangleMesh& cube, size_t startIndex, int& facesNum ) {
     for( size_t i = 0; i < 4; ++i ) {
         for( size_t j = 0; j < 4; ++j ) {
             /*
@@ -32,30 +36,19 @@ void addTriangle( fanScene& scene, size_t startIndex ) {
             size_t p2Index = p0Index + 5;
             size_t p3Index = p1Index + 5;
             // every face has two triangle
-            fanTriangle t1( &scene.mVertices[p0Index], &scene.mVertices[p2Index],
-                            &scene.mVertices[p1Index] );
-            fanTriangle t2( &scene.mVertices[p1Index], &scene.mVertices[p2Index],
-                            &scene.mVertices[p3Index] );
-            scene.mTriangles.push_back(t1);
-            scene.mTriangles.push_back(t2);
+            fanTriangle t1( &cube.mVertices[0]->mBuffer[p0Index],
+                            &cube.mVertices[0]->mBuffer[p2Index],
+                            &cube.mVertices[0]->mBuffer[p1Index],
+                            p0Index, p2Index, p1Index );
+            fanTriangle t2( &cube.mVertices[0]->mBuffer[p1Index],
+                            &cube.mVertices[0]->mBuffer[p2Index],
+                            &cube.mVertices[0]->mBuffer[p3Index],
+                            p1Index, p2Index, p3Index );
+            cube.mFaces[0]->mBuffer[facesNum] = t1;
+            ++facesNum;
+            cube.mFaces[0]->mBuffer[facesNum] = t2;
+            ++facesNum;
         }
-    }
-}
-
-void dumpTriangles( fanScene& scene ) {
-    for ( size_t i = 0, max = scene.mTriangles.size();
-            i < max; ++i ) {
-        fanVector3<float>* a = scene.mTriangles[i].a;
-        fanVector3<float>* b = scene.mTriangles[i].b;
-        fanVector3<float>* c = scene.mTriangles[i].c;
-
-        cout << " index " << i << endl;
-        cout << "a x:" << (*a)[0] << " y:" << (*a)[1]
-                << " z:" << (*a)[2] << endl;
-        cout << "b x:" << (*b)[0] << " y:" << (*b)[1]
-                << " z:" << (*b)[2] << endl;
-        cout << "c x:" << (*c)[0] << " y:" << (*c)[1]
-                << " z:" << (*c)[2] << endl;
     }
 }
 
@@ -63,45 +56,67 @@ int main() {
     if ( SDL_Init( SDL_INIT_VIDEO ) != 0 ) {
         return 1;
     }
+    fanMatrix<float, 4, 4> cubePos { 1, 0, 0, 0,
+                                     0, 1, 0, 0,
+                                     0, 0, 1, 0,
+                                     0, 0, 0, 1 };
+    boost::shared_ptr<fanBufferObject<fanVector3<float> > >
+        vertices( new fanBufferObject<fanVector3<float> >( 6*5*5 ) );
+    boost::shared_ptr<fanBufferObject<fanTriangle> >
+        faces( new fanBufferObject<fanTriangle>( 4*4*2*6 ) );
+
+    fanTriangleMesh cube( cubePos );
+    cube.mVertices.push_back( vertices );
+    cube.mFaces.push_back( faces );
 
     fanScene scene;
 
+    int verticesNum = 0;
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            scene.mVertices.push_back( fanVector3<float>( i, j, 0 ) );
+            cube.mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, j, 0 );
+            verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            scene.mVertices.push_back( fanVector3<float>( i, 0, j ) );
+            cube.mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, 0, j );
+            verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            scene.mVertices.push_back( fanVector3<float>( 0, i, j ) );
+            cube.mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( 0, i, j );
+            verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            scene.mVertices.push_back( fanVector3<float>( i, j, 200 ) );
+            cube.mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, j, 200 );
+            verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            scene.mVertices.push_back( fanVector3<float>( i, 200, j ) );
+            cube.mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, 200, j );
+            verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            scene.mVertices.push_back( fanVector3<float>( 200, i, j ) );
+            cube.mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( 200, i, j );
+            verticesNum++;
         }
     }
-    addTriangle( scene, 0 );
-    addTriangle( scene, 25 );
-    addTriangle( scene, 50 );
-    addTriangle( scene, 75 );
-    addTriangle( scene, 100 );
-    addTriangle( scene, 125 );
+    int facesNum = 0;
+    addTriangle( cube, 0, facesNum );
+    addTriangle( cube, 25, facesNum );
+    addTriangle( cube, 50, facesNum );
+    addTriangle( cube, 75, facesNum );
+    addTriangle( cube, 100, facesNum );
+    addTriangle( cube, 125, facesNum );
+
+    scene.mTriangleMeshes.push_back( cube );
 
     fanVector<int, 2> size;
     size[0] = 800; size[1] = 600;

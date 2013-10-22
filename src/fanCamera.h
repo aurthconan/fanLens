@@ -19,7 +19,7 @@ public:
                               fan::fanLens& lens );
 
     inline bool project( const fan::fanVector3<float>& world,
-                         const fanLens lens,
+                         const fanLens& lens,
                          const fanMatrix<float, 4, 4>& worldTransformation,
                          const fan::fanVector<int, 2>& screen,
                          fan::fanVector<float, 2>& pos,

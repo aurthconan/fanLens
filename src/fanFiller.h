@@ -16,4 +16,4 @@ private:
 
 } /* namespace fan */
 
-#endif /* end o guard: FANFILLER_H */
+#endif /* end of include guard: FANFILLER_H */

@@ -13,6 +13,7 @@ OrthogonalLens::OrthogonalLens( fanVector3<float> pos,
 
 bool OrthogonalLens::cullFace( const fanTriangle& triangle,
                         const fanMatrix<float, 4, 4>& worldTransformation ) {
+    (void) worldTransformation;
     fanVector3<float> view = mLookAt - mPos;
     return dot( triangle.mNormal, view ) <= 0;
 }

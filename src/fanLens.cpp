@@ -66,7 +66,8 @@ void fanLens::move( fanVector<float, 3> move ) {
                       mDimens );
 }
 
-bool fanLens::cullFace( const fan::fanTriangle& triangle ) {
+bool fanLens::cullFace( const fan::fanTriangle& triangle,
+                        const fanMatrix<float, 4, 4>& worldTransformation ) {
     (void) triangle;
     return false;
 }

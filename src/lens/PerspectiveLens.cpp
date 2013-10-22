@@ -11,10 +11,14 @@ PerspectiveLens::PerspectiveLens( fan::fanVector3<float> pos,
     computeLensSpace( pos, lookAt, up, dimens );
 }
 
-bool PerspectiveLens::cullFace( const fan::fanTriangle& triangle ) {
+bool PerspectiveLens::cullFace( const fan::fanTriangle& triangle,
+                      const fan::fanMatrix<float, 4, 4>& worldTransformation ) {
     fan::fanVector3<float> view = normalize(mPos - mLookAt);
     fan::fanVector3<float> viewPos = mPos + view * ( mDistance );
-    fan::fanVector3<float> viewToPos = triangle.mCenter - viewPos;
+    fan::fanVector<float, 4> homoPos = triangle.mCenter;
+    homoPos[3] = 1.0f;
+    homoPos = worldTransformation * homoPos;
+    fan::fanVector3<float> viewToPos = homoPos - viewPos;
     return dot( triangle.mNormal, viewToPos ) <= 0;
 }
 

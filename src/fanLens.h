@@ -26,7 +26,8 @@ public:
 
     void move( fanVector<float, 3> move );
 
-    virtual bool cullFace( const fanTriangle& triangle );
+    virtual bool cullFace( const fanTriangle& triangle,
+                           const fanMatrix<float, 4, 4>& worldTransformation);
 
     void computeLensSpace( fanVector3<float> pos,
                            fanVector3<float> lookAt,

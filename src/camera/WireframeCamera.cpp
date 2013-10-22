@@ -103,7 +103,7 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
                     lineGenerator.plotLine( P2, P1, PIXEL, FILM, &FILM );   \
                 }
 
-                if ( !lens.cullFace( *itor ) ) {
+                if ( !lens.cullFace( *itor, object->mObjectToWorld ) ) {
                     continue;
                 }
 

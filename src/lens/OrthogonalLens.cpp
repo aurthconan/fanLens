@@ -11,7 +11,8 @@ OrthogonalLens::OrthogonalLens( fanVector3<float> pos,
     computeLensSpace( pos, lookAt, up, dimens );
 }
 
-bool OrthogonalLens::cullFace( const fanTriangle& triangle ) {
+bool OrthogonalLens::cullFace( const fanTriangle& triangle,
+                        const fanMatrix<float, 4, 4>& worldTransformation ) {
     fanVector3<float> view = mLookAt - mPos;
     return dot( triangle.mNormal, view ) <= 0;
 }

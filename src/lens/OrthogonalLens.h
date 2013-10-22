@@ -13,7 +13,9 @@ public:
                     fan::fanVector3<float> up,
                     fan::fanVector3<float> dimens );
 
-    bool cullFace( const fan::fanTriangle& triangle );
+    bool cullFace( const fan::fanTriangle& triangle,
+                   const fan::fanMatrix<float, 4, 4>& worldTransformation );
+
 
 protected:
     virtual fan::fanMatrix<float, 4, 4> getTransformation();

@@ -36,7 +36,7 @@ void DepthCamera::takePicture( fan::fanScene& scene,
                     end = (*mesh)->mBuffer + (*mesh)->mSize;
                     itor != end; ++itor ) {
 
-                if ( !lens.cullFace( *itor ) ) {
+                if ( !lens.cullFace( *itor, object->mObjectToWorld ) ) {
                     continue;
                 }
 

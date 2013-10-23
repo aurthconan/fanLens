@@ -80,8 +80,8 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
             objEnd = scene.mTriangleMeshes.end();
             object != objEnd; ++object ) {
 
-        for ( auto mesh = object->mFaces.begin(),
-                   end = object->mFaces.end();
+        for ( auto mesh = (*object)->mFaces.begin(),
+                   end = (*object)->mFaces.end();
               mesh != end; ++mesh ) {
             // sort the depth
             std::sort((*mesh)->mBuffer,
@@ -103,15 +103,15 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
                     lineGenerator.plotLine( P2, P1, PIXEL, FILM, &FILM );   \
                 }
 
-                if ( !lens.cullFace( *itor, object->mObjectToWorld ) ) {
+                if ( !lens.cullFace( *itor, (*object)->mObjectToWorld ) ) {
                     continue;
                 }
 
-                aVisible = project( *(itor->a), lens, object->mObjectToWorld, dimens,
+                aVisible = project( *(itor->a), lens, (*object)->mObjectToWorld, dimens,
                                     a, homoA );
-                bVisible = project( *(itor->b), lens, object->mObjectToWorld, dimens,
+                bVisible = project( *(itor->b), lens, (*object)->mObjectToWorld, dimens,
                                     b, homoB );
-                cVisible = project( *(itor->c), lens, object->mObjectToWorld, dimens,
+                cVisible = project( *(itor->c), lens, (*object)->mObjectToWorld, dimens,
                                     c, homoC );
                 if ( !aVisible && !bVisible && !cVisible ) {
                     continue;

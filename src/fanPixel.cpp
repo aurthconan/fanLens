@@ -19,5 +19,69 @@ fanPixel::fanPixel( int color )
 {
 }
 
+fanPixel::fanPixel( const fanPixel& pixel )
+    : a( pixel.a )
+    , r( pixel.r )
+    , g( pixel.g )
+    , b( pixel.b )
+{
+}
+
+fanPixel& fanPixel::operator=( const fanPixel& other ) {
+    a = other.a;
+    r = other.r;
+    g = other.g;
+    b = other.b;
+    return *this;
+}
+
+fanPixel& fanPixel::operator+=( const fanPixel& other ) {
+    if ( (255-other.a) > a ) {
+        a += other.a;
+    } else {
+        a = 255;
+    }
+    if ( 255-other.r > r ) {
+        r += other.r;
+    } else {
+        r = 255;
+    }
+    if ( 255-other.g > g ) {
+        g += other.g;
+    } else {
+        g = 255;
+    }
+    if ( 255-other.b > b ) {
+        b += other.b;
+    } else {
+        b = 255;
+    }
+    return *this;
+}
+
+fanPixel& fanPixel::operator*=( float ratio ) {
+    if ( ratio < 0 || ratio > 1 ) {
+        return *this;
+    }
+    // a *= ratio;
+    r *= ratio;
+    g *= ratio;
+    b *= ratio;
+    return *this;
+}
+
+fanPixel fanPixel::operator*( float ratio ) {
+    fanPixel result = *this;
+    result *= ratio;
+    return result;
+}
+
+bool fanPixel::operator==( const fanPixel& other ) {
+    if ( other.a == a && other.r == r && other.g == g && other.b == b ) {
+        return true;
+    }
+    return false;
+}
+
 }
 

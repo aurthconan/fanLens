@@ -18,6 +18,14 @@ public:
     fanPixel( unsigned char a, unsigned char r,
               unsigned char g, unsigned char b );
     fanPixel( int color = 0 );
+    fanPixel( const fanPixel& pixel );
+
+    fanPixel& operator=( const fanPixel& other );
+    fanPixel& operator+=( const fanPixel& other );
+    fanPixel& operator*=( float ratio );
+    fanPixel operator*( float ratio );
+
+    bool operator==( const fanPixel& other );
 };
 
 }

@@ -59,9 +59,10 @@ TYPED_TEST_P(Camera_test, SimpleScene) {
                                       0, 1, 0, 0,
                                       0, 0, 1, 0,
                                       0, 0, 0, 1 };
-    fan::fanTriangleMesh mesh( pos );
-    mesh.mVertices.push_back( vertices );
-    mesh.mFaces.push_back( faces );
+    boost::shared_ptr<fan::fanTriangleMesh>
+        mesh( new fan::fanTriangleMesh( pos ) );
+    mesh->mVertices.push_back( vertices );
+    mesh->mFaces.push_back( faces );
     int verticesNum = 0;
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {

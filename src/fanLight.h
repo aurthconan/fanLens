@@ -2,15 +2,19 @@
 
 #define FANLIGHT_H
 
+#include <fanVector3.h>
+
 namespace fan {
+
+class fanPixel;
 
 class fanLight
 {
 public:
-    fanLight();
-    ~fanLight();
-
-private:
+    virtual ~fanLight();
+    virtual fan::fanPixel getLight( fan::fanVector3<float> world,
+                                    fan::fanVector3<float> normal,
+                                    fan::fanVector3<float> viewer ) = 0;
 };
 
 } /* namespace fan */

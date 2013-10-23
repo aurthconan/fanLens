@@ -17,6 +17,9 @@
 #include <camera/PointScannerCamera.h>
 #include <camera/WireframeCamera.h>
 #include <camera/DepthCamera.h>
+#include <camera/FlatShadingCamera.h>
+#include <lights/Ambient.h>
+#include <lights/PointLight.h>
 
 #include <cstdlib>
 
@@ -71,6 +74,17 @@ int main(int argc, char** argv) {
     float diameter = sqrt( xBound*xBound + yBound*yBound + zBound*zBound );
     radius = diameter / 2.0f;
 
+    //add lights
+    boost::shared_ptr<fanLight> light(
+            new Ambient( fanPixel( 255, 50, 50, 50 ) ) );
+    scene.mLights.push_back( light );
+    light.reset( new PointLight( center + fanVector3<float>(radius, radius, radius),
+                            fanPixel( 255, 255, 0, 0 ) ) );
+    scene.mLights.push_back( light );
+    light.reset( new PointLight( center + fanVector3<float>(0, radius, radius),
+                            fanPixel( 255, 0, 125, 125 ) ) );
+    scene.mLights.push_back( light );
+
     fanVector<int, 2> size;
     size[0] = 800; size[1] = 600;
     SDLFilm sdl( size );
@@ -91,6 +105,7 @@ int main(int argc, char** argv) {
     PointScannerCamera pointCamera;
     WireframeCamera wireframeCamera;
     DepthCamera depthCamera;
+    FlatShadingCamera flatShadingCamera;
 
     bool done = false;
     bool refresh = false;
@@ -141,6 +156,7 @@ int main(int argc, char** argv) {
                         case SDLK_1: currentCamera = &pointCamera; break;
                         case SDLK_2: currentCamera = &wireframeCamera; break;
                         case SDLK_3: currentCamera = &depthCamera; break;
+                        case SDLK_4: currentCamera = &flatShadingCamera; break;
                         case SDLK_o: currentLens = &OrthoLens; break;
                         case SDLK_p: currentLens = &PerspLens; break;
                         default: continue; break;
@@ -229,15 +245,16 @@ bool loadFile( char* file, fanScene& ourScene,
             nodes.push_back( node->mChildren[i] );
         }
         aiMatrix4x4 pos = node->mTransformation;
-        fanTriangleMesh object( fanMatrix< float, 4, 4>{pos.a1,pos.a2,pos.a3,pos.a4,
-                                                        pos.b1,pos.b2,pos.b3,pos.b4,
-                                                        pos.c1,pos.c2,pos.c3,pos.c4,
-                                                        pos.d1,pos.d2,pos.d3,pos.d4,
-                                                        } );
+        boost::shared_ptr<fanTriangleMesh>
+            object( new fanTriangleMesh(
+                        fanMatrix< float, 4, 4>{pos.a1,pos.a2,pos.a3,pos.a4,
+                                                pos.b1,pos.b2,pos.b3,pos.b4,
+                                                pos.c1,pos.c2,pos.c3,pos.c4,
+                                                pos.d1,pos.d2,pos.d3,pos.d4, } ) );
         cout << " node->mNumMeshes " << node->mNumMeshes << endl;
         for ( size_t i = 0; i < node->mNumMeshes; ++i ) {
-            object.mVertices.push_back( vertices[i] );
-            object.mFaces.push_back( faces[i] );
+            object->mVertices.push_back( vertices[i] );
+            object->mFaces.push_back( faces[i] );
         }
         ourScene.mTriangleMeshes.push_back( object );
     }

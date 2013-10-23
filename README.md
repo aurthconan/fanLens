@@ -2,8 +2,7 @@ fanLens
 =======
 
 A toy software renderer. For fun and my interesting in Computer Graphics.
-Currently it only support point mode & wireframe mode.
-Flat Shading is in progress.
+Currently it support point mode, wireframe mode & flat shading mode.
 
 How to build
 -------

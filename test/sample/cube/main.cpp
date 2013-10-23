@@ -65,56 +65,56 @@ int main() {
     boost::shared_ptr<fanBufferObject<fanTriangle> >
         faces( new fanBufferObject<fanTriangle>( 4*4*2*6 ) );
 
-    fanTriangleMesh cube( cubePos );
-    cube.mVertices.push_back( vertices );
-    cube.mFaces.push_back( faces );
+    boost::shared_ptr<fanTriangleMesh> cube( new fanTriangleMesh( cubePos ) );
+    cube->mVertices.push_back( vertices );
+    cube->mFaces.push_back( faces );
 
     fanScene scene;
 
     int verticesNum = 0;
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            cube.mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, j, 0 );
+            cube->mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, j, 0 );
             verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            cube.mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, 0, j );
+            cube->mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, 0, j );
             verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            cube.mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( 0, i, j );
+            cube->mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( 0, i, j );
             verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            cube.mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, j, 200 );
+            cube->mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, j, 200 );
             verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            cube.mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, 200, j );
+            cube->mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, 200, j );
             verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            cube.mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( 200, i, j );
+            cube->mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( 200, i, j );
             verticesNum++;
         }
     }
     int facesNum = 0;
-    addTriangle( cube, 0, facesNum );
-    addTriangle( cube, 25, facesNum );
-    addTriangle( cube, 50, facesNum );
-    addTriangle( cube, 75, facesNum );
-    addTriangle( cube, 100, facesNum );
-    addTriangle( cube, 125, facesNum );
+    addTriangle( *cube, 0, facesNum );
+    addTriangle( *cube, 25, facesNum );
+    addTriangle( *cube, 50, facesNum );
+    addTriangle( *cube, 75, facesNum );
+    addTriangle( *cube, 100, facesNum );
+    addTriangle( *cube, 125, facesNum );
 
     scene.mTriangleMeshes.push_back( cube );
 

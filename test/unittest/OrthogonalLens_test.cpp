@@ -42,29 +42,33 @@ TEST(OrthogonalLens,LookThroughPositiveYAxis) {
     size[0] = 100; size[1] = 100;
     fanVector<float, 2> result;
     fanVector<float, 4> homoPos;
+    fanMatrix<float, 4, 4> pos { 1,0,0,0,
+                                 0,1,0,0,
+                                 0,0,1,0,
+                                 0,0,0,1 };
     fanCamera camera;
     camera.project( fanVector3<float>(0, 0, 1),
-                    lens.mPos, lens.mViewTransformation, size,
+                    lens, pos, size,
                     result, homoPos );
     EXPECT_EQ( 50, result[0] );
     EXPECT_EQ( 51, result[1] );
 
     camera.project( fanVector3<float>( 0, 0, 2 ),
-                    lens.mPos, lens.mViewTransformation, size,
+                    lens, pos, size,
                     result, homoPos );
 
     EXPECT_EQ( 50, result[0] );
     EXPECT_EQ( 52, result[1] );
 
     camera.project( fanVector3<float>( 1, 0, 2 ),
-                    lens.mPos, lens.mViewTransformation, size,
+                    lens, pos, size,
                     result, homoPos );
 
     EXPECT_EQ( 51, result[0] );
     EXPECT_EQ( 52, result[1] );
 
     camera.project( fanVector3<float>( 2, 0, 2 ),
-                    lens.mPos, lens.mViewTransformation, size,
+                    lens, pos, size,
                     result, homoPos );
 
     EXPECT_EQ( 52, result[0] );
@@ -95,31 +99,35 @@ TEST(OrthogonalLens,LookThroughNegativeXAxis) {
     fanCamera camera;
     fanVector<int, 2> size;
     fanVector<float, 4> homoPos;
+    fanMatrix<float, 4, 4> pos { 1,0,0,0,
+                                 0,1,0,0,
+                                 0,0,1,0,
+                                 0,0,0,1 };
     size[0] = 100; size[1] = 100;
     fanVector<float, 2> result;
     camera.project( fanVector3<float>(0, 0, 1),
-                    lens.mPos, lens.mViewTransformation, size,
+                    lens, pos, size,
                     result, homoPos );
 
     EXPECT_EQ( 50, result[0] );
     EXPECT_EQ( 51, result[1] );
 
     camera.project( fanVector3<float>( 0, 0, 2 ),
-                    lens.mPos, lens.mViewTransformation, size,
+                    lens, pos, size,
                     result, homoPos );
 
     EXPECT_EQ( 50, result[0] );
     EXPECT_EQ( 52, result[1] );
 
     camera.project( fanVector3<float>( 0, 1, 2 ),
-                    lens.mPos, lens.mViewTransformation, size,
+                    lens, pos, size,
                     result, homoPos );
 
     EXPECT_EQ( 51, result[0] );
     EXPECT_EQ( 52, result[1] );
 
     camera.project( fanVector3<float>( 0, 2, 2 ),
-                    lens.mPos, lens.mViewTransformation, size,
+                    lens, pos, size,
                     result, homoPos );
 
     EXPECT_EQ( 52, result[0] );
@@ -143,10 +151,11 @@ TEST(OrthogonalLens,RenderAxis) {
     boost::shared_ptr<fan::fanBufferObject<fan::fanTriangle> >
         faces( new fan::fanBufferObject<fan::fanTriangle>( 0 ) );
 
-    fanTriangleMesh mesh(fanMatrix<float, 4, 4>{1,0,0,0,
-                                                0,1,0,0,
-                                                0,0,1,0,
-                                                0,0,0,1,} );
+    boost::shared_ptr<fanTriangleMesh>
+        mesh(new fanTriangleMesh(fanMatrix<float, 4, 4>{1,0,0,0,
+                                                        0,1,0,0,
+                                                        0,0,1,0,
+                                                        0,0,0,1,} ) );
     int verticesNum = 0;
     for ( size_t i = 0; i < 1000; ++i ) {
         vertices->mBuffer[verticesNum] = fan::fanVector3<float>( i, 0, 0 );
@@ -160,8 +169,8 @@ TEST(OrthogonalLens,RenderAxis) {
         vertices->mBuffer[verticesNum] = fan::fanVector3<float>( 0, 0, i );
         ++verticesNum;
     }
-    mesh.mVertices.push_back( vertices );
-    mesh.mFaces.push_back( faces );
+    mesh->mVertices.push_back( vertices );
+    mesh->mFaces.push_back( faces );
 
     scene.mTriangleMeshes.push_back( mesh );
     PointScannerCamera camera;

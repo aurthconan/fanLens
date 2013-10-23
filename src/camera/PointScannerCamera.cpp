@@ -12,15 +12,15 @@ void PointScannerCamera::takePicture( fanScene& scene,
     for ( auto object = scene.mTriangleMeshes.begin(),
             objEnd = scene.mTriangleMeshes.end();
             object != objEnd; ++object ) {
-        for ( auto points = object->mVertices.begin(),
-                   end = object->mVertices.end();
+        for ( auto points = (*object)->mVertices.begin(),
+                   end = (*object)->mVertices.end();
                    points != end; ++points ) {
 
             for ( auto itor = (*points)->mBuffer,
                     end = (*points)->mBuffer + (*points)->mSize;
                     itor != end; ++itor ) {
 
-                if ( !project( *itor, lens, object->mObjectToWorld, dimens,
+                if ( !project( *itor, lens, (*object)->mObjectToWorld, dimens,
                                 pos, homoPos ) ) {
                     continue;
                 }

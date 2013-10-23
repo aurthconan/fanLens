@@ -1,26 +1,28 @@
-#include "DepthCamera.h"
+#include "FlatShadingCamera.h"
 
 #include <algo/rasterize/fanScanLineGenerator.h>
-
 #include <texture/MemoryTexture.h>
+#include <lights/fanLightsAccumulator.h>
 
 using namespace fan;
 
-void DepthCamera::takePicture( fan::fanScene& scene,
-                               fan::fanFilm& film,
-                               fan::fanLens& lens ) {
+void FlatShadingCamera::takePicture( fan::fanScene& scene,
+                                     fan::fanFilm& film,
+                                     fan::fanLens& lens ) {
     fanVector<int, 2> dimens = film.getDimens();
 
     fanVector<float, 2> a, b, c;
     fanVector<float, 4> homoA, homoB, homoC;
     bool aVisible, bVisible, cVisible;
 
-    fanPixel pixel( 255, 255, 0, 0 );
+    fanPixel pixel( 255, 0, 0, 0 );
 
     fanScanLineGenerator<float> scanLine( dimens );
 
     MemoryTexture<int, float, 2> zBuffer( dimens );
     zBuffer.reset( 2.0f );
+
+    fanLightsAccumulator lightAccumulator( scene.mLights );
 
     for ( auto object = scene.mTriangleMeshes.begin(),
             objEnd = scene.mTriangleMeshes.end();
@@ -37,6 +39,8 @@ void DepthCamera::takePicture( fan::fanScene& scene,
                 if ( !lens.cullFace( *itor, (*object)->mObjectToWorld ) ) {
                     continue;
                 }
+
+                pixel = lightAccumulator.getLight( itor->mCenter, itor->mNormal, lens.mPos );
 
                 aVisible = project( *(itor->a), lens, (*object)->mObjectToWorld, dimens,
                                     a, homoA );
@@ -90,10 +94,6 @@ void DepthCamera::takePicture( fan::fanScene& scene,
                         a[0] = j;
                         if ( depthValue < zBuffer.getValue( a ) ) {
                             zBuffer.setValue( a, depthValue );
-
-                            pixel.r = ( 1.0f - depthValue ) * 255.0f;
-                            pixel.g = ( 1.0f - depthValue ) * 255.0f;
-                            pixel.b = ( 1.0f - depthValue ) * 255.0f;
                             film.setValue( a, pixel );
                         }
                     }

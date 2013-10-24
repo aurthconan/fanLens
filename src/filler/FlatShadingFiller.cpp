@@ -1,4 +1,4 @@
-#include "FlatShadingCamera.h"
+#include "FlatShadingFiller.h"
 
 #include <algo/rasterize/fanScanLineGenerator.h>
 #include <lights/fanLightsAccumulator.h>
@@ -10,7 +10,7 @@
 
 using namespace fan;
 
-void FlatShadingCamera::begin( fan::fanScene& scene,
+void FlatShadingFiller::begin( fan::fanScene& scene,
                                fan::fanFilm& film,
                                fan::fanLens& lens ) {
     mpLightsAccum.reset( new fanLightsAccumulator( scene.mLights ) );
@@ -19,14 +19,14 @@ void FlatShadingCamera::begin( fan::fanScene& scene,
     mLensPos = lens.mPos;
 }
 
-void FlatShadingCamera::nextTriangle( fan::fanTriangleMesh& object,
+void FlatShadingFiller::nextTriangle( fan::fanTriangleMesh& object,
                                       fan::fanTriangle& triangle ) {
     mPixel = mpLightsAccum->getLight( transform( object.mObjectToWorld,
                                                  triangle.mCenter ),
                                       triangle.mNormal, mLensPos );
 }
 
-void FlatShadingCamera::getCompaionData( size_t i,
+void FlatShadingFiller::getCompaionData( size_t i,
                                          fanTriangle& triangle,
                                          fanVector<float,4>& coord,
                                          fanTriangleMesh& object,
@@ -35,7 +35,7 @@ void FlatShadingCamera::getCompaionData( size_t i,
     data.depth = coord[2];
 }
 
-void FlatShadingCamera::plot( fan::fanVector<float, 2> pos,
+void FlatShadingFiller::plot( fan::fanVector<float, 2> pos,
                               Data& data,
                               fan::fanFilm& film ) {
     if ( data.depth < mpZBuffer->getValue( pos ) ) {
@@ -44,41 +44,41 @@ void FlatShadingCamera::plot( fan::fanVector<float, 2> pos,
     }
 }
 
-void FlatShadingCamera::end() {
+void FlatShadingFiller::end() {
 }
 
-FlatShadingCamera::Data::Data()
+FlatShadingFiller::Data::Data()
     : depth( 0 ) {
 }
 
-FlatShadingCamera::Data::Data( float _depth )
+FlatShadingFiller::Data::Data( float _depth )
     : depth( _depth ) {
 }
 
 
-FlatShadingCamera::Data FlatShadingCamera::Data::operator-(
+FlatShadingFiller::Data FlatShadingFiller::Data::operator-(
                             const Data& o ) const {
-    FlatShadingCamera::Data result = *this;
+    FlatShadingFiller::Data result = *this;
     result.depth -= o.depth;
     return result;
 }
 
-FlatShadingCamera::Data FlatShadingCamera::Data::operator*(
+FlatShadingFiller::Data FlatShadingFiller::Data::operator*(
                             const int& ratio ) const {
-    FlatShadingCamera::Data result = *this;
+    FlatShadingFiller::Data result = *this;
     result.depth *= ratio;
     return result;
 }
 
-FlatShadingCamera::Data& FlatShadingCamera::Data::operator+=(
-                            const FlatShadingCamera::Data& o ) {
+FlatShadingFiller::Data& FlatShadingFiller::Data::operator+=(
+                            const FlatShadingFiller::Data& o ) {
     this->depth += o.depth;
     return *this;
 }
 
-FlatShadingCamera::Data FlatShadingCamera::Data::operator/(
+FlatShadingFiller::Data FlatShadingFiller::Data::operator/(
                             const int& ratio ) const {
-    FlatShadingCamera::Data result = *this;
+    FlatShadingFiller::Data result = *this;
     result.depth /= ratio;
     return result;
 }

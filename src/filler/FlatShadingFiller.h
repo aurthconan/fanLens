@@ -15,7 +15,7 @@ class fanTriangleMesh;
 class fanTriangle;
 } /* namespace fan */
 
-class FlatShadingCamera
+class FlatShadingFiller
 {
 public:
     class Data {
@@ -41,9 +41,9 @@ public:
                           fan::fanTriangle& triangle,
                           fan::fanVector<float,4>& coord,
                           fan::fanTriangleMesh& object,
-                          FlatShadingCamera::Data& data );
+                          FlatShadingFiller::Data& data );
     void plot( fan::fanVector<float, 2> pos,
-               FlatShadingCamera::Data& data,
+               FlatShadingFiller::Data& data,
                fan::fanFilm& film );
 
 private:

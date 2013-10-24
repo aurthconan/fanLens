@@ -17,7 +17,7 @@
 #include <camera/PointScannerCamera.h>
 #include <camera/WireframeCamera.h>
 #include <camera/DepthCamera.h>
-#include <camera/FlatShadingCamera.h>
+#include <filler/FlatShadingFiller.h>
 #include <camera/RasterisationCamera.h>
 #include <lights/Ambient.h>
 #include <lights/PointLight.h>
@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
     PointScannerCamera pointCamera;
     WireframeCamera wireframeCamera;
     DepthCamera depthCamera;
-    RasterisationCamera<FlatShadingCamera> flatShadingCamera;
+    RasterisationCamera<FlatShadingFiller> flatShadingCamera;
 
     bool done = false;
     bool refresh = false;

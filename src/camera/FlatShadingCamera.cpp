@@ -2,6 +2,11 @@
 
 #include <algo/rasterize/fanScanLineGenerator.h>
 #include <lights/fanLightsAccumulator.h>
+#include <fanScene.h>
+#include <fanFilm.h>
+#include <fanLens.h>
+#include <fanTriangleMesh.h>
+#include <fanTriangle.h>
 
 using namespace fan;
 
@@ -25,13 +30,13 @@ void FlatShadingCamera::getCompaionData( size_t i,
                                          fanTriangle& triangle,
                                          fanVector<float,4>& coord,
                                          fanTriangleMesh& object,
-                                         FlatShadingCompaionData& data ) {
+                                         Data& data ) {
     (void) i; (void) triangle; (void) object;
     data.depth = coord[2];
 }
 
 void FlatShadingCamera::plot( fan::fanVector<float, 2> pos,
-                              FlatShadingCompaionData& data,
+                              Data& data,
                               fan::fanFilm& film ) {
     if ( data.depth < mpZBuffer->getValue( pos ) ) {
         mpZBuffer->setValue( pos, data.depth );
@@ -42,38 +47,38 @@ void FlatShadingCamera::plot( fan::fanVector<float, 2> pos,
 void FlatShadingCamera::end() {
 }
 
-FlatShadingCompaionData::FlatShadingCompaionData()
+FlatShadingCamera::Data::Data()
     : depth( 0 ) {
 }
 
-FlatShadingCompaionData::FlatShadingCompaionData( float _depth )
+FlatShadingCamera::Data::Data( float _depth )
     : depth( _depth ) {
 }
 
 
-FlatShadingCompaionData FlatShadingCompaionData::operator-(
-                            const FlatShadingCompaionData& o ) const {
-    FlatShadingCompaionData result = *this;
+FlatShadingCamera::Data FlatShadingCamera::Data::operator-(
+                            const Data& o ) const {
+    FlatShadingCamera::Data result = *this;
     result.depth -= o.depth;
     return result;
 }
 
-FlatShadingCompaionData FlatShadingCompaionData::operator*(
+FlatShadingCamera::Data FlatShadingCamera::Data::operator*(
                             const int& ratio ) const {
-    FlatShadingCompaionData result = *this;
+    FlatShadingCamera::Data result = *this;
     result.depth *= ratio;
     return result;
 }
 
-FlatShadingCompaionData& FlatShadingCompaionData::operator+=(
-                            const FlatShadingCompaionData& o ) {
+FlatShadingCamera::Data& FlatShadingCamera::Data::operator+=(
+                            const FlatShadingCamera::Data& o ) {
     this->depth += o.depth;
     return *this;
 }
 
-FlatShadingCompaionData FlatShadingCompaionData::operator/(
+FlatShadingCamera::Data FlatShadingCamera::Data::operator/(
                             const int& ratio ) const {
-    FlatShadingCompaionData result = *this;
+    FlatShadingCamera::Data result = *this;
     result.depth /= ratio;
     return result;
 }

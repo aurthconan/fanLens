@@ -5,27 +5,12 @@
 #include <fanCamera.h>
 #include <algo/rasterize/fanScanLineGenerator.h>
 
-template<typename CompaionDataType>
+template<typename FillerType>
 class RasterisationCamera
     : public fan::fanCamera
 {
 public:
     virtual ~RasterisationCamera() {}
-
-    virtual void begin( fan::fanScene& scene,
-                        fan::fanFilm& film,
-                        fan::fanLens& lens) = 0;
-    virtual void end() = 0;
-    virtual void nextTriangle( fan::fanTriangleMesh& object,
-                               fan::fanTriangle& triangle ) = 0;
-    virtual void getCompaionData( size_t i,
-                                  fan::fanTriangle& triangle,
-                                  fan::fanVector<float,4>& coord,
-                                  fan::fanTriangleMesh& object,
-                                  CompaionDataType& data ) = 0;
-    virtual void plot( fan::fanVector<float, 2> pos,
-                       CompaionDataType& data,
-                       fan::fanFilm& film ) = 0;
 
     virtual void takePicture( fan::fanScene& scene,
                               fan::fanFilm& film,
@@ -34,12 +19,15 @@ public:
 
         fan::fanVector<float, 2> a, b, c;
         fan::fanVector<float, 4> homoA, homoB, homoC;
-        CompaionDataType compA, compB, compC;
+        typename FillerType::Data compA, compB, compC;
         bool aVisible, bVisible, cVisible;
 
-        fan::fanScanLineGenerator<CompaionDataType> scanLine( dimens );
+        fan::fanScanLineGenerator<typename FillerType::Data> scanLine( dimens );
 
-        begin( scene, film, lens );
+        mFiller.begin( scene, film, lens );
+
+        int left, right;
+        typename FillerType::Data valueAtLeft, valueAtRight, Step, Value;
 
         for ( auto object = scene.mTriangleMeshes.begin(),
                 objEnd = scene.mTriangleMeshes.end();
@@ -71,12 +59,12 @@ public:
                     if ( !aVisible && !bVisible && !cVisible ) {
                         continue;
                     }
-                    nextTriangle( **object, *itor );
+                    mFiller.nextTriangle( **object, *itor );
 
                     scanLine.reset();
-                    getCompaionData( 0, *itor, homoA, **object, compA );
-                    getCompaionData( 1, *itor, homoB, **object, compB );
-                    getCompaionData( 2, *itor, homoC, **object, compC );
+                    mFiller.getCompaionData( 0, *itor, homoA, **object, compA );
+                    mFiller.getCompaionData( 1, *itor, homoB, **object, compB );
+                    mFiller.getCompaionData( 2, *itor, homoC, **object, compC );
 
                     scanLine.AddLine( a, b, compA, compB );
                     scanLine.AddLine( b, c, compB, compC );
@@ -97,8 +85,6 @@ public:
                             continue;
                         }
                         a[1] = i;
-                        int left, right;
-                        CompaionDataType valueAtLeft, valueAtRight;
                         if ( scanLine.mLines[i] == 2 ) {
                             left = scanLine.mXLeft[i];
                             right = scanLine.mXRight[i];
@@ -108,23 +94,23 @@ public:
                             right = left = scanLine.mXLeft[i];
                             valueAtRight= valueAtLeft = scanLine.mLeft[i];
                         }
-                        CompaionDataType Step = (left==right)?
-                                                    CompaionDataType():
-                                                    (valueAtRight-valueAtLeft)/
-                                                    (right-left);
-                        CompaionDataType Value = valueAtLeft;
+                        Step = (left==right)?
+                                 Value:
+                                 (valueAtRight-valueAtLeft)/(right-left);
+                        Value = valueAtLeft;
                         for ( int j = left, max = right;
                                 j <= max; ++j, Value+=Step ) {
                             if ( j < 0 || j >= dimens[0] ) continue;
                             a[0] = j;
-                            plot( a, Value, film );
+                            mFiller.plot( a, Value, film );
                         }
                     }
                 }
             }
         }
-        end();
+        mFiller.end();
     }
+    FillerType mFiller;
 };
 
 #endif /* end of include guard: RASTERISATIONCAMERA_H */

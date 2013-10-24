@@ -1,105 +1,80 @@
 #include "FlatShadingCamera.h"
 
 #include <algo/rasterize/fanScanLineGenerator.h>
-#include <texture/MemoryTexture.h>
 #include <lights/fanLightsAccumulator.h>
 
 using namespace fan;
 
-void FlatShadingCamera::takePicture( fan::fanScene& scene,
-                                     fan::fanFilm& film,
-                                     fan::fanLens& lens ) {
-    fanVector<int, 2> dimens = film.getDimens();
+void FlatShadingCamera::begin( fan::fanScene& scene,
+                               fan::fanFilm& film,
+                               fan::fanLens& lens ) {
+    mpLightsAccum.reset( new fanLightsAccumulator( scene.mLights ) );
+    mpZBuffer.reset( new MemoryTexture<int, float, 2>( film.getDimens() ) );
+    mpZBuffer->reset( 2.0f );
+    mLensPos = lens.mPos;
+}
 
-    fanVector<float, 2> a, b, c;
-    fanVector<float, 4> homoA, homoB, homoC;
-    bool aVisible, bVisible, cVisible;
+void FlatShadingCamera::nextTriangle( fan::fanTriangleMesh& object,
+                                      fan::fanTriangle& triangle ) {
+    mPixel = mpLightsAccum->getLight( transform( object.mObjectToWorld,
+                                                 triangle.mCenter ),
+                                      triangle.mNormal, mLensPos );
+}
 
-    fanPixel pixel( 255, 0, 0, 0 );
+void FlatShadingCamera::getCompaionData( size_t i,
+                                         fanTriangle& triangle,
+                                         fanVector<float,4>& coord,
+                                         fanTriangleMesh& object,
+                                         FlatShadingCompaionData& data ) {
+    (void) i; (void) triangle; (void) object;
+    data.depth = coord[2];
+}
 
-    fanScanLineGenerator<float> scanLine( dimens );
-
-    MemoryTexture<int, float, 2> zBuffer( dimens );
-    zBuffer.reset( 2.0f );
-
-    fanLightsAccumulator lightAccumulator( scene.mLights );
-
-    for ( auto object = scene.mTriangleMeshes.begin(),
-            objEnd = scene.mTriangleMeshes.end();
-            object != objEnd; ++object ) {
-
-        for ( auto mesh = (*object)->mFaces.begin(),
-                   end = (*object)->mFaces.end();
-              mesh != end; ++mesh ) {
-
-            for ( auto itor = (*mesh)->mBuffer,
-                    end = (*mesh)->mBuffer + (*mesh)->mSize;
-                    itor != end; ++itor ) {
-
-                if ( !lens.cullFace( *itor, (*object)->mObjectToWorld ) ) {
-                    continue;
-                }
-
-                pixel = lightAccumulator.getLight( itor->mCenter, itor->mNormal, lens.mPos );
-
-                aVisible = project( *(itor->a), lens, (*object)->mObjectToWorld, dimens,
-                                    a, homoA );
-                bVisible = project( *(itor->b), lens, (*object)->mObjectToWorld, dimens,
-                                    b, homoB );
-                cVisible = project( *(itor->c), lens, (*object)->mObjectToWorld, dimens,
-                                    c, homoC );
-                if ( !aVisible && !bVisible && !cVisible ) {
-                    continue;
-                }
-                scanLine.reset();
-
-                scanLine.AddLine( a, b, homoA[2], homoB[2] );
-                scanLine.AddLine( b, c, homoB[2], homoC[2] );
-                scanLine.AddLine( c, a, homoC[2], homoA[2] );
-
-                // fill the zBuffer
-                for ( int i = scanLine.mYMin; i <= scanLine.mYMax; ++i ) {
-                    if ( scanLine.mLines[i] == 0 ) {
-                        continue;
-                    } else if ( scanLine.mLines[i] == 1
-                                && (scanLine.mXLeft[i] >= dimens[0]
-                                || scanLine.mXLeft[i] < 0 ) ) {
-                        continue;
-                    } else if ( scanLine.mLines[i] == 2
-                                && (scanLine.mXLeft[i] >= dimens[0]
-                                    || scanLine.mXRight[i] < 0 ) ) {
-                        continue;
-                    } else if ( scanLine.mLines[i] > 2 ) {
-                        continue;
-                    }
-                    a[1] = i;
-                    int left, right;
-                    float valueAtLeft, valueAtRight;
-                    if ( scanLine.mLines[i] == 2 ) {
-                        left = scanLine.mXLeft[i];
-                        right = scanLine.mXRight[i];
-                        valueAtLeft = scanLine.mLeft[i];
-                        valueAtRight = scanLine.mRight[i];
-                    } else {
-                        right = left = scanLine.mXLeft[i];
-                        valueAtRight= valueAtLeft = scanLine.mLeft[i];
-                    }
-                    float depthStep = (left==right)?0:
-                                            (valueAtRight-valueAtLeft)/
-                                                (right-left);
-                    float depthValue = valueAtLeft;
-                    for ( int j = left, max = right;
-                            j <= max; ++j, depthValue+=depthStep ) {
-                        if ( j < 0 || j >= dimens[0] ) continue;
-                        a[0] = j;
-                        if ( depthValue < zBuffer.getValue( a ) ) {
-                            zBuffer.setValue( a, depthValue );
-                            film.setValue( a, pixel );
-                        }
-                    }
-                }
-            }
-        }
+void FlatShadingCamera::plot( fan::fanVector<float, 2> pos,
+                              FlatShadingCompaionData& data,
+                              fan::fanFilm& film ) {
+    if ( data.depth < mpZBuffer->getValue( pos ) ) {
+        mpZBuffer->setValue( pos, data.depth );
+        film.setValue( pos, mPixel );
     }
+}
+
+void FlatShadingCamera::end() {
+}
+
+FlatShadingCompaionData::FlatShadingCompaionData()
+    : depth( 0 ) {
+}
+
+FlatShadingCompaionData::FlatShadingCompaionData( float _depth )
+    : depth( _depth ) {
+}
+
+
+FlatShadingCompaionData FlatShadingCompaionData::operator-(
+                            const FlatShadingCompaionData& o ) const {
+    FlatShadingCompaionData result = *this;
+    result.depth -= o.depth;
+    return result;
+}
+
+FlatShadingCompaionData FlatShadingCompaionData::operator*(
+                            const int& ratio ) const {
+    FlatShadingCompaionData result = *this;
+    result.depth *= ratio;
+    return result;
+}
+
+FlatShadingCompaionData& FlatShadingCompaionData::operator+=(
+                            const FlatShadingCompaionData& o ) {
+    this->depth += o.depth;
+    return *this;
+}
+
+FlatShadingCompaionData FlatShadingCompaionData::operator/(
+                            const int& ratio ) const {
+    FlatShadingCompaionData result = *this;
+    result.depth /= ratio;
+    return result;
 }
 

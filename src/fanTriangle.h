@@ -20,11 +20,8 @@ public:
                  fanVector3<float> center = fanVector3<float>(),
                  fanVector3<float> normal = fanVector3<float>() );
 
-    fanVector3<float>* a;
-    fanVector3<float>* b;
-    fanVector3<float>* c;
-
-    size_t aIndex, bIndex, cIndex;
+    fanVector3<float>* points[3];
+    size_t pointsIndex[3];
 
     fanVector3<float> mCenter;
     fanVector3<float> mNormal;

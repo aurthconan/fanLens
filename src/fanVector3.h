@@ -3,6 +3,7 @@
 #define FANVECTOR3_H
 
 #include "fanVector.h"
+#include <fanMatrix.h>
 #include <cstring>
 
 namespace fan {
@@ -58,6 +59,14 @@ public:
         return *this;
     }
 };
+
+template<typename T>
+fanVector3<T> transform( const fanMatrix<T, 4, 4>& matrix,
+                         const fanVector3<T>& vector ) {
+    fanVector<T, 4> homo { vector[0], vector[1], vector[2], 1 };
+    homo = matrix * homo;
+    return fanVector3<T>( homo );
+}
 
 template<typename T>
 fanVector<T, 3> cross( const fanVector<T, 3>& l, const fanVector<T, 3>& r ) {

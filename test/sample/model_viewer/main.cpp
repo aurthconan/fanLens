@@ -82,7 +82,10 @@ int main(int argc, char** argv) {
                             fanPixel( 255, 255, 0, 0 ) ) );
     scene.mLights.push_back( light );
     light.reset( new PointLight( center + fanVector3<float>(0, radius, radius),
-                            fanPixel( 255, 0, 125, 125 ) ) );
+                            fanPixel( 255, 0, 255, 0 ) ) );
+    scene.mLights.push_back( light );
+    light.reset( new PointLight( center + fanVector3<float>(radius, 0, radius),
+                            fanPixel( 255, 0, 0, 255 ) ) );
     scene.mLights.push_back( light );
 
     fanVector<int, 2> size;

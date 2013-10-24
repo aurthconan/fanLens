@@ -47,28 +47,28 @@ TEST(OrthogonalLens,LookThroughPositiveYAxis) {
                                  0,0,1,0,
                                  0,0,0,1 };
     fanCamera camera;
-    camera.project( fanVector3<float>(0, 0, 1),
-                    lens, pos, size,
+    camera.project( transform( pos, fanVector3<float>(0, 0, 1) ),
+                    lens, size,
                     result, homoPos );
     EXPECT_EQ( 50, result[0] );
     EXPECT_EQ( 51, result[1] );
 
-    camera.project( fanVector3<float>( 0, 0, 2 ),
-                    lens, pos, size,
+    camera.project( transform( pos, fanVector3<float>( 0, 0, 2 ) ),
+                    lens, size,
                     result, homoPos );
 
     EXPECT_EQ( 50, result[0] );
     EXPECT_EQ( 52, result[1] );
 
-    camera.project( fanVector3<float>( 1, 0, 2 ),
-                    lens, pos, size,
+    camera.project( transform( pos, fanVector3<float>( 1, 0, 2 ) ),
+                    lens, size,
                     result, homoPos );
 
     EXPECT_EQ( 51, result[0] );
     EXPECT_EQ( 52, result[1] );
 
-    camera.project( fanVector3<float>( 2, 0, 2 ),
-                    lens, pos, size,
+    camera.project( transform( pos, fanVector3<float>( 2, 0, 2 ) ),
+                    lens, size,
                     result, homoPos );
 
     EXPECT_EQ( 52, result[0] );
@@ -105,29 +105,29 @@ TEST(OrthogonalLens,LookThroughNegativeXAxis) {
                                  0,0,0,1 };
     size[0] = 100; size[1] = 100;
     fanVector<float, 2> result;
-    camera.project( fanVector3<float>(0, 0, 1),
-                    lens, pos, size,
+    camera.project( transform( pos, fanVector3<float>(0, 0, 1) ),
+                    lens, size,
                     result, homoPos );
 
     EXPECT_EQ( 50, result[0] );
     EXPECT_EQ( 51, result[1] );
 
-    camera.project( fanVector3<float>( 0, 0, 2 ),
-                    lens, pos, size,
+    camera.project( transform( pos, fanVector3<float>( 0, 0, 2 ) ),
+                    lens, size,
                     result, homoPos );
 
     EXPECT_EQ( 50, result[0] );
     EXPECT_EQ( 52, result[1] );
 
-    camera.project( fanVector3<float>( 0, 1, 2 ),
-                    lens, pos, size,
+    camera.project( transform( pos, fanVector3<float>( 0, 1, 2 ) ),
+                    lens, size,
                     result, homoPos );
 
     EXPECT_EQ( 51, result[0] );
     EXPECT_EQ( 52, result[1] );
 
-    camera.project( fanVector3<float>( 0, 2, 2 ),
-                    lens, pos, size,
+    camera.project( transform( pos, fanVector3<float>( 0, 2, 2 ) ),
+                    lens, size,
                     result, homoPos );
 
     EXPECT_EQ( 52, result[0] );

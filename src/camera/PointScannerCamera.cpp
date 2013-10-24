@@ -20,7 +20,8 @@ void PointScannerCamera::takePicture( fanScene& scene,
                     end = (*points)->mBuffer + (*points)->mSize;
                     itor != end; ++itor ) {
 
-                if ( !project( *itor, lens, (*object)->mObjectToWorld, dimens,
+                if ( !project( transform( (*object)->mObjectToWorld, *itor ),
+                                lens, dimens,
                                 pos, homoPos ) ) {
                     continue;
                 }

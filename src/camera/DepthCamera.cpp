@@ -38,11 +38,17 @@ void DepthCamera::takePicture( fan::fanScene& scene,
                     continue;
                 }
 
-                aVisible = project( *(itor->a), lens, (*object)->mObjectToWorld, dimens,
+                aVisible = project( transform( (*object)->mObjectToWorld,
+                                        *(itor->points[0]) ),
+                                    lens, dimens,
                                     a, homoA );
-                bVisible = project( *(itor->b), lens, (*object)->mObjectToWorld, dimens,
+                bVisible = project( transform( (*object)->mObjectToWorld,
+                                        *(itor->points[1]) ),
+                                    lens, dimens,
                                     b, homoB );
-                cVisible = project( *(itor->c), lens, (*object)->mObjectToWorld, dimens,
+                cVisible = project( transform( (*object)->mObjectToWorld,
+                                        *(itor->points[2]) ),
+                                    lens, dimens,
                                     c, homoC );
                 if ( !aVisible && !bVisible && !cVisible ) {
                     continue;

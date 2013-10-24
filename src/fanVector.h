@@ -6,6 +6,8 @@
 #include <cstring>
 #include <algorithm>
 
+#include <initializer_list>
+
 namespace fan {
 
 template<typename T, size_t DIMENS>
@@ -64,6 +66,18 @@ public:
     fanVector()
     {
         memset( axis, 0, sizeof(axis) );
+    }
+
+    fanVector( std::initializer_list<T> list ) {
+        size_t length = list.size();
+        length = length>DIMENS?DIMENS:length;
+        auto value = list.begin();
+        for ( size_t i = 0; i < length; ++i, ++value ) {
+            axis[i] = *value;
+        }
+        for ( size_t i = length; i < DIMENS; ++i ) {
+            axis[i] = 0;
+        }
     }
 
     template<typename OTHER_T>

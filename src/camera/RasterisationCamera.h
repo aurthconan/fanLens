@@ -12,6 +12,43 @@ class RasterisationCamera
 public:
     virtual ~RasterisationCamera() {}
 
+    class Data {
+    public:
+        Data()
+            : depth( 0 )
+            , mData() {}
+
+        Data operator-( const Data& o ) const {
+            Data result = *this;
+            result.depth -= o.depth;
+            result.mData -= o.mData;
+            return result;
+        }
+
+        Data operator*( const int& ratio ) const {
+            Data result = *this;
+            result.depth *= ratio;
+            result.mData *= ratio;
+            return result;
+        }
+
+        Data operator/( const int& ratio ) const {
+            Data result = *this;
+            result.depth /= ratio;
+            result.mData /= ratio;
+            return result;
+        }
+
+        Data& operator+=( const Data& o ) {
+            this->depth += o.depth;
+            this->mData += o.mData;
+            return *this;
+        }
+
+        float depth;
+        typename FillerType::Data mData;
+    };
+
     virtual void takePicture( fan::fanScene& scene,
                               fan::fanFilm& film,
                               fan::fanLens& lens ) {
@@ -19,15 +56,17 @@ public:
 
         fan::fanVector<float, 2> a, b, c;
         fan::fanVector<float, 4> homoA, homoB, homoC;
-        typename FillerType::Data compA, compB, compC;
+        Data compA, compB, compC;
         bool aVisible, bVisible, cVisible;
 
-        fan::fanScanLineGenerator<typename FillerType::Data> scanLine( dimens );
+        fan::fanScanLineGenerator<Data> scanLine( dimens );
+        MemoryTexture<int, float, 2> zBuffer( dimens );
+        zBuffer.reset( 2.0f );
 
         mFiller.begin( scene, film, lens );
 
         int left, right;
-        typename FillerType::Data valueAtLeft, valueAtRight, Step, Value;
+        Data valueAtLeft, valueAtRight, Step, Value;
 
         for ( auto object = scene.mTriangleMeshes.begin(),
                 objEnd = scene.mTriangleMeshes.end();
@@ -62,9 +101,13 @@ public:
                     mFiller.nextTriangle( **object, *itor );
 
                     scanLine.reset();
-                    mFiller.getCompaionData( 0, *itor, homoA, **object, compA );
-                    mFiller.getCompaionData( 1, *itor, homoB, **object, compB );
-                    mFiller.getCompaionData( 2, *itor, homoC, **object, compC );
+                    compA.depth = homoA[2];
+                    compB.depth = homoB[2];
+                    compC.depth = homoC[2];
+
+                    mFiller.getCompaionData( 0, *itor, homoA, **object, compA.mData );
+                    mFiller.getCompaionData( 1, *itor, homoB, **object, compB.mData );
+                    mFiller.getCompaionData( 2, *itor, homoC, **object, compC.mData );
 
                     scanLine.AddLine( a, b, compA, compB );
                     scanLine.AddLine( b, c, compB, compC );
@@ -102,7 +145,10 @@ public:
                                 j <= max; ++j, Value+=Step ) {
                             if ( j < 0 || j >= dimens[0] ) continue;
                             a[0] = j;
-                            mFiller.plot( a, Value, film );
+                            if ( Value.depth < zBuffer.getValue( a ) ) {
+                                zBuffer.setValue( a, Value.depth );
+                                mFiller.plot( a, Value.mData, Value.depth, film );
+                            }
                         }
                     }
                 }

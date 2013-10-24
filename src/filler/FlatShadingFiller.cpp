@@ -31,55 +31,18 @@ void FlatShadingFiller::getCompaionData( size_t i,
                                          fanVector<float,4>& coord,
                                          fanTriangleMesh& object,
                                          Data& data ) {
-    (void) i; (void) triangle; (void) object;
-    data.depth = coord[2];
+    (void) i; (void) triangle; (void) object; (void) coord;
+    data = 0;
 }
 
 void FlatShadingFiller::plot( fan::fanVector<float, 2> pos,
                               Data& data,
+                              float depth,
                               fan::fanFilm& film ) {
-    if ( data.depth < mpZBuffer->getValue( pos ) ) {
-        mpZBuffer->setValue( pos, data.depth );
-        film.setValue( pos, mPixel );
-    }
+    (void) depth; (void) data;
+    film.setValue( pos, mPixel );
 }
 
 void FlatShadingFiller::end() {
-}
-
-FlatShadingFiller::Data::Data()
-    : depth( 0 ) {
-}
-
-FlatShadingFiller::Data::Data( float _depth )
-    : depth( _depth ) {
-}
-
-
-FlatShadingFiller::Data FlatShadingFiller::Data::operator-(
-                            const Data& o ) const {
-    FlatShadingFiller::Data result = *this;
-    result.depth -= o.depth;
-    return result;
-}
-
-FlatShadingFiller::Data FlatShadingFiller::Data::operator*(
-                            const int& ratio ) const {
-    FlatShadingFiller::Data result = *this;
-    result.depth *= ratio;
-    return result;
-}
-
-FlatShadingFiller::Data& FlatShadingFiller::Data::operator+=(
-                            const FlatShadingFiller::Data& o ) {
-    this->depth += o.depth;
-    return *this;
-}
-
-FlatShadingFiller::Data FlatShadingFiller::Data::operator/(
-                            const int& ratio ) const {
-    FlatShadingFiller::Data result = *this;
-    result.depth /= ratio;
-    return result;
 }
 

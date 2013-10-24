@@ -18,18 +18,7 @@ class fanTriangle;
 class FlatShadingFiller
 {
 public:
-    class Data {
-    public:
-        Data();
-        Data( float depth );
-
-        Data operator-( const Data& o ) const;
-        Data operator*( const int& ratio ) const;
-        Data& operator+=( const Data& o );
-        Data operator/( const int& ratio ) const;
-
-        float depth;
-    };
+    typedef int Data;
 
     void begin( fan::fanScene& scene,
                 fan::fanFilm& film,
@@ -41,9 +30,10 @@ public:
                           fan::fanTriangle& triangle,
                           fan::fanVector<float,4>& coord,
                           fan::fanTriangleMesh& object,
-                          FlatShadingFiller::Data& data );
+                          Data& data );
     void plot( fan::fanVector<float, 2> pos,
-               FlatShadingFiller::Data& data,
+               Data& data,
+               float depth,
                fan::fanFilm& film );
 
 private:

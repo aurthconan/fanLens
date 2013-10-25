@@ -70,9 +70,15 @@ fanPixel& fanPixel::operator*=( float ratio ) {
     return *this;
 }
 
-fanPixel fanPixel::operator*( float ratio ) {
+fanPixel fanPixel::operator*( float ratio ) const {
     fanPixel result = *this;
     result *= ratio;
+    return result;
+}
+
+fanPixel fanPixel::operator+( const fanPixel& other ) const {
+    fanPixel result = *this;
+    result += other;
     return result;
 }
 

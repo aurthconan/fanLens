@@ -23,7 +23,8 @@ public:
     fanPixel& operator=( const fanPixel& other );
     fanPixel& operator+=( const fanPixel& other );
     fanPixel& operator*=( float ratio );
-    fanPixel operator*( float ratio );
+    fanPixel operator*( float ratio ) const;
+    fanPixel operator+( const fanPixel& other ) const;
 
     bool operator==( const fanPixel& other );
 };

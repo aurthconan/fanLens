@@ -19,6 +19,7 @@
 #include <camera/DepthCamera.h>
 #include <filler/FlatShadingFiller.h>
 #include <filler/GouraudShadingFiller.h>
+#include <filler/PhongShadingFiller.h>
 #include <camera/RasterisationCamera.h>
 #include <lights/Ambient.h>
 #include <lights/PointLight.h>
@@ -113,6 +114,7 @@ int main(int argc, char** argv) {
     DepthCamera depthCamera;
     RasterisationCamera<FlatShadingFiller> flatShadingCamera;
     RasterisationCamera<GouraudShadingFiller> gouraudShadingCamera;
+    RasterisationCamera<PhongShadingFiller> phongShadingCamera;
 
     bool done = false;
     bool refresh = false;
@@ -165,6 +167,7 @@ int main(int argc, char** argv) {
                         case SDLK_3: currentCamera = &depthCamera; break;
                         case SDLK_4: currentCamera = &flatShadingCamera; break;
                         case SDLK_5: currentCamera = &gouraudShadingCamera; break;
+                        case SDLK_6: currentCamera = &phongShadingCamera; break;
                         case SDLK_o: currentLens = &OrthoLens; break;
                         case SDLK_p: currentLens = &PerspLens; break;
                         default: continue; break;

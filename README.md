@@ -2,9 +2,9 @@ fanLens
 =======
 
 A toy software renderer. For fun and my interesting in Computer Graphics.
-Currently it support point mode, wireframe mode, flat shading, Gouraud shading.
+Currently it support point mode, wireframe mode, flat shading, Gouraud shading, Phong shading.
 
-Gouraud shading suffers a performance problem.
+Performances are not good, future optimization is needed.
 
 How to build
 -------

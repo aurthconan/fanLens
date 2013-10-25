@@ -1,6 +1,5 @@
 #include "FlatShadingFiller.h"
 
-#include <algo/rasterize/fanScanLineGenerator.h>
 #include <lights/fanLightsAccumulator.h>
 #include <fanScene.h>
 #include <fanFilm.h>
@@ -13,25 +12,27 @@ using namespace fan;
 void FlatShadingFiller::begin( fan::fanScene& scene,
                                fan::fanFilm& film,
                                fan::fanLens& lens ) {
+    (void) film;
     mpLightsAccum.reset( new fanLightsAccumulator( scene.mLights ) );
-    mpZBuffer.reset( new MemoryTexture<int, float, 2>( film.getDimens() ) );
-    mpZBuffer->reset( 2.0f );
     mLensPos = lens.mPos;
 }
 
-void FlatShadingFiller::nextTriangle( fan::fanTriangleMesh& object,
-                                      fan::fanTriangle& triangle ) {
+void FlatShadingFiller::nextTriangle( TriangleMeshObject& object,
+                                      fanTriangleMesh& mesh,
+                                      fanTriangle& triangle ) {
+    (void) mesh;
     mPixel = mpLightsAccum->getLight( transform( object.mObjectToWorld,
                                                  triangle.mCenter ),
                                       triangle.mNormal, mLensPos );
 }
 
 void FlatShadingFiller::getCompaionData( size_t i,
-                                         fanTriangle& triangle,
-                                         fanVector<float,4>& coord,
-                                         fanTriangleMesh& object,
+                                         fan::fanTriangle& triangle,
+                                         fan::fanTriangleMesh& mesh,
+                                         TriangleMeshObject& object,
+                                         fan::fanVector<float,4>& coord,
                                          Data& data ) {
-    (void) i; (void) triangle; (void) object; (void) coord;
+    (void) i; (void) triangle; (void) mesh; (void) object; (void) coord;
     data = 0;
 }
 

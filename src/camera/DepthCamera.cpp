@@ -22,16 +22,16 @@ void DepthCamera::takePicture( fan::fanScene& scene,
     MemoryTexture<int, float, 2> zBuffer( dimens );
     zBuffer.reset( 2.0f );
 
-    for ( auto object = scene.mTriangleMeshes.begin(),
-            objEnd = scene.mTriangleMeshes.end();
+    for ( auto object = scene.mTriangleMeshObjects.begin(),
+            objEnd = scene.mTriangleMeshObjects.end();
             object != objEnd; ++object ) {
 
-        for ( auto mesh = (*object)->mFaces.begin(),
-                   end = (*object)->mFaces.end();
+        for ( auto mesh = (*object)->mMeshes.begin(),
+                   end = (*object)->mMeshes.end();
               mesh != end; ++mesh ) {
 
-            for ( auto itor = (*mesh)->mBuffer,
-                    end = (*mesh)->mBuffer + (*mesh)->mSize;
+            for ( auto itor = (*mesh)->mFaces->mBuffer,
+                    end = (*mesh)->mFaces->mBuffer + (*mesh)->mFaces->mSize;
                     itor != end; ++itor ) {
 
                 if ( !lens.cullFace( *itor, (*object)->mObjectToWorld ) ) {

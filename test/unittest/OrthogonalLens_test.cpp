@@ -2,11 +2,13 @@
 
 #include <lens/OrthogonalLens.h>
 #include <fanTriangleMesh.h>
+#include <objects/TriangleMeshObject.h>
 
 #include <texture/film/SDLFilm.h>
 #include <camera/PointScannerCamera.h>
 #include <texture/film/FreeImageFilm.h>
 #include <fanBufferObject.h>
+#include <objects/TriangleMeshObject.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -150,12 +152,17 @@ TEST(OrthogonalLens,RenderAxis) {
         vertices( new fan::fanBufferObject<fan::fanVector3<float> >( 3000 ) );
     boost::shared_ptr<fan::fanBufferObject<fan::fanTriangle> >
         faces( new fan::fanBufferObject<fan::fanTriangle>( 0 ) );
+    boost::shared_ptr<fan::fanTriangleMesh>
+        mesh( new fan::fanTriangleMesh() );
+    mesh->mVertices = vertices;
+    mesh->mFaces = faces;
 
-    boost::shared_ptr<fanTriangleMesh>
-        mesh(new fanTriangleMesh(fanMatrix<float, 4, 4>{1,0,0,0,
-                                                        0,1,0,0,
-                                                        0,0,1,0,
-                                                        0,0,0,1,} ) );
+    boost::shared_ptr<TriangleMeshObject>
+        object(new TriangleMeshObject(fanMatrix<float, 4, 4>{1,0,0,0,
+                                                             0,1,0,0,
+                                                             0,0,1,0,
+                                                             0,0,0,1,} ) );
+    object->mMeshes.push_back( mesh );
     int verticesNum = 0;
     for ( size_t i = 0; i < 1000; ++i ) {
         vertices->mBuffer[verticesNum] = fan::fanVector3<float>( i, 0, 0 );
@@ -169,10 +176,8 @@ TEST(OrthogonalLens,RenderAxis) {
         vertices->mBuffer[verticesNum] = fan::fanVector3<float>( 0, 0, i );
         ++verticesNum;
     }
-    mesh->mVertices.push_back( vertices );
-    mesh->mFaces.push_back( faces );
 
-    scene.mTriangleMeshes.push_back( mesh );
+    scene.mTriangleMeshObjects.push_back( object );
     PointScannerCamera camera;
     camera.takePicture( scene, film, lens );
     film.develope();

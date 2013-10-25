@@ -5,6 +5,8 @@
 #include <fanCamera.h>
 #include <algo/rasterize/fanScanLineGenerator.h>
 
+#include <texture/MemoryTexture.h>
+
 template<typename FillerType>
 class RasterisationCamera
     : public fan::fanCamera
@@ -68,16 +70,16 @@ public:
         int left, right;
         Data valueAtLeft, valueAtRight, Step, Value;
 
-        for ( auto object = scene.mTriangleMeshes.begin(),
-                objEnd = scene.mTriangleMeshes.end();
+        for ( auto object = scene.mTriangleMeshObjects.begin(),
+                objEnd = scene.mTriangleMeshObjects.end();
                 object != objEnd; ++object ) {
 
-            for ( auto mesh = (*object)->mFaces.begin(),
-                       end = (*object)->mFaces.end();
+            for ( auto mesh = (*object)->mMeshes.begin(),
+                       end = (*object)->mMeshes.end();
                   mesh != end; ++mesh ) {
 
-                for ( auto itor = (*mesh)->mBuffer,
-                        end = (*mesh)->mBuffer + (*mesh)->mSize;
+                for ( auto itor = (*mesh)->mFaces->mBuffer,
+                        end = (*mesh)->mFaces->mBuffer + (*mesh)->mFaces->mSize;
                         itor != end; ++itor ) {
                     if ( !lens.cullFace( *itor, (*object)->mObjectToWorld ) ) {
                         continue;
@@ -98,16 +100,16 @@ public:
                     if ( !aVisible && !bVisible && !cVisible ) {
                         continue;
                     }
-                    mFiller.nextTriangle( **object, *itor );
+                    mFiller.nextTriangle( **object, **mesh, *itor );
 
                     scanLine.reset();
                     compA.depth = homoA[2];
                     compB.depth = homoB[2];
                     compC.depth = homoC[2];
 
-                    mFiller.getCompaionData( 0, *itor, homoA, **object, compA.mData );
-                    mFiller.getCompaionData( 1, *itor, homoB, **object, compB.mData );
-                    mFiller.getCompaionData( 2, *itor, homoC, **object, compC.mData );
+                    mFiller.getCompaionData( 0, *itor, **mesh, **object, homoA, compA.mData );
+                    mFiller.getCompaionData( 1, *itor, **mesh, **object, homoB, compB.mData );
+                    mFiller.getCompaionData( 2, *itor, **mesh, **object, homoC, compC.mData );
 
                     scanLine.AddLine( a, b, compA, compB );
                     scanLine.AddLine( b, c, compB, compC );

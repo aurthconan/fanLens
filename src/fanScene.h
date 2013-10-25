@@ -5,9 +5,9 @@
 #include <fanVector3.h>
 #include <fanTriangle.h>
 #include <fanLight.h>
-#include <vector>
+#include <objects/TriangleMeshObject.h>
 
-#include <fanTriangleMesh.h>
+#include <vector>
 #include <boost/shared_ptr.hpp>
 
 namespace fan {
@@ -15,7 +15,7 @@ namespace fan {
 class fanScene
 {
 public:
-    std::vector<boost::shared_ptr<fanTriangleMesh> > mTriangleMeshes;
+    std::vector<boost::shared_ptr<TriangleMeshObject> > mTriangleMeshObjects;
     std::vector<boost::shared_ptr<fanLight> > mLights;
 };
 

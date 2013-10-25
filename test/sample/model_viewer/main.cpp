@@ -21,6 +21,7 @@
 #include <camera/RasterisationCamera.h>
 #include <lights/Ambient.h>
 #include <lights/PointLight.h>
+#include <objects/TriangleMeshObject.h>
 
 #include <cstdlib>
 
@@ -185,12 +186,17 @@ bool loadFile( char* file, fanScene& ourScene,
         return false;
     }
     cout << " scene->mNumMeshes " <<  scene->mNumMeshes << endl;
+    vector<boost::shared_ptr<fanTriangleMesh> > meshes;
+    boost::shared_ptr<fanTriangleMesh> fanMesh;
     for ( size_t i = 0, max = scene->mNumMeshes;
                 i < max; ++i ) {
         aiMesh* mesh = scene->mMeshes[i];
         cout << " mesh->mNumVertices " <<  mesh->mNumVertices << endl;
+        fanMesh.reset( new fanTriangleMesh() );
+        meshes.push_back( fanMesh );
         boost::shared_ptr<fanBufferObject<fanVector3<float> > >
                 vertice( new fanBufferObject<fanVector3<float> >(mesh->mNumVertices) );
+        fanMesh->mVertices = vertice;
         for ( size_t j = 0, max = mesh->mNumVertices;
                 j < max; ++j ) {
             aiVector3D vector = mesh->mVertices[j];
@@ -220,6 +226,7 @@ bool loadFile( char* file, fanScene& ourScene,
         cout << " mesh->mNumFaces " <<  mesh->mNumFaces << endl;
         boost::shared_ptr<fanBufferObject<fanTriangle> >
                 face( new fanBufferObject<fanTriangle>(mesh->mNumFaces) );
+        fanMesh->mFaces = face;
         for ( size_t j = 0, max = mesh->mNumFaces;
                 j < max; ++j ) {
             aiFace aiface = mesh->mFaces[j];
@@ -249,18 +256,17 @@ bool loadFile( char* file, fanScene& ourScene,
             nodes.push_back( node->mChildren[i] );
         }
         aiMatrix4x4 pos = node->mTransformation;
-        boost::shared_ptr<fanTriangleMesh>
-            object( new fanTriangleMesh(
+        boost::shared_ptr<TriangleMeshObject>
+            object( new TriangleMeshObject(
                         fanMatrix< float, 4, 4>{pos.a1,pos.a2,pos.a3,pos.a4,
                                                 pos.b1,pos.b2,pos.b3,pos.b4,
                                                 pos.c1,pos.c2,pos.c3,pos.c4,
                                                 pos.d1,pos.d2,pos.d3,pos.d4, } ) );
         cout << " node->mNumMeshes " << node->mNumMeshes << endl;
         for ( size_t i = 0; i < node->mNumMeshes; ++i ) {
-            object->mVertices.push_back( vertices[i] );
-            object->mFaces.push_back( faces[i] );
+            object->mMeshes.push_back( meshes[i] );
         }
-        ourScene.mTriangleMeshes.push_back( object );
+        ourScene.mTriangleMeshObjects.push_back( object );
     }
 
     return true;

@@ -10,6 +10,7 @@
 #include <fanPixel.h>
 #include <fanCamera.h>
 #include <fanTriangleMesh.h>
+#include <objects/TriangleMeshObject.h>
 #include <texture/film/FreeImageFilm.h>
 #include <texture/film/SDLFilm.h>
 #include <lens/OrthogonalLens.h>
@@ -54,15 +55,18 @@ TYPED_TEST_P(Camera_test, SimpleScene) {
         vertices( new fan::fanBufferObject<fan::fanVector3<float> >( 125 ) );
     boost::shared_ptr<fan::fanBufferObject<fan::fanTriangle> >
         faces( new fan::fanBufferObject<fan::fanTriangle>( 0 ) );
+    boost::shared_ptr<fan::fanTriangleMesh>
+        mesh( new fan::fanTriangleMesh() );
+    mesh->mVertices = vertices;
+    mesh->mFaces = faces;
 
     fan::fanMatrix<float, 4, 4> pos { 1, 0, 0, 0,
                                       0, 1, 0, 0,
                                       0, 0, 1, 0,
                                       0, 0, 0, 1 };
-    boost::shared_ptr<fan::fanTriangleMesh>
-        mesh( new fan::fanTriangleMesh( pos ) );
-    mesh->mVertices.push_back( vertices );
-    mesh->mFaces.push_back( faces );
+    boost::shared_ptr<TriangleMeshObject>
+        object( new TriangleMeshObject( pos ) );
+    object->mMeshes.push_back( mesh );
     int verticesNum = 0;
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
@@ -72,7 +76,7 @@ TYPED_TEST_P(Camera_test, SimpleScene) {
             }
         }
     }
-    scene.mTriangleMeshes.push_back( mesh );
+    scene.mTriangleMeshObjects.push_back( object );
 
     fan::fanVector<int, 2> size;
     size[0] = 800; size[1] = 600;

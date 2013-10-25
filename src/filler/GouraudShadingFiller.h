@@ -1,6 +1,6 @@
-#ifndef FLATSHADINGFILLER_H
+#ifndef GOURAUDSHADINGFILLER_H
 
-#define FLATSHADINGFILLER_H
+#define GOURAUDSHADINGFILLER_H
 
 #include <fanPixel.h>
 #include <lights/fanLightsAccumulator.h>
@@ -15,10 +15,10 @@ class fanTriangleMesh;
 class fanTriangle;
 } /* namespace fan */
 
-class FlatShadingFiller
+class GouraudShadingFiller
 {
 public:
-    typedef int Data;
+    typedef fan::fanPixel Data;
 
     void begin( fan::fanScene& scene,
                 fan::fanFilm& film,
@@ -37,11 +37,9 @@ public:
                Data& data,
                float depth,
                fan::fanFilm& film );
-
 private:
     boost::scoped_ptr<fan::fanLightsAccumulator> mpLightsAccum;
-    fan::fanPixel mPixel;
     fan::fanVector3<float> mLensPos;
 };
 
-#endif /* end of include guard: FLATSHADINGFILLER_H */
+#endif /* end of include guard: GOURAUDSHADINGFILLER_H */

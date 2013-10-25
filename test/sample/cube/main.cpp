@@ -13,6 +13,7 @@
 #include <camera/PointScannerCamera.h>
 #include <camera/WireframeCamera.h>
 #include <camera/DepthCamera.h>
+#include <objects/TriangleMeshObject.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -36,17 +37,17 @@ void addTriangle( fanTriangleMesh& cube, size_t startIndex, int& facesNum ) {
             size_t p2Index = p0Index + 5;
             size_t p3Index = p1Index + 5;
             // every face has two triangle
-            fanTriangle t1( &cube.mVertices[0]->mBuffer[p0Index],
-                            &cube.mVertices[0]->mBuffer[p2Index],
-                            &cube.mVertices[0]->mBuffer[p1Index],
+            fanTriangle t1( &cube.mVertices->mBuffer[p0Index],
+                            &cube.mVertices->mBuffer[p2Index],
+                            &cube.mVertices->mBuffer[p1Index],
                             p0Index, p2Index, p1Index );
-            fanTriangle t2( &cube.mVertices[0]->mBuffer[p1Index],
-                            &cube.mVertices[0]->mBuffer[p2Index],
-                            &cube.mVertices[0]->mBuffer[p3Index],
+            fanTriangle t2( &cube.mVertices->mBuffer[p1Index],
+                            &cube.mVertices->mBuffer[p2Index],
+                            &cube.mVertices->mBuffer[p3Index],
                             p1Index, p2Index, p3Index );
-            cube.mFaces[0]->mBuffer[facesNum] = t1;
+            cube.mFaces->mBuffer[facesNum] = t1;
             ++facesNum;
-            cube.mFaces[0]->mBuffer[facesNum] = t2;
+            cube.mFaces->mBuffer[facesNum] = t2;
             ++facesNum;
         }
     }
@@ -65,46 +66,50 @@ int main() {
     boost::shared_ptr<fanBufferObject<fanTriangle> >
         faces( new fanBufferObject<fanTriangle>( 4*4*2*6 ) );
 
-    boost::shared_ptr<fanTriangleMesh> cube( new fanTriangleMesh( cubePos ) );
-    cube->mVertices.push_back( vertices );
-    cube->mFaces.push_back( faces );
+    boost::shared_ptr<fanTriangleMesh> cube( new fanTriangleMesh( ) );
+    cube->mVertices = vertices;
+    cube->mFaces = faces;
+
+    boost::shared_ptr<TriangleMeshObject>
+        cubeObject( new TriangleMeshObject( cubePos ) );
+    cubeObject->mMeshes.push_back( cube );
 
     fanScene scene;
 
     int verticesNum = 0;
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            cube->mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, j, 0 );
+            cube->mVertices->mBuffer[verticesNum] = fanVector3<float>( i, j, 0 );
             verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            cube->mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, 0, j );
+            cube->mVertices->mBuffer[verticesNum] = fanVector3<float>( i, 0, j );
             verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            cube->mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( 0, i, j );
+            cube->mVertices->mBuffer[verticesNum] = fanVector3<float>( 0, i, j );
             verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            cube->mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, j, 200 );
+            cube->mVertices->mBuffer[verticesNum] = fanVector3<float>( i, j, 200 );
             verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            cube->mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( i, 200, j );
+            cube->mVertices->mBuffer[verticesNum] = fanVector3<float>( i, 200, j );
             verticesNum++;
         }
     }
     for ( size_t i = 0; i <= 200; i += 50 ) {
         for ( size_t j = 0; j <= 200; j += 50 ) {
-            cube->mVertices[0]->mBuffer[verticesNum] = fanVector3<float>( 200, i, j );
+            cube->mVertices->mBuffer[verticesNum] = fanVector3<float>( 200, i, j );
             verticesNum++;
         }
     }
@@ -116,7 +121,7 @@ int main() {
     addTriangle( *cube, 100, facesNum );
     addTriangle( *cube, 125, facesNum );
 
-    scene.mTriangleMeshes.push_back( cube );
+    scene.mTriangleMeshObjects.push_back( cubeObject );
 
     fanVector<int, 2> size;
     size[0] = 800; size[1] = 600;

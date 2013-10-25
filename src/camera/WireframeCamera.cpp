@@ -76,20 +76,21 @@ void WireframeCamera::takePicture( fan::fanScene& scene,
     ScanLineStoreTexture<float> scanLine(dimens);
     TextureWithZBufferTest zBufferTestFilm( clampFilm, zBuffer, scanLine );
 
-    for ( auto object = scene.mTriangleMeshes.begin(),
-            objEnd = scene.mTriangleMeshes.end();
+    for ( auto object = scene.mTriangleMeshObjects.begin(),
+            objEnd = scene.mTriangleMeshObjects.end();
             object != objEnd; ++object ) {
 
-        for ( auto mesh = (*object)->mFaces.begin(),
-                   end = (*object)->mFaces.end();
+        for ( auto mesh = (*object)->mMeshes.begin(),
+                   end = (*object)->mMeshes.end();
               mesh != end; ++mesh ) {
+
             // sort the depth
-            std::sort((*mesh)->mBuffer,
-                      (*mesh)->mBuffer + (*mesh)->mSize,
+            std::sort((*mesh)->mFaces->mBuffer,
+                      (*mesh)->mFaces->mBuffer + (*mesh)->mFaces->mSize,
                             SortTriangleByZDepth(lens));
 
-            for ( auto itor = (*mesh)->mBuffer,
-                    end = (*mesh)->mBuffer + (*mesh)->mSize;
+            for ( auto itor = (*mesh)->mFaces->mBuffer,
+                    end = (*mesh)->mFaces->mBuffer + (*mesh)->mFaces->mSize;
                     itor != end; ++itor ) {
 
 #define PLOT_LINE( P1, P2, START, END, PIXEL, FILM )                \

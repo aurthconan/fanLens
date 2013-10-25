@@ -2,7 +2,7 @@
 
 #define GOURAUDSHADINGFILLER_H
 
-#include <fanPixel.h>
+#include <fanVector3.h>
 #include <lights/fanLightsAccumulator.h>
 #include <objects/TriangleMeshObject.h>
 #include <boost/scoped_ptr.hpp>
@@ -18,7 +18,7 @@ class fanTriangle;
 class GouraudShadingFiller
 {
 public:
-    typedef fan::fanPixel Data;
+    typedef fan::fanVector3<float> Data;
 
     void begin( fan::fanScene& scene,
                 fan::fanFilm& film,

@@ -18,6 +18,7 @@
 #include <camera/WireframeCamera.h>
 #include <camera/DepthCamera.h>
 #include <filler/FlatShadingFiller.h>
+#include <filler/GouraudShadingFiller.h>
 #include <camera/RasterisationCamera.h>
 #include <lights/Ambient.h>
 #include <lights/PointLight.h>
@@ -80,13 +81,13 @@ int main(int argc, char** argv) {
     boost::shared_ptr<fanLight> light(
             new Ambient( fanPixel( 255, 50, 50, 50 ) ) );
     scene.mLights.push_back( light );
-    light.reset( new PointLight( center + fanVector3<float>(radius, radius, radius),
+    light.reset( new PointLight( center + fanVector3<float>(radius, 0, 0),
                             fanPixel( 255, 255, 0, 0 ) ) );
     scene.mLights.push_back( light );
-    light.reset( new PointLight( center + fanVector3<float>(0, radius, radius),
+    light.reset( new PointLight( center + fanVector3<float>(0, radius, 0),
                             fanPixel( 255, 0, 255, 0 ) ) );
     scene.mLights.push_back( light );
-    light.reset( new PointLight( center + fanVector3<float>(radius, 0, radius),
+    light.reset( new PointLight( center + fanVector3<float>(0, 0, radius),
                             fanPixel( 255, 0, 0, 255 ) ) );
     scene.mLights.push_back( light );
 
@@ -111,6 +112,7 @@ int main(int argc, char** argv) {
     WireframeCamera wireframeCamera;
     DepthCamera depthCamera;
     RasterisationCamera<FlatShadingFiller> flatShadingCamera;
+    RasterisationCamera<GouraudShadingFiller> gouraudShadingCamera;
 
     bool done = false;
     bool refresh = false;
@@ -162,6 +164,7 @@ int main(int argc, char** argv) {
                         case SDLK_2: currentCamera = &wireframeCamera; break;
                         case SDLK_3: currentCamera = &depthCamera; break;
                         case SDLK_4: currentCamera = &flatShadingCamera; break;
+                        case SDLK_5: currentCamera = &gouraudShadingCamera; break;
                         case SDLK_o: currentLens = &OrthoLens; break;
                         case SDLK_p: currentLens = &PerspLens; break;
                         default: continue; break;
@@ -181,13 +184,14 @@ bool loadFile( char* file, fanScene& ourScene,
                vector<boost::shared_ptr<fanBufferObject<fanVector3<float> > > >& vertices,
                vector<boost::shared_ptr<fanBufferObject<fanTriangle> > >& faces ) {
     Importer importer;
-    const aiScene* scene = importer.ReadFile( file, aiProcess_Triangulate );
+    const aiScene* scene = importer.ReadFile( file, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate );
     if ( !scene ) {
         return false;
     }
     cout << " scene->mNumMeshes " <<  scene->mNumMeshes << endl;
     vector<boost::shared_ptr<fanTriangleMesh> > meshes;
     boost::shared_ptr<fanTriangleMesh> fanMesh;
+    bool fixNormals = false;
     for ( size_t i = 0, max = scene->mNumMeshes;
                 i < max; ++i ) {
         aiMesh* mesh = scene->mMeshes[i];
@@ -196,7 +200,13 @@ bool loadFile( char* file, fanScene& ourScene,
         meshes.push_back( fanMesh );
         boost::shared_ptr<fanBufferObject<fanVector3<float> > >
                 vertice( new fanBufferObject<fanVector3<float> >(mesh->mNumVertices) );
+        boost::shared_ptr<fanBufferObject<fanVector3<float> > >
+                normal( new fanBufferObject<fanVector3<float> >(mesh->mNumVertices) );
         fanMesh->mVertices = vertice;
+        fanMesh->mNormals = normal;
+        if ( mesh->mNormals == NULL ) {
+            fixNormals = true;
+        }
         for ( size_t j = 0, max = mesh->mNumVertices;
                 j < max; ++j ) {
             aiVector3D vector = mesh->mVertices[j];
@@ -221,6 +231,12 @@ bool loadFile( char* file, fanScene& ourScene,
             if ( vector.z < zMin ) {
                 zMin = vector.z;
             }
+            if ( !fixNormals ) {
+                vector = mesh->mNormals[j];
+                normal->mBuffer[j] = normalize(fanVector3<float>(vector.x,
+                                                                 vector.y,
+                                                                 vector.z));
+            }
         }
         vertices.push_back( vertice );
         cout << " mesh->mNumFaces " <<  mesh->mNumFaces << endl;
@@ -243,6 +259,17 @@ bool loadFile( char* file, fanScene& ourScene,
         }
         faces.push_back( face );
     }
+    // fix normals
+    for ( size_t i = 0, max = fanMesh->mFaces->mSize; i < max; ++i ) {
+        fanTriangle& triangle = fanMesh->mFaces->mBuffer[i];
+        fanMesh->mNormals->mBuffer[ triangle.pointsIndex[0] ] += triangle.mNormal;
+        fanMesh->mNormals->mBuffer[ triangle.pointsIndex[1] ] += triangle.mNormal;
+        fanMesh->mNormals->mBuffer[ triangle.pointsIndex[2] ] += triangle.mNormal;
+    }
+    for ( size_t i = 0, max = fanMesh->mVertices->mSize; i < max; ++i ) {
+        fanMesh->mNormals->mBuffer[i] = normalize(fanMesh->mNormals->mBuffer[i]);
+    }
+
     vector<aiNode*> nodes;
     nodes.push_back(scene->mRootNode);
     while ( nodes.size() != 0 ) {

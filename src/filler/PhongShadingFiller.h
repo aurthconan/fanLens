@@ -50,14 +50,17 @@ public:
 
     inline void begin( fan::fanScene& scene,
                 fan::fanTexture<int, fan::fanPixel, 2>& film,
-                fan::fanLens& lens ) {
+                fan::fanLens& lens )
+    {
+        (void) film;
         mpLightsAccum.reset( new fan::fanLightsAccumulator( scene.mLights ) );
         mLensPos = lens.mPos;
     }
     inline void end() {}
     inline void nextTriangle( TriangleMeshObject& object,
                        fan::fanTriangleMesh& mesh,
-                       fan::fanTriangle& triangle ) {}
+                       fan::fanTriangle& triangle )
+    { (void) object; (void) mesh; (void) triangle; }
     inline void getCompaionData( size_t i,
                           fan::fanTriangle& triangle,
                           fan::fanTriangleMesh& mesh,
@@ -65,6 +68,7 @@ public:
                           fan::fanVector<float,4>& coord,
                           Data& data )
     {
+        (void) i; (void) coord; (void) data;
         data.normal = mesh.mNormals->mBuffer[triangle.pointsIndex[i]];
         data.pos = transform( object.mObjectToWorld, *triangle.points[i] );
     }
@@ -72,7 +76,9 @@ public:
     inline void plot( fan::fanVector<float, 2> pos,
                Data& data,
                float depth,
-               fan::fanTexture<int, fan::fanPixel, 2>& film ) {
+               fan::fanTexture<int, fan::fanPixel, 2>& film )
+    {
+        (void) depth;
         fan::fanPixel pixel = mpLightsAccum->getLight( data.pos,
                                           normalize( data.normal ),
                                           mLensPos );

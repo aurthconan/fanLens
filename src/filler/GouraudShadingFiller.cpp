@@ -10,7 +10,7 @@
 #include <fanPixel.h>
 
 void GouraudShadingFiller::begin( fan::fanScene& scene,
-                                  fan::fanFilm& film,
+                                  fan::fanTexture<int, fan::fanPixel, 2>& film,
                                   fan::fanLens& lens ) {
     (void) film;
     mpLightsAccum.reset( new fan::fanLightsAccumulator( scene.mLights ) );
@@ -46,7 +46,7 @@ void GouraudShadingFiller::getCompaionData( size_t i,
 void GouraudShadingFiller::plot( fan::fanVector<float, 2> pos,
                                  Data& data,
                                  float depth,
-                                 fan::fanFilm& film ) {
+                                 fan::fanTexture<int, fan::fanPixel, 2>& film ) {
     (void) depth;
     fan::fanPixel pixel;
     pixel.a = 255; pixel.r = data[0];

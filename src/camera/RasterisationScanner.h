@@ -2,19 +2,19 @@
 
 #define RASTERISATIONCAMERA_H
 
-#include <fanCamera.h>
+#include <fanScanner.h>
 #include <algo/rasterize/fanScanLineGenerator.h>
 
 #include <texture/MemoryTexture.h>
 
 #include <omp.h>
 
-template<typename FillerType>
-class RasterisationCamera
-    : public fan::fanCamera
+template<typename FillerType, typename ValueType>
+class RasterisationScanner
+    : public fan::fanScanner<int, ValueType, 2>
 {
 public:
-    virtual ~RasterisationCamera() {}
+    virtual ~RasterisationScanner() {};
 
     class Data {
     public:
@@ -54,20 +54,18 @@ public:
     };
 
     virtual void takePicture( fan::fanScene& scene,
-                              fan::fanTexture<int, fan::fanPixel, 2>& film,
+                              fan::fanTexture<int, ValueType, 2>& texture,
                               fan::fanLens& lens ) {
-        fan::fanVector<int, 2> dimens = film.getDimens();
+        fan::fanVector<int, 2> dimens = texture.getDimens();
 
         fan::fanVector<float, 2> a, b, c;
         fan::fanVector<float, 4> homoA, homoB, homoC;
         Data compA, compB, compC;
         bool aVisible, bVisible, cVisible;
 
-        MemoryTexture<int, float, 2> zBuffer( dimens );
-        zBuffer.reset( 2.0f );
         FillerType mFiller;
 
-        mFiller.begin( scene, film, lens );
+        mFiller.begin( scene, texture, lens );
 
         int left, right;
         Data valueAtLeft, valueAtRight, Step, Value;
@@ -89,7 +87,8 @@ public:
                                                  aVisible,bVisible,cVisible,\
                                                  left,right,\
                                                  valueAtLeft,valueAtRight,\
-                                                 Step,Value) firstprivate(scanLine,mFiller)
+                                                 Step,Value)\
+                                                 firstprivate(scanLine,mFiller)
                 for ( size_t i = 0;
                         i < (*mesh)->mFaces->mSize; ++i )
                 {
@@ -162,10 +161,7 @@ public:
                                 j <= max; ++j, Value+=Step ) {
                             if ( j < 0 || j >= dimens[0] ) continue;
                             a[0] = j;
-                            if ( Value.depth < zBuffer.getValue( a ) ) {
-                                zBuffer.setValue( a, Value.depth );
-                                mFiller.plot( a, Value.mData, Value.depth, film );
-                            }
+                            mFiller.plot( a, Value.mData, Value.depth, texture );
                         }
                     }
                 }

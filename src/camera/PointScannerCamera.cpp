@@ -1,9 +1,10 @@
 #include "PointScannerCamera.h"
+#include <omp.h>
 
 using namespace fan;
 
 void PointScannerCamera::takePicture( fanScene& scene,
-                                      fanFilm& film,
+                                      fanTexture<int, fanPixel, 2>& film,
                                       fanLens& lens ) {
     fanVector<float, 2> pos;
     fanVector<int, 2> dimens = film.getDimens();
@@ -16,12 +17,17 @@ void PointScannerCamera::takePicture( fanScene& scene,
                    end = (*object)->mMeshes.end();
                    points != end; ++points ) {
 
+            /*
             for ( auto itor = (*points)->mVertices->mBuffer,
                     end = (*points)->mVertices->mBuffer
                             + (*points)->mVertices->mSize;
                     itor != end; ++itor ) {
+                    */
 
-                if ( !project( transform( (*object)->mObjectToWorld, *itor ),
+#pragma omp parallel for private(pos, homoPos)
+            for ( size_t j = 0; j < (*points)->mVertices->mSize; ++j )
+            {
+                if ( !project( transform( (*object)->mObjectToWorld, *((*points)->mVertices->mBuffer+j) ),
                                 lens, dimens,
                                 pos, homoPos ) ) {
                     continue;

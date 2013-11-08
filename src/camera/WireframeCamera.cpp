@@ -57,7 +57,7 @@ public:
 };
 
 void WireframeCamera::takePicture( fan::fanScene& scene,
-                                   fan::fanFilm& film,
+                                   fan::fanTexture<int, fanPixel, 2>& film,
                                    fan::fanLens& lens ) {
     fanVector<int, 2> dimens = film.getDimens();
     Bresenham lineGenerator;

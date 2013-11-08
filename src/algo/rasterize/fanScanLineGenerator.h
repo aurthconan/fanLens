@@ -10,7 +10,7 @@ template<typename CompaionDataType>
 class fanScanLineGenerator
 {
 public:
-    fanScanLineGenerator(  const fan::fanVector<int, 2>& dimensions )
+    fanScanLineGenerator( const fan::fanVector<int, 2>& dimensions )
         : mLines( new unsigned short[dimensions[1]] )
         , mXLeft( new float[dimensions[1]] )
         , mXRight( new float[dimensions[1]] )
@@ -21,6 +21,22 @@ public:
         , mDimens( dimensions )
     {
         reset();
+    }
+
+    fanScanLineGenerator( const fanScanLineGenerator& other )
+        : mLines( new unsigned short[other.mDimens[1]] )
+        , mXLeft( new float[other.mDimens[1]] )
+        , mXRight( new float[other.mDimens[1]] )
+        , mLeft( new CompaionDataType[other.mDimens[1]] )
+        , mRight( new CompaionDataType[other.mDimens[1]] )
+        , mYMin( 0 )
+        , mYMax( other.mDimens[1]-1 )
+        , mDimens( other.mDimens )
+    {
+    }
+
+    fanScanLineGenerator& operator=( const fanScanLineGenerator& other )
+    {
     }
 
     ~fanScanLineGenerator() {

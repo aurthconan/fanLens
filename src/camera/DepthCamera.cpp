@@ -4,108 +4,52 @@
 
 #include <texture/MemoryTexture.h>
 
+#include <camera/RasterisationScanner.h>
+#include <filler/DepthFiller.h>
+
 using namespace fan;
 
+class DepthPixelConvertor
+    : public fanTexture<int, float, 2>
+{
+public:
+    DepthPixelConvertor( fanTexture<int, float, 2>& zBuffer,
+                         fanTexture<int, fanPixel, 2>& pixelTexture )
+        : fanTexture<int, float, 2>( zBuffer.getDimens() )
+        , mZBuffer( zBuffer )
+        , mPixelTexture( pixelTexture )
+    {
+    }
+
+    float getValue( fanVector<int, 2> index ) const
+    {
+        return mZBuffer.getValue( index );
+    }
+
+    void setValue( const fanVector<int, 2>& index,
+                   const float& value )
+    {
+        mZBuffer.setValue( index, value );
+        fanPixel pixel( 255, 255*value,
+                             255*value,
+                             255*value );
+        mPixelTexture.setValue( index, pixel );
+    }
+
+    fanTexture<int, float, 2>& mZBuffer;
+    fanTexture<int, fanPixel, 2>& mPixelTexture;
+};
+
 void DepthCamera::takePicture( fan::fanScene& scene,
-                               fan::fanFilm& film,
-                               fan::fanLens& lens ) {
-    fanVector<int, 2> dimens = film.getDimens();
-
-    fanVector<float, 2> a, b, c;
-    fanVector<float, 4> homoA, homoB, homoC;
-    bool aVisible, bVisible, cVisible;
-
-    fanPixel pixel( 255, 255, 0, 0 );
-
-    fanScanLineGenerator<float> scanLine( dimens );
+                               fan::fanTexture<int, fanPixel, 2>& film,
+                               fan::fanLens& lens )
+{
+    fan::fanVector<int, 2> dimens = film.getDimens();
 
     MemoryTexture<int, float, 2> zBuffer( dimens );
     zBuffer.reset( 2.0f );
-
-    for ( auto object = scene.mTriangleMeshObjects.begin(),
-            objEnd = scene.mTriangleMeshObjects.end();
-            object != objEnd; ++object ) {
-
-        for ( auto mesh = (*object)->mMeshes.begin(),
-                   end = (*object)->mMeshes.end();
-              mesh != end; ++mesh ) {
-
-            for ( auto itor = (*mesh)->mFaces->mBuffer,
-                    end = (*mesh)->mFaces->mBuffer + (*mesh)->mFaces->mSize;
-                    itor != end; ++itor ) {
-
-                if ( !lens.cullFace( *itor, (*object)->mObjectToWorld ) ) {
-                    continue;
-                }
-
-                aVisible = project( transform( (*object)->mObjectToWorld,
-                                        *(itor->points[0]) ),
-                                    lens, dimens,
-                                    a, homoA );
-                bVisible = project( transform( (*object)->mObjectToWorld,
-                                        *(itor->points[1]) ),
-                                    lens, dimens,
-                                    b, homoB );
-                cVisible = project( transform( (*object)->mObjectToWorld,
-                                        *(itor->points[2]) ),
-                                    lens, dimens,
-                                    c, homoC );
-                if ( !aVisible && !bVisible && !cVisible ) {
-                    continue;
-                }
-                scanLine.reset();
-
-                scanLine.AddLine( a, b, homoA[2], homoB[2] );
-                scanLine.AddLine( b, c, homoB[2], homoC[2] );
-                scanLine.AddLine( c, a, homoC[2], homoA[2] );
-
-                // fill the zBuffer
-                for ( int i = scanLine.mYMin; i <= scanLine.mYMax; ++i ) {
-                    if ( scanLine.mLines[i] == 0 ) {
-                        continue;
-                    } else if ( scanLine.mLines[i] == 1
-                                && (scanLine.mXLeft[i] >= dimens[0]
-                                || scanLine.mXLeft[i] < 0 ) ) {
-                        continue;
-                    } else if ( scanLine.mLines[i] == 2
-                                && (scanLine.mXLeft[i] >= dimens[0]
-                                    || scanLine.mXRight[i] < 0 ) ) {
-                        continue;
-                    } else if ( scanLine.mLines[i] > 2 ) {
-                        continue;
-                    }
-                    a[1] = i;
-                    int left, right;
-                    float valueAtLeft, valueAtRight;
-                    if ( scanLine.mLines[i] == 2 ) {
-                        left = scanLine.mXLeft[i];
-                        right = scanLine.mXRight[i];
-                        valueAtLeft = scanLine.mLeft[i];
-                        valueAtRight = scanLine.mRight[i];
-                    } else {
-                        right = left = scanLine.mXLeft[i];
-                        valueAtRight= valueAtLeft = scanLine.mLeft[i];
-                    }
-                    float depthStep = (left==right)?0:
-                                            (valueAtRight-valueAtLeft)/
-                                                (right-left);
-                    float depthValue = valueAtLeft;
-                    for ( int j = left, max = right;
-                            j <= max; ++j, depthValue+=depthStep ) {
-                        if ( j < 0 || j >= dimens[0] ) continue;
-                        a[0] = j;
-                        if ( depthValue < zBuffer.getValue( a ) ) {
-                            zBuffer.setValue( a, depthValue );
-
-                            pixel.r = ( 1.0f - depthValue ) * 255.0f;
-                            pixel.g = ( 1.0f - depthValue ) * 255.0f;
-                            pixel.b = ( 1.0f - depthValue ) * 255.0f;
-                            film.setValue( a, pixel );
-                        }
-                    }
-                }
-            }
-        }
-    }
+    DepthPixelConvertor convertor( zBuffer, film );
+    RasterisationScanner<DepthFiller, float> depthFiller;
+    depthFiller.takePicture( scene, convertor, lens );
 }
 

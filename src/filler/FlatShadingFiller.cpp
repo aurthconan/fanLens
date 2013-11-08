@@ -10,7 +10,7 @@
 using namespace fan;
 
 void FlatShadingFiller::begin( fan::fanScene& scene,
-                               fan::fanFilm& film,
+                               fan::fanTexture<int, fanPixel, 2>& film,
                                fan::fanLens& lens ) {
     (void) film;
     mpLightsAccum.reset( new fanLightsAccumulator( scene.mLights ) );
@@ -20,10 +20,7 @@ void FlatShadingFiller::begin( fan::fanScene& scene,
 void FlatShadingFiller::nextTriangle( TriangleMeshObject& object,
                                       fanTriangleMesh& mesh,
                                       fanTriangle& triangle ) {
-    (void) mesh;
-    mPixel = mpLightsAccum->getLight( transform( object.mObjectToWorld,
-                                                 triangle.mCenter ),
-                                      triangle.mNormal, mLensPos );
+    (void) object; (void) mesh; (void) triangle;
 }
 
 void FlatShadingFiller::getCompaionData( size_t i,
@@ -33,13 +30,18 @@ void FlatShadingFiller::getCompaionData( size_t i,
                                          fan::fanVector<float,4>& coord,
                                          Data& data ) {
     (void) i; (void) triangle; (void) mesh; (void) object; (void) coord;
+    if ( i == 0 ) {
+        mPixel = mpLightsAccum->getLight( transform( object.mObjectToWorld,
+                                                     triangle.mCenter ),
+                                          triangle.mNormal, mLensPos );
+    }
     data = 0;
 }
 
 void FlatShadingFiller::plot( fan::fanVector<float, 2> pos,
                               Data& data,
                               float depth,
-                              fan::fanFilm& film ) {
+                              fan::fanTexture<int, fanPixel, 2>& film ) {
     (void) depth; (void) data;
     film.setValue( pos, mPixel );
 }

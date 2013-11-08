@@ -16,7 +16,6 @@ public:
                             fan::fanVector3<float> normal,
                             fan::fanVector3<float> viewer );
 
-private:
     fan::fanVector3<float> mPos;
     fan::fanPixel mLightPixel;
 };

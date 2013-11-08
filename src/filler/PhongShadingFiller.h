@@ -5,7 +5,7 @@
 #include <fanVector3.h>
 #include <lights/fanLightsAccumulator.h>
 #include <objects/TriangleMeshObject.h>
-#include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace fan {
 class fanScene;
@@ -48,26 +48,39 @@ public:
         fan::fanVector3<float> normal;
     };
 
-    void begin( fan::fanScene& scene,
-                fan::fanFilm& film,
-                fan::fanLens& lens );
-    void end();
-    void nextTriangle( TriangleMeshObject& object,
+    inline void begin( fan::fanScene& scene,
+                fan::fanTexture<int, fan::fanPixel, 2>& film,
+                fan::fanLens& lens ) {
+        mpLightsAccum.reset( new fan::fanLightsAccumulator( scene.mLights ) );
+        mLensPos = lens.mPos;
+    }
+    inline void end() {}
+    inline void nextTriangle( TriangleMeshObject& object,
                        fan::fanTriangleMesh& mesh,
-                       fan::fanTriangle& triangle );
-    void getCompaionData( size_t i,
+                       fan::fanTriangle& triangle ) {}
+    inline void getCompaionData( size_t i,
                           fan::fanTriangle& triangle,
                           fan::fanTriangleMesh& mesh,
                           TriangleMeshObject& object,
                           fan::fanVector<float,4>& coord,
-                          Data& data );
-    void plot( fan::fanVector<float, 2> pos,
+                          Data& data )
+    {
+        data.normal = mesh.mNormals->mBuffer[triangle.pointsIndex[i]];
+        data.pos = transform( object.mObjectToWorld, *triangle.points[i] );
+    }
+
+    inline void plot( fan::fanVector<float, 2> pos,
                Data& data,
                float depth,
-               fan::fanFilm& film );
+               fan::fanTexture<int, fan::fanPixel, 2>& film ) {
+        fan::fanPixel pixel = mpLightsAccum->getLight( data.pos,
+                                          normalize( data.normal ),
+                                          mLensPos );
+        film.setValue( pos, pixel );
+    }
 
 private:
-    boost::scoped_ptr<fan::fanLightsAccumulator> mpLightsAccum;
+    boost::shared_ptr<fan::fanLightsAccumulator> mpLightsAccum;
     fan::fanVector3<float> mLensPos;
 };
 

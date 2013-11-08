@@ -6,7 +6,7 @@ SRC_DIR = ../../../src/
 
 CPPFLAGS += -I $(SRC_DIR) -L /usr/lib/ -I $(SDL_DIR)
 
-CXXFLAGS += -g -Wall -Wextra -pthread -std=c++0x -O3
+CXXFLAGS += -g -Wall -Wextra -pthread -std=c++0x -O3 -fopenmp
 
 all: cube_example
 

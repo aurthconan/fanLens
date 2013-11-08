@@ -9,7 +9,7 @@ class WireframeCamera
 {
 public:
     virtual void takePicture( fan::fanScene& scene,
-                              fan::fanFilm& film,
+                              fan::fanTexture<int, fan::fanPixel, 2>& film,
                               fan::fanLens& lens );
 };
 

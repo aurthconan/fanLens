@@ -3,9 +3,10 @@
 #define FLATSHADINGFILLER_H
 
 #include <fanPixel.h>
+#include <fanTexture.h>
 #include <lights/fanLightsAccumulator.h>
 #include <objects/TriangleMeshObject.h>
-#include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace fan {
 class fanScene;
@@ -21,7 +22,7 @@ public:
     typedef int Data;
 
     void begin( fan::fanScene& scene,
-                fan::fanFilm& film,
+                fan::fanTexture<int, fan::fanPixel, 2>& film,
                 fan::fanLens& lens );
     void end();
     void nextTriangle( TriangleMeshObject& object,
@@ -36,10 +37,10 @@ public:
     void plot( fan::fanVector<float, 2> pos,
                Data& data,
                float depth,
-               fan::fanFilm& film );
+               fan::fanTexture<int, fan::fanPixel, 2>& film );
 
 private:
-    boost::scoped_ptr<fan::fanLightsAccumulator> mpLightsAccum;
+    boost::shared_ptr<fan::fanLightsAccumulator> mpLightsAccum;
     fan::fanPixel mPixel;
     fan::fanVector3<float> mLensPos;
 };

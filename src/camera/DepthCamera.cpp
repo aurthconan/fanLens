@@ -29,6 +29,9 @@ public:
     void setValue( const fanVector<int, 2>& index,
                    const float& value )
     {
+        if ( value < 0 || value > 1 ) {
+            return;
+        }
         mZBuffer.setValue( index, value );
         fanPixel pixel( 255, 255*value,
                              255*value,

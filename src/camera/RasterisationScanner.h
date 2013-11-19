@@ -99,18 +99,25 @@ public:
                         continue;
                     }
 
-                    aVisible = project( transform( (*object)->mObjectToWorld,
+                    project( transform( (*object)->mObjectToWorld,
                                             *(itor->points[0]) ),
                                         lens, dimens,
                                         a, homoA );
-                    bVisible = project( transform( (*object)->mObjectToWorld,
+                    project( transform( (*object)->mObjectToWorld,
                                             *(itor->points[1]) ),
                                         lens, dimens,
                                         b, homoB );
-                    cVisible = project( transform( (*object)->mObjectToWorld,
+                    project( transform( (*object)->mObjectToWorld,
                                             *(itor->points[2]) ),
                                         lens, dimens,
                                         c, homoC );
+                    aVisible = !(homoA[0] < 0 || homoA[0] > 1
+                               || homoA[1] < 0 || homoA[1] > 1);
+                    bVisible = !(homoB[0] < 0 || homoB[0] > 1
+                               || homoB[1] < 0 || homoB[1] > 1);
+                    cVisible = !(homoC[0] < 0 || homoC[0] > 1
+                               || homoC[1] < 0 || homoC[1] > 1);
+
                     if ( !aVisible && !bVisible && !cVisible ) {
                         continue;
                     }

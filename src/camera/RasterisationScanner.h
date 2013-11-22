@@ -14,6 +14,10 @@ class RasterisationScanner
     : public fan::fanScanner<int, ValueType, 2>
 {
 public:
+    RasterisationScanner( FillerType& filler )
+        : mFiller( filler )
+    {
+    }
     virtual ~RasterisationScanner() {};
 
     class Data {
@@ -63,9 +67,9 @@ public:
         Data compA, compB, compC;
         bool aVisible, bVisible, cVisible;
 
-        FillerType mFiller;
+        FillerType filler = mFiller;
 
-        mFiller.begin( scene, texture, lens );
+        filler.begin( scene, texture, lens );
 
         int left, right;
         Data valueAtLeft, valueAtRight, Step, Value;
@@ -88,7 +92,7 @@ public:
                                                  left,right,\
                                                  valueAtLeft,valueAtRight,\
                                                  Step,Value)\
-                                                 firstprivate(scanLine,mFiller)
+                                                 firstprivate(scanLine,filler)
                 for ( size_t i = 0;
                         i < (*mesh)->mFaces->mSize; ++i )
                 {
@@ -121,16 +125,16 @@ public:
                     if ( !aVisible && !bVisible && !cVisible ) {
                         continue;
                     }
-                    mFiller.nextTriangle( **object, **mesh, *itor );
+                    filler.nextTriangle( **object, **mesh, *itor );
 
                     scanLine.reset();
                     compA.depth = homoA[2];
                     compB.depth = homoB[2];
                     compC.depth = homoC[2];
 
-                    mFiller.getCompaionData( 0, *itor, **mesh, **object, homoA, compA.mData );
-                    mFiller.getCompaionData( 1, *itor, **mesh, **object, homoB, compB.mData );
-                    mFiller.getCompaionData( 2, *itor, **mesh, **object, homoC, compC.mData );
+                    filler.getCompaionData( 0, *itor, **mesh, **object, homoA, compA.mData );
+                    filler.getCompaionData( 1, *itor, **mesh, **object, homoB, compB.mData );
+                    filler.getCompaionData( 2, *itor, **mesh, **object, homoC, compC.mData );
 
                     scanLine.AddLine( a, b, compA, compB );
                     scanLine.AddLine( b, c, compB, compC );
@@ -168,14 +172,16 @@ public:
                                 j <= max; ++j, Value+=Step ) {
                             if ( j < 0 || j >= dimens[0] ) continue;
                             a[0] = j;
-                            mFiller.plot( a, Value.mData, Value.depth, texture );
+                            filler.plot( a, Value.mData, Value.depth, texture );
                         }
                     }
                 }
             }
         }
-        mFiller.end();
+        filler.end();
     }
+
+    FillerType& mFiller;
 };
 
 #endif /* end of include guard: RASTERISATIONCAMERA_H */

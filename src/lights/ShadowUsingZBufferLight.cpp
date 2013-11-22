@@ -6,6 +6,8 @@
 #include <texture/film/FreeImageFilm.h>
 #include <texture/LinearInterpolatorTexture2D.h>
 
+#include <fanFiller.h>
+
 #include <limits>
 #include <cmath>
 
@@ -26,26 +28,72 @@ ShadowUsingZBufferLight::ShadowUsingZBufferLight( shared_ptr<PointLight> point,
     zNegative->reset(std::numeric_limits<float>::max());
 }
 
-class ShadowZDepthFilter
-    : public fan::fanTexture<int, float, 2>
+class DepthFillerWithBias
+    : public fanFiller
 {
 public:
-    ShadowZDepthFilter( fan::fanTexture<int, float, 2>& buffer )
-        : fanTexture<int, float, 2>( buffer.getDimens() )
-        , mBuffer( buffer )
+    class Data {
+    public:
+        Data& operator+=( const Data& o ) {
+            this->pos += o.pos;
+            this->normal += o.normal;
+            return *this;
+        }
+
+        Data& operator-=( const Data& o ) {
+            this->pos -= o.pos;
+            this->normal -= o.normal;
+            return *this;
+        }
+
+        Data& operator*=( const int& ratio ) {
+            this->pos *= ratio;
+            this->normal *= ratio;
+            return *this;
+        }
+
+        Data& operator/=( const int& ratio ) {
+            this->pos /= ratio;
+            this->normal /= ratio;
+            return *this;
+        }
+
+        fan::fanVector3<float> pos;
+        fan::fanVector3<float> normal;
+    };
+
+    DepthFillerWithBias( float factor, fanVector3<float> zNormal )
+        : mFactor( factor*factor )
+        , mZNormal( zNormal )
     {
     }
 
-    virtual float getValue( fanVector<int, 2> index ) const {
-        return mBuffer.getValue( index );
+    inline void getCompaionData( size_t i,
+                                 fan::fanTriangle& triangle,
+                                 fan::fanTriangleMesh& mesh,
+                                 TriangleMeshObject& object,
+                                 fan::fanVector<float,4>& coord,
+                                 Data& data )
+    {   (void) i; (void) coord; (void) data;
+        data.normal = mesh.mNormals->mBuffer[triangle.pointsIndex[i]];
+        data.pos = transform( object.mObjectToWorld, *triangle.points[i] );
+    };
+
+    inline void plot( fan::fanVector<float, 2> pos,
+                      Data& data,
+                      float depth,
+                      fan::fanTexture<int, float, 2>& texture )
+    { (void) data; (void) pos; (void) depth; (void) texture;
+        float bias = 0;
+        if ( depth < texture.getValue( pos ) ) {
+            float a = normalize(mZNormal)*data.normal;
+            bias = std::sqrt(mFactor*(1 - a*a));
+            texture.setValue( pos, depth + bias/2 );
+        }
     }
 
-    virtual void setValue( const fanVector<int, 2>& index,
-                           const float& value ) {
-        mBuffer.setValue( index, value );
-    }
-
-    fan::fanTexture<int, float, 2>& mBuffer;
+    float mFactor;
+    fanVector3<float> mZNormal;
 };
 
 void ShadowUsingZBufferLight::bakeShadowMap( fanScene& scene )
@@ -54,10 +102,10 @@ void ShadowUsingZBufferLight::bakeShadowMap( fanScene& scene )
                             mpPointLight->mPos + fanVector3<float>(1,0,0), m3Dimens, _BUFFER_SIZE_/2));
 
     zNegative->reset(std::numeric_limits<float>::max());
-    RasterisationScanner<DepthFiller, float> depthFiller;
-    ShadowZDepthFilter zN( *zNegative );
+    DepthFillerWithBias filler( 0.01, mPointAt - mpPointLight->mPos );
+    RasterisationScanner<DepthFillerWithBias, float> depthFiller( filler );
 
-    depthFiller.takePicture( scene, zN, *zNLens );
+    depthFiller.takePicture( scene, *zNegative, *zNLens );
 
     /*
     FreeImageFilm freeImage( mDimens, "zNShadowMap.png" );
@@ -72,8 +120,7 @@ void ShadowUsingZBufferLight::bakeShadowMap( fanScene& scene )
         }
     }
     freeImage.develope();
-    */
-
+    // */
 }
 
 fanPixel ShadowUsingZBufferLight::getLight( fanVector3<float> world,
@@ -86,7 +133,7 @@ fanPixel ShadowUsingZBufferLight::getLight( fanVector3<float> world,
     project( world, *zNLens, mDimens, pos, homoPos );
     if ( !(homoPos[0] < 0 || homoPos[0] > 1
            || homoPos[1] < 0 || homoPos[1] > 1) ) {
-        if ( std::abs( homoPos[2] - zNegative->getValue( pos ) ) <= 0.002 ) {
+        if ( homoPos[2]  <= zNegative->getValue( pos ) ) {
             return mpPointLight->getLight( world, normal, viewer );
         } else {
             return fanPixel(0,0,0,0);

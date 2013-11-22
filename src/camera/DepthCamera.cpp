@@ -52,7 +52,8 @@ void DepthCamera::takePicture( fan::fanScene& scene,
     MemoryTexture<int, float, 2> zBuffer( dimens );
     zBuffer.reset( 2.0f );
     DepthPixelConvertor convertor( zBuffer, film );
-    RasterisationScanner<DepthFiller, float> depthFiller;
+    DepthFiller filler;
+    RasterisationScanner<DepthFiller, float> depthFiller( filler );
     depthFiller.takePicture( scene, convertor, lens );
 }
 

@@ -1,10 +1,11 @@
 fanLens
 =======
 
-A toy software renderer. For fun and my interesting in Computer Graphics.
+A toy software renderer. For fun and my interest in Computer Graphics.
 Currently it support point mode, wireframe mode, flat shading, Gouraud shading, Phong shading.
+It also has a standard shadow map implementation.
 
-Performances are not good, future optimization is needed.
+Performance is not good, future optimization is needed.
 
 How to build
 -------
@@ -15,7 +16,7 @@ I'll list dependency here:
  - SDLFilm needs SDL 2.0
  - boost::shared_ptr
 
-If need to build unittest and sample, you need to add path to the following variable in Makefile
+If yout need to build unittest and sample, you need to add path to the following variable in Makefile
  - GTEST_DIR= # google test framework folder
  - SDL_DIR= # SDL 2.0 include path
  - SDL_LIB= # libSDL2-2.0 path

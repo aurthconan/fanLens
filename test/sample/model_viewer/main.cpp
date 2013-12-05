@@ -23,6 +23,7 @@
 #include <camera/RasterisationCamera.h>
 #include <lights/Ambient.h>
 #include <lights/PointLight.h>
+#include <lights/RainbowLight.h>
 #include <lights/ShadowUsingZBufferLight.h>
 #include <objects/TriangleMeshObject.h>
 
@@ -90,22 +91,8 @@ int main(int argc, char** argv) {
     boost::shared_ptr<PointLight> point;
     boost::shared_ptr<ShadowUsingZBufferLight> shadow;
 
-    point.reset( new PointLight( center + fanVector3<float>(diameter, 0, diameter),
-                            fanPixel( 255, 0, 255, 0 ) ) );
-    shadow.reset( new ShadowUsingZBufferLight( point,
-             fanVector3<float>(diameter, diameter, diameter * 1.5), center ) );
-    shadow->bakeShadowMap( scene );
-    scene.mLights.push_back( shadow);
-    point.reset( new PointLight( center + fanVector3<float>(0, -diameter, diameter),
-                            fanPixel( 255, 0, 0, 255 ) ) );
-    shadow.reset( new ShadowUsingZBufferLight( point,
-             fanVector3<float>(diameter, diameter, diameter * 1.5), center ) );
-    shadow->bakeShadowMap( scene );
-    scene.mLights.push_back( shadow );
-
-    // light red
-    point.reset( new PointLight( center + fanVector3<float>(-diameter, 0, diameter),
-                            fanPixel( 255, 120, 120, 120 ) ) );
+    // moving light
+    point.reset( new RainbowLight( center + fanVector3<float>(-diameter, 0, diameter) ) );
     shadow.reset( new ShadowUsingZBufferLight( point,
              fanVector3<float>(diameter, diameter, diameter * 2), center ) );
     // shadow->bakeShadowMap( scene );

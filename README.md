@@ -7,6 +7,12 @@ It also has a standard shadow map implementation.
 
 Performance is not good, future optimization is needed.
 
+Examples
+------
+![Light over the teapot](https://raw.github.com/aurthconan/just_showcase/master/rainbow_light_over_teapot.png)
+
+A point light emits rainbow like lights over a standard teapot.
+
 How to build
 -------
 Sadly I did not have time to do a better build script yet (maybe GNU automake or cmake in the future).

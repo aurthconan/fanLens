@@ -3,11 +3,13 @@ SDL_LIB =
 ASSIMP_DIR =
 ASSIMP_LIB =
 SRC_DIR = ../../../src/
+SHARED_CODE = ../shared_code/
 
 #CXX = clang++
 
 CPPFLAGS += -I $(SRC_DIR) -L /usr/lib/ -L $(SDL_LIB) \
-			-I $(SDL_DIR) -L $(ASSIMP_LIB) -I $(ASSIMP_DIR) 
+			-I $(SDL_DIR) -L $(ASSIMP_LIB) -I $(ASSIMP_DIR) \
+			-I $(SHARED_CODE)
 
 CXXFLAGS += -g -Wall -Wextra -pthread -std=c++0x -O3 -fopenmp
 
@@ -18,7 +20,7 @@ clean :
 	find $(SRC_DIR) ./ -type f -name "*.o" -o -name "*.d" | xargs rm
 
 
-src_files:=$(shell find $(SRC_DIR) ./ -type f -name "*.cpp")
+src_files:=$(shell find $(SRC_DIR) $(SHARED_CODE) ./ -type f -name "*.cpp")
 
 # generate dependency
 %.d: %.cpp

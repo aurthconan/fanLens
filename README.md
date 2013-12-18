@@ -27,6 +27,12 @@ If yout need to build unittest and sample, you need to add path to the following
  - SDL_DIR= # SDL 2.0 include path
  - SDL_LIB= # libSDL2-2.0 path
 
-The model_viewer needs assimp (http://assimp.sourceforge.net/) to load model file. The following path need to be added
+Samples use the following library to load corresponding model file:
+ - ply: assimp(http://assimp.sourceforge.net/) ( ps: I plan to replace this in the future )
+ - 3ds: lib3ds(http://code.google.com/p/lib3ds/)
+
+If you need to build model_viewer example, make sure the following variable is modified in Makefile
  - ASSIMP_DIR= # assimp include path
  - ASSIMP_LIB= # libassimp.so path
+ - LIB3DS_DIR= # lib3ds.h location
+ - LIB3DS_DIR= # lib3ds.so location

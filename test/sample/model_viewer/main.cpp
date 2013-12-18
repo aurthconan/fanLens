@@ -147,7 +147,8 @@ int main(int argc, char** argv) {
 
         SDL_Event event;
         refresh = false;
-        if (SDL_PollEvent(&event)) {
+        //while (SDL_WaitEvent(&event) && !refresh) {
+        if ( SDL_PollEvent( &event ) ) {
             if ( event.type == SDL_QUIT ) {
                 done = true;
                 refresh = true;

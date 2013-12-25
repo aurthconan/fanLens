@@ -19,8 +19,8 @@ public:
         }
     }
 
-    size_t mSize;
-    T* mBuffer;
+    const size_t mSize;
+    T* const mBuffer;
 
 private:
     fanBufferObject();

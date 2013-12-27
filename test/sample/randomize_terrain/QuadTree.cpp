@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "PointGenerator.h"
+
 using namespace fan;
 using namespace std;
 
@@ -14,8 +16,42 @@ QuadTree::QuadTree( const fanVector3<float>& a,
           const fanVector3<float>& b,
           const fanVector3<float>& c,
           const fanVector3<float>& d )
-    : mThisTile( new fanTriangleMesh() )
+    : mLevel( 0 )
+    , mIndex{ 0, 0 }
+    , mPointGenerator( new PointGenerator( 0, NULL, a, b, c, d ) )
+    , mThisTile( new fanTriangleMesh() )
 {
+    initThisTile();
+}
+
+QuadTree::QuadTree( size_t level, fan::fanVector<size_t, 2> index,
+                    PointGenerator* generator )
+    : mLevel( level )
+    , mIndex( index )
+    , mPointGenerator( generator )
+    , mThisTile( new fanTriangleMesh() )
+{
+    initThisTile();
+}
+
+QuadTree::~QuadTree()
+{
+    if ( mLevel == 0 && mPointGenerator ) {
+        delete mPointGenerator;
+    }
+}
+
+void QuadTree::initThisTile()
+{
+    fanVector3<float> a =
+        mPointGenerator->getPoint( PointGenerator::PointIndex( mLevel, mIndex[0], mIndex[1] ) );
+    fanVector3<float> b =
+        mPointGenerator->getPoint( PointGenerator::PointIndex( mLevel, mIndex[0]+1, mIndex[1] ) );
+    fanVector3<float> c =
+        mPointGenerator->getPoint( PointGenerator::PointIndex( mLevel, mIndex[0], mIndex[1]+1 ) );
+    fanVector3<float> d =
+        mPointGenerator->getPoint( PointGenerator::PointIndex( mLevel, mIndex[0]+1, mIndex[1]+1 ) );
+
     mThisTile->mVertices.reset( new fanBufferObject<fanVector3<float> >( 4 ) );
     mThisTile->mVertices->mBuffer[0] = a;
     mThisTile->mVertices->mBuffer[1] = b;
@@ -60,40 +96,20 @@ void QuadTree::generateTerrian( TriangleMeshObject& terrian,
         terrian.mMeshes.push_back( mThisTile );
     } else {
         if ( mChildTiles[0][0].get() == NULL ) {
-            // subdivide
-            // 2 e 3
-            // b c d
-            // 0 a 1
-#define RANDOM_Z_AXIS( VARIABLE_NAME, ONE_END, ANOTHER_END )                \
-            fanVector3<float> VARIABLE_NAME = (ONE_END + ANOTHER_END)/2.0f;
-            /*
-            VARIABLE_NAME.z = (((float)(rand()%100))/100.0f)                \
-                                * (ANOTHER_END.z-ONE_END.z)                 \
-                                + ONE_END.z;
-                                */
-
-            RANDOM_Z_AXIS( a, mThisTile->mVertices->mBuffer[0], mThisTile->mVertices->mBuffer[1] );
-            RANDOM_Z_AXIS( b, mThisTile->mVertices->mBuffer[0], mThisTile->mVertices->mBuffer[2] );
-            RANDOM_Z_AXIS( d, mThisTile->mVertices->mBuffer[1], mThisTile->mVertices->mBuffer[3] );
-            RANDOM_Z_AXIS( e, mThisTile->mVertices->mBuffer[2], mThisTile->mVertices->mBuffer[3] );
-            RANDOM_Z_AXIS( c, b, d );
-            c.z = (((float)(rand()%100))/100.0f)
-                      * (d.z-b.z) * 2
-                      + b.z;
-
-            // 2   e   3
-            //  1,0 1,1
-            // b   c   d
-            //  0,0 0,1
-            // 0   a   1
-            mChildTiles[0][0].reset( new QuadTree( mThisTile->mVertices->mBuffer[0], a,
-                                                   b, c ) );
-            mChildTiles[0][1].reset( new QuadTree( a, mThisTile->mVertices->mBuffer[1],
-                                                   c, d ) );
-            mChildTiles[1][0].reset( new QuadTree( b, c,
-                                                   mThisTile->mVertices->mBuffer[2], e ) );
-            mChildTiles[1][1].reset( new QuadTree( c, d,
-                                                   e, mThisTile->mVertices->mBuffer[3] ) );
+            size_t newLevel = mLevel+1;
+            fanVector<size_t, 2> newIndex = mIndex * 2;
+            mChildTiles[0][0].reset( new QuadTree( newLevel,
+                                                   newIndex,
+                                                   mPointGenerator ) );
+            mChildTiles[0][1].reset( new QuadTree( newLevel,
+                                                   newIndex + fanVector<size_t,2>{0,1},
+                                                   mPointGenerator ) );
+            mChildTiles[1][0].reset( new QuadTree( newLevel,
+                                                   newIndex + fanVector<size_t,2>{1,0},
+                                                   mPointGenerator ) );
+            mChildTiles[1][1].reset( new QuadTree( newLevel,
+                                                   newIndex + fanVector<size_t,2>{1,1},
+                                                   mPointGenerator ) );
         }
         --level;
         mChildTiles[0][0]->generateTerrian( terrian, level );// eyePos );

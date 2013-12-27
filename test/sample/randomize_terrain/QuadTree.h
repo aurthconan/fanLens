@@ -8,6 +8,8 @@
 #include <fanTriangleMesh.h>
 #include <objects/TriangleMeshObject.h>
 
+class PointGenerator;
+
 class QuadTree
 {
 public:
@@ -19,6 +21,10 @@ public:
               const fan::fanVector3<float>& c,
               const fan::fanVector3<float>& d );
 
+    QuadTree( size_t level, fan::fanVector<size_t, 2> index,
+              PointGenerator* generator );
+    ~QuadTree();
+
     void generateTerrian( TriangleMeshObject& terrian,
                           // fan::fanVector3<float>& eyePos );
                           size_t level );
@@ -26,6 +32,12 @@ public:
 private:
     QuadTree();
 
+    const size_t mLevel;
+    const fan::fanVector<size_t, 2> mIndex;
+
+    PointGenerator* mPointGenerator;
+
+    void initThisTile();
     boost::shared_ptr<fan::fanTriangleMesh> mThisTile;
     boost::shared_ptr<QuadTree> mChildTiles[2][2];
 };

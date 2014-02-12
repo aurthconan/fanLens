@@ -7,11 +7,15 @@
 using namespace std;
 using namespace fan;
 
+#if ENABLE_ASSIMP
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#endif  // ENABLE_ASSIMP
 
+#if ENABLE_LIB3DS
 #include <lib3ds.h>
+#endif  // ENABLE_LIB3DS
 
 #include <boost/shared_ptr.hpp>
 
@@ -23,6 +27,7 @@ using namespace fan;
 
 namespace {
 
+#if ENABLE_ASSIMP
 using namespace Assimp;
 bool loadPly( char* file,
               fanScene& outScene,
@@ -143,7 +148,9 @@ bool loadPly( char* file,
 
     return true;
 }
+#endif  // ENABLE_ASSIMP
 
+#if ENABLE_LIB3DS
 bool load3ds( char* file,
               fanScene& outScene,
               fanVector3<float>& boundBoxMin,
@@ -277,6 +284,7 @@ bool load3ds( char* file,
     }
     return loadResult;
 }
+#endif  // ENABLE_LIB3DS
 
 }
 
@@ -285,6 +293,7 @@ bool loadFile( char* file,
                fan::fanVector3<float>& boundBoxMin,
                fan::fanVector3<float>& boundBoxMax )
 {
+    (void) outScene; (void) boundBoxMax; (void) boundBoxMin;
     string filename( file );
 
     size_t extensionSeperatorPos = filename.rfind( '.' );
@@ -297,11 +306,17 @@ bool loadFile( char* file,
     std::transform( filenameExtension.begin(), filenameExtension.end(),
                     filenameExtension.begin(), ::tolower );
 
+#if ENABLE_ASSIMP
     if ( filenameExtension == "ply" ) {
         return loadPly( file, outScene, boundBoxMin, boundBoxMax );
-    } else if ( filenameExtension == "3ds" ) {
+    } else
+#endif  // ENABLE_ASSIMP
+#if ENABLE_LIB3DS
+    if ( filenameExtension == "3ds" ) {
         return load3ds( file, outScene, boundBoxMin, boundBoxMax );
-    } else {
+    } else
+#endif  // ENABLE_LIB3DS
+    {
         cerr << "file type " << filenameExtension << " not supported." << std::endl;
     }
     return false;

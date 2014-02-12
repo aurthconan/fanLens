@@ -7,7 +7,9 @@
 
 #include <texture/MemoryTexture.h>
 
+#if ENABLE_OPENMP
 #include <omp.h>
+#endif  // ENABLE_OPENMP
 
 template<typename FillerType, typename ValueType>
 class RasterisationScanner
@@ -85,6 +87,7 @@ public:
                   mesh != end; ++mesh ) {
 
                 fan::fanTriangle* itor = NULL;
+#if ENABLE_OPENMP
                 #pragma omp parallel for private(itor,a,b,c,\
                                                  homoA,homoB,homoC,\
                                                  compA,compB,compC,\
@@ -93,6 +96,7 @@ public:
                                                  valueAtLeft,valueAtRight,\
                                                  Step,Value)\
                                                  firstprivate(scanLine,filler)
+#endif  // ENABLE_OPENMP
                 for ( size_t i = 0;
                         i < (*mesh)->mFaces->mSize; ++i )
                 {

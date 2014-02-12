@@ -1,0 +1,24 @@
+INCLUDE_DIRECTORIES(${fanLens_SOURCE_DIR}/src)
+
+AUX_SOURCE_DIRECTORY(${CMAKE_CURRENT_LIST_DIR} shared_codes)
+
+SET(ENABLE_ASSIMP 0)
+SET(ENABLE_LIB3DS 0)
+
+IF(CMAKE_COMPILER_IS_GNUCXX)
+    # gcc only compiler
+    SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wextra -pthread -std=c++0x")
+    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -fopenmp -DENABLE_OPENMP=1")
+ELSE()
+    # not really can't support, but I do not have time to port
+    MESSAGE(FATAL_ERROR "not supported compiler")
+ENDIF()
+
+IF(ENABLE_ASSIMP)
+    SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -DENABLE_ASSIMP=1")
+ENDIF()
+IF(ENABLE_ASSIMP)
+    SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -DENABLE_ASSIMP=1")
+ENDIF()
+
+ADD_LIBRARY(shared_codes STATIC ${shared_codes})

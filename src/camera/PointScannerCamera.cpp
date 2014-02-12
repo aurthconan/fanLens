@@ -1,5 +1,8 @@
 #include "PointScannerCamera.h"
+
+#if ENABLE_OPENMP
 #include <omp.h>
+#endif  // ENABLE_OPENMP
 
 using namespace fan;
 
@@ -24,7 +27,9 @@ void PointScannerCamera::takePicture( fanScene& scene,
                     itor != end; ++itor ) {
                     */
 
+#if ENABLE_OPENMP
 #pragma omp parallel for private(pos, homoPos)
+#endif  // ENABLE_OPENMP
             for ( size_t j = 0; j < (*points)->mVertices->mSize; ++j )
             {
                 if ( !project( transform( (*object)->mObjectToWorld, *((*points)->mVertices->mBuffer+j) ),

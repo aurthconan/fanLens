@@ -15,7 +15,8 @@ A point light emits rainbow like lights over a standard teapot.
 
 How to build
 -------
-Sadly I did not have time to do a better build script yet (maybe GNU automake or cmake in the future).
+~~Sadly I did not have time to do a better build script yet (maybe GNU automake or cmake in the future).~~
+I implement a primitive cmake script to the code, and may requires some knowledge on CMake to make it works on other system. Also be noticed that currently CMake script only works on GNU compiler ( some compiler flags is GNU specific ).
 
 I'll list dependency here:
  - FreeImageFilm needs libfreeimage

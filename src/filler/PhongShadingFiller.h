@@ -32,13 +32,13 @@ public:
             return *this;
         }
 
-        Data& operator*=( const int& ratio ) {
+        Data& operator*=( const float& ratio ) {
             this->pos *= ratio;
             this->normal *= ratio;
             return *this;
         }
 
-        Data& operator/=( const int& ratio ) {
+        Data& operator/=( const float& ratio ) {
             this->pos /= ratio;
             this->normal /= ratio;
             return *this;

@@ -31,14 +31,14 @@ public:
             return result;
         }
 
-        Data operator*( const int& ratio ) const {
+        Data operator*( const float& ratio ) const {
             Data result = *this;
             result.depth *= ratio;
             result.mData *= ratio;
             return result;
         }
 
-        Data operator/( const int& ratio ) const {
+        Data operator/( const float& ratio ) const {
             Data result = *this;
             result.depth /= ratio;
             result.mData /= ratio;
@@ -49,6 +49,13 @@ public:
             this->depth += o.depth;
             this->mData += o.mData;
             return *this;
+        }
+
+        Data operator+( const Data& o ) const {
+            Data result = *this;
+            result.depth += o.depth;
+            result.mData += o.mData;
+            return result;
         }
 
         float depth;
@@ -72,9 +79,9 @@ public:
         mFiller.begin( scene, film, lens );
 
         int left, right;
-        Data valueAtLeft, valueAtRight, Step, Value;
+        fan::fanVector<float, 3> valueAtLeft, valueAtRight, Step, Value;
 
-        fan::fanScanLineGenerator<Data> scanLine( dimens );
+        fan::fanScanLineGenerator<fan::fanVector<float, 3> > scanLine( dimens );
 
         for ( auto object = scene.mTriangleMeshObjects.begin(),
                 objEnd = scene.mTriangleMeshObjects.end();
@@ -130,9 +137,9 @@ public:
                     mFiller.getCompaionData( 1, *itor, **mesh, **object, homoB, compB.mData );
                     mFiller.getCompaionData( 2, *itor, **mesh, **object, homoC, compC.mData );
 
-                    scanLine.AddLine( a, b, compA, compB );
-                    scanLine.AddLine( b, c, compB, compC );
-                    scanLine.AddLine( c, a, compC, compA );
+                    scanLine.AddLine( a, b, fan::fanVector<float, 3>{ 1, 0, 0 }, fan::fanVector<float, 3>{ 0, 1, 0 } );
+                    scanLine.AddLine( b, c, fan::fanVector<float, 3>{ 0, 1, 0 }, fan::fanVector<float, 3>{ 0, 0, 1 } );
+                    scanLine.AddLine( c, a, fan::fanVector<float, 3>{ 0, 0, 1 }, fan::fanVector<float, 3>{ 1, 0, 0 } );
 
                     for ( int i = scanLine.mYMin; i <= scanLine.mYMax; ++i ) {
                         if ( scanLine.mLines[i] == 0 ) {
@@ -166,9 +173,10 @@ public:
                                 j <= max; ++j, Value+=Step ) {
                             if ( j < 0 || j >= dimens[0] ) continue;
                             a[0] = j;
-                            if ( Value.depth < zBuffer.getValue( a ) ) {
-                                zBuffer.setValue( a, Value.depth );
-                                mFiller.plot( a, Value.mData, Value.depth, film );
+                            Data compaionData = getCompaionData( Value, compA, compB, compC );
+                            if ( compaionData.depth < zBuffer.getValue( a ) ) {
+                                zBuffer.setValue( a, compaionData.depth );
+                                mFiller.plot( a, compaionData.mData, compaionData.depth, film );
                             }
                         }
                     }
@@ -176,6 +184,19 @@ public:
             }
         }
         mFiller.end();
+    }
+
+    inline Data getCompaionData( const fan::fanVector<float, 3> coord, const Data& a, const Data& b, const Data& c ) {
+        Data a1 = a*coord[0]/a.depth;
+        Data b1 = b*coord[1]/b.depth;
+        Data c1 = c*coord[2]/c.depth;
+        float aD = coord[0]/a.depth;
+        float bD = coord[1]/b.depth;
+        float cD = coord[2]/c.depth;
+        Data result = a1+b1+c1;
+        float d = aD + bD + cD;
+
+        return result/d;
     }
 };
 

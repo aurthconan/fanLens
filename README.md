@@ -9,7 +9,7 @@ Performance is not good, future optimization is needed.
 
 Examples
 ------
-![Light over the teapot](https://raw.github.com/aurthconan/just_showcase/master/rainbow_light_over_teapot.png)
+![Light over the teapot](https://raw.githubusercontent.com/aurthconan/fanLens/master/test/gallery/rainbow_light_over_teapot.png)
 
 A point light emits rainbow like lights over a standard teapot.
 
